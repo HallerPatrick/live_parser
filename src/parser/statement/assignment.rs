@@ -1,4 +1,4 @@
-use crate::parser::expression::{parse_expression, Expression};
+use crate::parser::expression::{expression_lexer, Expression};
 use crate::parser::{literals::sp, parse_variable, Res, Variable};
 
 use nom::{
@@ -34,7 +34,7 @@ pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
             separated_pair(
                 preceded(sp, parse_variable),
                 cut(preceded(sp, char('='))),
-                parse_expression,
+                expression_lexer,
             ),
         ),
     )(out)
@@ -54,6 +54,9 @@ pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
 mod tests {
 
     use super::*;
+
+    use crate::parser::expression::ExpressionTerm;
+    use crate::parser::literals::Literal;
 
     #[test]
     fn test_let_keyword() {
@@ -78,7 +81,7 @@ mod tests {
                     variable: Variable {
                         name: String::from("x")
                     },
-                    expression: Expression {}
+                    expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
                 }
             ))
         );
@@ -97,7 +100,7 @@ mod tests {
                     variable: Variable {
                         name: String::from("x")
                     },
-                    expression: Expression {}
+                    expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
                 }
             ))
         );

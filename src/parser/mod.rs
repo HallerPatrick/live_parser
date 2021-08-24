@@ -9,7 +9,7 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete::{alpha1, alphanumeric1},
-    combinator::recognize,
+    combinator::{recognize, verify},
     error::{context, VerboseError},
     multi::many0,
     sequence::pair,
@@ -26,10 +26,15 @@ pub struct Variable {
 fn parse_variable(input: &str) -> Res<&str, Variable> {
     context(
         "Variable",
-        recognize(pair(
-            alt((alpha1, tag("_"))),
-            many0(alt((alphanumeric1, tag("_")))),
-        )),
+        // Keywords should not be parsed
+        verify(
+            recognize(pair(
+                alt((alpha1, tag("_"))),
+                many0(alt((alphanumeric1, tag("_")))),
+            )),
+            // TODO: Check for all keywords
+            |s: &str| s != "do",
+        ),
     )(input)
     .map(|(next_input, res)| {
         (

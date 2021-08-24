@@ -22,25 +22,25 @@ end
 
 ```
 
-class Foo 
+class Foo:
 end
 
-interface IBar
+interface IBar:
     fn foo(x)
 end
 
 class Bar extends Foo implements IBar
 
-    fn _init()
+    fn _init() 
         &m = 3
     end
     
-    fn foo(self)
+    fn foo(self):
         print(&m)  # 3
     end
     
     
-    fn _str()
+    fn _str():
     end
     
     fn _int()
@@ -48,7 +48,7 @@ class Bar extends Foo implements IBar
 end
 
 companion Bar
-    fn companion_func(x)
+    fn companion_func(x):
     end
     
     fn bar(y)
@@ -66,10 +66,16 @@ Bar::bar(x)
 b.injected_func = \(x) -> print(x)
 ```
 
-## Loops
+## Loops/While
 
 ```
-for x in y do
+for x in y:
+    print(x)
+end
+```
+
+```
+while x < y:
     print(x)
 end
 ```
@@ -77,7 +83,7 @@ end
 ## If Else
 
 ```
-if x == 3 then
+if x == 3:
     print(x)
 else
     print("Not " + x)

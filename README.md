@@ -20,7 +20,8 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
     * [x] Nil
     * [x] Variable Names
 
-* [ ] Expressions 
+* [x] Expressions: Are getting lexed, while literals are being parsed.
+        -> Complete parsing will be done at compile time
       
 * [ ] Declarations:
     * [ ] Classes
