@@ -16,6 +16,8 @@ use nom::{
     IResult,
 };
 
+use crate::parser::tokens::keywords;
+
 pub type Res<T, U> = IResult<T, U, VerboseError<T>>;
 
 #[derive(Debug, PartialEq)]
@@ -32,8 +34,7 @@ fn parse_variable(input: &str) -> Res<&str, Variable> {
                 alt((alpha1, tag("_"))),
                 many0(alt((alphanumeric1, tag("_")))),
             )),
-            // TODO: Check for all keywords
-            |s: &str| s != "do",
+            |s: &str| !keywords.contains(&s),
         ),
     )(input)
     .map(|(next_input, res)| {

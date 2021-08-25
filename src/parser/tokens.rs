@@ -5,7 +5,52 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::error::context;
 
-pub fn tokens(input: &str) -> Res<&str, &str> {
+pub const keywords: [&'static str; 9] = [
+    "return", "class", "end", "fun", "do", "while", "for", "if", "let",
+];
+
+macro_rules! define_token {
+    ( $( { $fn_name:ident, $name:literal, $token:literal } ), *) => {
+        $(
+            pub fn $fn_name(input: &str) -> Res<&str, &str> {
+                context(
+                    $name,
+                    tag($token)
+                )(input)
+            }
+        )*
+    }
+}
+
+define_token! {
+    {add, "Add", "+"},
+    {sub, "Sub", "-"},
+    {mul, "Mul", "*"},
+    {div, "Div", "/"},
+    {equal, "Equal", "="},
+    {unequal, "Unequal", "=="},
+    {dot, "Dot", "."},
+    {left_paren, "LeftParen", "("},
+    {right_paren, "RightParen", ")"},
+    {less_than, "LessThan", "<"},
+    {greater_than, "GreaterThan", ">"},
+    {less_eq_than, "LessEqThan", "<="},
+    {greater_eq_than, "GreaterEqThan", ">="}
+}
+
+define_token! {
+    {lreturn, "Return", "return"},
+    {class, "Class", "class"},
+    {end, "End", "end"},
+    {fun, "Fun", "fun"},
+    {ldo, "Do", "do"},
+    {lwhile, "While", "while"},
+    {lfor, "For", "for"},
+    {lif, "If", "if"},
+    {llet, "Let", "let"}
+}
+
+pub fn parse_tokens(input: &str) -> Res<&str, &str> {
     alt((
         add,
         sub,
@@ -22,88 +67,6 @@ pub fn tokens(input: &str) -> Res<&str, &str> {
     ))(input)
 }
 
-pub fn keywords(input: &str) -> Res<&str, &str> {
+pub fn parse_keywords(input: &str) -> Res<&str, &str> {
     alt((lreturn, class, end, fun, ldo, lwhile))(input)
-}
-
-// TODO: Add context everywhere
-
-// Operators
-
-pub fn add(input: &str) -> Res<&str, &str> {
-    context("Add", tag("+"))(input)
-}
-
-pub fn sub(input: &str) -> Res<&str, &str> {
-    context("Sub", tag("-"))(input)
-}
-
-pub fn mul(input: &str) -> Res<&str, &str> {
-    context("mul", tag("*"))(input)
-}
-
-pub fn div(input: &str) -> Res<&str, &str> {
-    tag("/")(input)
-}
-
-pub fn equal(input: &str) -> Res<&str, &str> {
-    tag("==")(input)
-}
-
-pub fn unequal(input: &str) -> Res<&str, &str> {
-    tag("!=")(input)
-}
-
-pub fn dot(input: &str) -> Res<&str, &str> {
-    tag(".")(input)
-}
-
-pub fn left_paren(input: &str) -> Res<&str, &str> {
-    tag("(")(input)
-}
-
-pub fn right_paren(input: &str) -> Res<&str, &str> {
-    tag(")")(input)
-}
-
-pub fn less_than(input: &str) -> Res<&str, &str> {
-    tag("<")(input)
-}
-
-pub fn greater_than(input: &str) -> Res<&str, &str> {
-    tag(">")(input)
-}
-
-pub fn less_eq_than(input: &str) -> Res<&str, &str> {
-    tag("<=")(input)
-}
-
-pub fn greater_eq_than(input: &str) -> Res<&str, &str> {
-    tag(">=")(input)
-}
-
-// Keywords
-
-pub fn lreturn(input: &str) -> Res<&str, &str> {
-    tag("return")(input)
-}
-
-pub fn class(input: &str) -> Res<&str, &str> {
-    tag("class")(input)
-}
-
-pub fn end(input: &str) -> Res<&str, &str> {
-    tag("end")(input)
-}
-
-pub fn fun(input: &str) -> Res<&str, &str> {
-    tag("fun")(input)
-}
-
-pub fn ldo(input: &str) -> Res<&str, &str> {
-    context("do", tag("#do"))(input)
-}
-
-pub fn lwhile(input: &str) -> Res<&str, &str> {
-    context("while", tag("while"))(input)
 }

@@ -9,6 +9,8 @@ use nom::{
     sequence::{preceded, separated_pair},
 };
 
+use super::Statement;
+
 #[derive(Debug, PartialEq)]
 pub struct Assignment {
     // Wether a new variable is initalized or just reassigned
@@ -24,7 +26,7 @@ fn parse_assign_keyword(input: &str) -> Res<&str, bool> {
 /// Assignment having following schema
 /// <let-keyword> <variable> = <expression>
 /// the let keyword is optional
-pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
+pub fn parse_assignment(input: &str) -> Res<&str, Statement> {
     let (out, init) = parse_assign_keyword(input)?;
 
     context(
@@ -41,11 +43,11 @@ pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
     .map(|(next_input, (variable, expression))| {
         (
             next_input,
-            Assignment {
+            Statement::Assignment(Assignment {
                 init: init,
                 variable: variable,
                 expression: expression,
-            },
+            }),
         )
     })
 }
@@ -76,13 +78,13 @@ mod tests {
             res,
             Ok((
                 "",
-                Assignment {
+                Statement::Assignment(Assignment {
                     init: true,
                     variable: Variable {
                         name: String::from("x")
                     },
                     expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
-                }
+                })
             ))
         );
     }
@@ -95,13 +97,13 @@ mod tests {
             res,
             Ok((
                 "",
-                Assignment {
+                Statement::Assignment(Assignment {
                     init: false,
                     variable: Variable {
                         name: String::from("x")
                     },
                     expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
-                }
+                })
             ))
         );
     }

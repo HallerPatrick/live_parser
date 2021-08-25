@@ -5,7 +5,7 @@ use nom::{
     branch::alt,
     bytes::complete::{escaped, tag_no_case, take_while},
     character::complete::char,
-    character::complete::{alphanumeric1 as alphanumeric, one_of, space1},
+    character::complete::{alphanumeric1 as alphanumeric, one_of, space0, space1},
     combinator::{cut, map},
     error::context,
     multi::separated_list0,
@@ -24,8 +24,9 @@ pub enum Literal {
 }
 
 pub fn sp(input: &str) -> Res<&str, &str> {
-    let chars = " \t\r\n";
-    take_while(move |c| chars.contains(c))(input)
+    space0(input)
+    // let chars = " \t\r\n";
+    // take_while(move |c| chars.contains(c))(input)
 }
 
 fn alphanumeric_ws(input: &str) -> Res<&str, &str> {

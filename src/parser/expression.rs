@@ -1,13 +1,13 @@
 use crate::parser::{
     literals::{parse_literal, Literal},
     parse_variable,
-    tokens::tokens,
+    tokens::parse_tokens,
     Res, Variable,
 };
 
 use nom::{
-    branch::alt, bytes::complete::is_not, character::complete::space0 as space, combinator::map,
-    combinator::verify, multi::fold_many0, sequence::delimited,
+    branch::alt, character::complete::space0 as space, combinator::map, multi::fold_many0,
+    sequence::delimited,
 };
 
 // #[derive(Debug, PartialEq)]
@@ -69,8 +69,7 @@ fn token(input: &str) -> Res<&str, ExpressionTerm> {
     delimited(
         space,
         alt((
-            map(tokens, expr_token),
-            // map(digit, expr_token),
+            map(parse_tokens, expr_token),
             map(parse_literal, expr_literal),
             map(parse_variable, expr_variable),
         )),
