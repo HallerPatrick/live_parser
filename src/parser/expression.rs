@@ -1,12 +1,12 @@
 use crate::parser::{
-    literals::{parse_literal, Literal},
+    literals::{parse_literal, Literal, sp},
     parse_variable,
     tokens::parse_tokens,
-    Res, Variable,
+    Res, Variable
 };
 
 use nom::{
-    branch::alt, character::complete::space0 as space, combinator::map, multi::fold_many0,
+    branch::alt, character::complete::space0 as space, combinator::map, multi::fold_many1,
     sequence::delimited,
 };
 
@@ -55,11 +55,12 @@ pub type Expression = Vec<ExpressionTerm>;
 pub enum ExpressionTerm {
     Token(String),
     Literal(Literal),
-    Variable(Variable),
+    // Variable(Variable),
+    Keyword(String),
 }
 
 pub fn expression_lexer(input: &str) -> Res<&str, Expression> {
-    fold_many0(token, Vec::new, |mut acc: Vec<_>, item| {
+    fold_many1(token, Vec::new, |mut acc: Vec<_>, item| {
         acc.push(item);
         acc
     })(input)
@@ -67,14 +68,19 @@ pub fn expression_lexer(input: &str) -> Res<&str, Expression> {
 
 fn token(input: &str) -> Res<&str, ExpressionTerm> {
     delimited(
-        space,
+        sp,
         alt((
+            // map(parse_keywords, expr_keyword),
             map(parse_tokens, expr_token),
             map(parse_literal, expr_literal),
-            map(parse_variable, expr_variable),
+            // map(parse_variable, expr_variable),
         )),
         space,
     )(input)
+}
+
+fn expr_keyword(input: &str) -> ExpressionTerm {
+    ExpressionTerm::Keyword(String::from(input))
 }
 
 fn expr_token(input: &str) -> ExpressionTerm {
@@ -85,9 +91,9 @@ fn expr_literal(literal: Literal) -> ExpressionTerm {
     ExpressionTerm::Literal(literal)
 }
 
-fn expr_variable(variable: Variable) -> ExpressionTerm {
-    ExpressionTerm::Variable(variable)
-}
+// fn expr_variable(variable: Variable) -> ExpressionTerm {
+//     ExpressionTerm::Variable(variable)
+// }
 
 // https://github.com/Geal/nom/blob/master/tests/arithmetic.rs
 //
@@ -97,12 +103,19 @@ mod tests {
 
     use super::*;
 
-    #[test]
-    fn test_expr_lexer() {
-        let string = "do";
-        let res = expression_lexer(string);
-        assert_eq!(res, Ok(("do", vec![])))
-    }
+    // #[test]
+    // fn test_expr_lexer5() {
+    //     let string = "";
+    //     let res = expression_lexer(string);
+    //     assert_eq!(
+    //         res,
+    //         Ok((
+    //             "",
+    //             vec![
+    //             ]
+    //         ))
+    //     )
+    // }
 
     #[test]
     fn test_expr_lexer4() {
@@ -131,9 +144,9 @@ mod tests {
                 vec![
                     ExpressionTerm::Literal(Literal::Num(3.0)),
                     ExpressionTerm::Token(String::from("<")),
-                    ExpressionTerm::Variable(Variable {
+                    ExpressionTerm::Literal(Literal::Variable(Variable {
                         name: String::from("x")
-                    }),
+                    })),
                 ]
             ))
         )
@@ -170,12 +183,21 @@ mod tests {
                     ExpressionTerm::Token(String::from("(")),
                     ExpressionTerm::Literal(Literal::Num(3.0)),
                     ExpressionTerm::Token(String::from("+")),
-                    ExpressionTerm::Variable(Variable {
+                    ExpressionTerm::Literal(Literal::Variable(Variable {
                         name: String::from("x")
-                    }),
+                    })),
                     ExpressionTerm::Token(String::from(")"))
                 ]
             ))
         )
+    }
+
+        
+    // TODO: FIx this 
+    #[test]
+    fn test_expr_lexer0() {
+        let string = "method.call()";
+        let res = parse_statement(string);
+        println!("{:?}", res);
     }
 }

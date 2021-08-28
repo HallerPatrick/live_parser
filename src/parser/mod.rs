@@ -1,6 +1,7 @@
+#![allow(dead_code)]
+
 mod declaration;
 mod expression;
-mod function;
 mod literals;
 mod statement;
 mod tokens;
@@ -16,16 +17,25 @@ use nom::{
     IResult,
 };
 
-use crate::parser::tokens::keywords;
+use crate::parser::{ tokens::KEYWORDS, statement::{ parse_statements, Statement } };
 
 pub type Res<T, U> = IResult<T, U, VerboseError<T>>;
 
-#[derive(Debug, PartialEq)]
+
+pub fn parse_source(input: &str) -> Res<&str, Vec<Statement>> {
+    context(
+        "Root",
+        parse_statements
+    )(input)
+}
+
+
+#[derive(Debug, PartialEq, Clone)]
 pub struct Variable {
     name: String,
 }
 
-fn parse_variable(input: &str) -> Res<&str, Variable> {
+fn parse_variable_raw(input: &str) -> Res<&str, &str> {
     context(
         "Variable",
         // Keywords should not be parsed
@@ -34,10 +44,13 @@ fn parse_variable(input: &str) -> Res<&str, Variable> {
                 alt((alpha1, tag("_"))),
                 many0(alt((alphanumeric1, tag("_")))),
             )),
-            |s: &str| !keywords.contains(&s),
+            |s: &str| !KEYWORDS.contains(&s),
         ),
     )(input)
-    .map(|(next_input, res)| {
+}
+
+fn parse_variable(input: &str) -> Res<&str, Variable> {
+    parse_variable_raw(input).map(|(next_input, res)| {
         (
             next_input,
             Variable {
@@ -62,6 +75,36 @@ mod tests {
                 "",
                 Variable {
                     name: String::from("hello123")
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_cap() {
+        let string = "Hello123";
+        let res = parse_variable(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Variable {
+                    name: String::from("Hello123")
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_func() {
+        let string = "hello()";
+        let res = parse_variable(string);
+        assert_eq!(
+            res,
+            Ok((
+                "()",
+                Variable {
+                    name: String::from("hello")
                 }
             ))
         );

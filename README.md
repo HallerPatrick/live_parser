@@ -23,18 +23,16 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
 * [x] Expressions: Are getting lexed, while literals are being parsed.
         -> Complete parsing will be done at compile time
       
-* [ ] Declarations:
-    * [ ] Classes
-    * [ ] Functions
-    * [ ] Scopes?
 
 * [ ] Statements:
-    * [ ] For loop
-    * [ ] While loop
-    * [ ] If(/Else)
-    * [ ] Assignment
-    * [ ] Call
-    * [ ] Return
+    * [x] For loop
+    * [x] While loop
+    * [x] If(/Else) // TODO: ELSE
+    * [x] Declarations:
+        * [x] Classes
+        * [x] Functions
+        * [x] Assignment
+    * [x] Return
     * [ ] Case-Switch?
 
 * [ ] Keep track of line number and line span

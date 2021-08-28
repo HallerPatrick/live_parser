@@ -5,8 +5,8 @@ use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::error::context;
 
-pub const keywords: [&'static str; 9] = [
-    "return", "class", "end", "fun", "do", "while", "for", "if", "let",
+pub const KEYWORDS: [&'static str; 11] = [
+    "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else",
 ];
 
 macro_rules! define_token {
@@ -47,7 +47,9 @@ define_token! {
     {lwhile, "While", "while"},
     {lfor, "For", "for"},
     {lif, "If", "if"},
-    {llet, "Let", "let"}
+    {lelse, "Else", "else"},
+    {llet, "Let", "let"},
+    {lin, "In", "in"}
 }
 
 pub fn parse_tokens(input: &str) -> Res<&str, &str> {
@@ -68,5 +70,5 @@ pub fn parse_tokens(input: &str) -> Res<&str, &str> {
 }
 
 pub fn parse_keywords(input: &str) -> Res<&str, &str> {
-    alt((lreturn, class, end, fun, ldo, lwhile))(input)
+    alt((lreturn, class, end, fun, ldo, lwhile, lfor, lif, llet))(input)
 }

@@ -1,0 +1,16 @@
+
+fun test(x, h, foo)
+    let hello = 1
+    x * 2
+    print("Hello")
+end
+
+
+class Test
+
+    fun foo(self)
+    end
+
+    fun bar(self, x)
+    end
+end

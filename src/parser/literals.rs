@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::parser::Res;
+use crate::parser::{ Res, Variable, parse_variable };
 use nom::{
     branch::alt,
     bytes::complete::{escaped, tag_no_case, take_while},
@@ -21,12 +21,14 @@ pub enum Literal {
     Num(f64),
     Array(Vec<Literal>),
     Map(HashMap<String, Literal>),
+    Variable(Variable)
 }
 
 pub fn sp(input: &str) -> Res<&str, &str> {
-    space0(input)
-    // let chars = " \t\r\n";
-    // take_while(move |c| chars.contains(c))(input)
+  let chars = " \t\r\n";
+  // nom combinators like `take_while` return a function. That function is the
+  // parser,to which we can pass the input
+  take_while(move |c| chars.contains(c))(input)
 }
 
 fn alphanumeric_ws(input: &str) -> Res<&str, &str> {
@@ -126,6 +128,7 @@ pub fn parse_literal(input: &str) -> Res<&str, Literal> {
                 parse_str,
                 parse_array,
                 parse_map,
+                map(parse_variable, Literal::Variable)
             )),
         ),
     )(input)
