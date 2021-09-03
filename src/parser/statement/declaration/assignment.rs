@@ -1,4 +1,5 @@
-use crate::parser::expression::{expression_lexer, Expression};
+use crate::parser::expression::{parse_expression, Expression};
+use crate::parser::tokens::llet;
 use crate::parser::{literals::sp, parse_variable, Res, Variable};
 
 use nom::{
@@ -23,13 +24,13 @@ pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
     context(
         "Assignment",
         preceded(
-            tag("let"),
+            preceded(sp, llet),
             preceded(
                 sp,
                 separated_pair(
                     preceded(sp, parse_variable),
                     cut(preceded(sp, char('='))),
-                    expression_lexer,
+                    parse_expression,
                 ),
             ),
         ),
@@ -50,7 +51,7 @@ mod tests {
 
     use super::*;
 
-    use crate::parser::expression::ExpressionTerm;
+    use crate::parser::expression::Expression;
     use crate::parser::literals::Literal;
 
     #[test]
@@ -65,7 +66,7 @@ mod tests {
                     variable: Variable {
                         name: String::from("x")
                     },
-                    expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
+                    expression: Expression::Literal(Literal::Num(3.0))
                 }
             ))
         );

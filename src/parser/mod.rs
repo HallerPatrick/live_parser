@@ -17,18 +17,16 @@ use nom::{
     IResult,
 };
 
-use crate::parser::{ tokens::KEYWORDS, statement::{ parse_statements, Statement } };
+use crate::parser::{
+    statement::{parse_statements, Statement},
+    tokens::KEYWORDS,
+};
 
 pub type Res<T, U> = IResult<T, U, VerboseError<T>>;
 
-
 pub fn parse_source(input: &str) -> Res<&str, Vec<Statement>> {
-    context(
-        "Root",
-        parse_statements
-    )(input)
+    context("Root", parse_statements)(input)
 }
-
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct Variable {
