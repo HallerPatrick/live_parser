@@ -34,4 +34,4 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --verbose --features "std docsrs" --no-deps
+          args: --verbose --no-deps
