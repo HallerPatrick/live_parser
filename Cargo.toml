@@ -11,6 +11,6 @@ path = "src/lib.rs"
 
 [dependencies]
 nom = "7.0.0"
-nom_locate = "3.0.2"
+nom_locate = "4.0.0"
 lazy_static = "1.4.0"
 
