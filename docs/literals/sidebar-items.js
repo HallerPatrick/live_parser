@@ -1,1 +1,0 @@
-initSidebarItems({"enum":[["Literal",""]],"struct":[["Variable",""]]});
