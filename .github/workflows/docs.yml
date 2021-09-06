@@ -37,7 +37,7 @@ jobs:
           args: --verbose --no-deps
           
       - name: Move to docs
-        run: "rm docs && mv ./target/doc/liva_parser docs"
+        run: "rm -rf docs && mv ./target/doc/liva_parser docs"
         
       - name: Commit Docs
         uses: EndBug/add-and-commit@v7
