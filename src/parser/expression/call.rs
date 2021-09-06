@@ -14,25 +14,19 @@ use crate::parser::{
 };
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct MemberCall {
-    caller: Literal,
-    call: Call,
-}
-
-#[derive(Clone, Debug, PartialEq)]
 pub struct Call {
     pub callee: Option<Literal>,
     pub args: Vec<Expression>,
 }
 
-pub fn args(input: &str) -> Res<&str, Vec<Expression>> {
+pub(crate) fn args(input: &str) -> Res<&str, Vec<Expression>> {
     context(
         "Args",
         separated_list0(preceded(sp, comma), parse_expression),
     )(input)
 }
 
-pub fn parse_call(input: &str) -> Res<&str, Call> {
+pub(crate) fn parse_call(input: &str) -> Res<&str, Call> {
     context(
         "Call",
         tuple((
@@ -58,7 +52,7 @@ pub fn parse_call(input: &str) -> Res<&str, Call> {
 #[cfg(test)]
 mod tests {
 
-    use crate::parser::Variable;
+    use crate::parser::literals::Variable;
 
     use super::*;
 

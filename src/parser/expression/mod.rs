@@ -1,45 +1,19 @@
-// An expression can be everything which yiealds a "result"
-// E.g:
-// 1 + 1 -> Arithemtic
-// 1 * 2 + 1
-// foo.bar() -> Method calls
-// baz()     -> Function Calls
-// Class::foo() -> Function calls of classes (static methods)
-//
-// Parenthese show order of evaluation
-// 1 * (1 + 2)
-//
-// For now expressions are only lexed
-// where only literals are being parsed but not evaluated
+//! Logic for expressions and their representation
 
-// If we want to parse them most of those have to be parsed for:
-// None
-// Binary
-// Grouping
-// Unary
-// And
-// Or
-//
-//
-// Dot
-// This
-// Super
-//
 pub mod binary;
 pub mod call;
 
 use crate::parser::{
-    literals::{parse_literal, sp, Literal},
-    parse_variable,
+    literals::{parse_literal, parse_variable, sp, Literal, Variable},
     tokens::{
         dot, left_bracket, left_paren, parse_binary_operator, parse_unary_operator, right_bracket,
         right_paren, Operator, UnOperator, BINOP_PRECEDENCE, UNOPS,
     },
-    Res, Variable,
+    Res,
 };
 
 use crate::parser::expression::binary::{BinaryOp, UnaryOp};
-use call::{parse_call, Call, MemberCall};
+use call::{parse_call, Call};
 
 use nom::{
     branch::alt,
@@ -54,14 +28,13 @@ use nom::{
 pub enum Expression {
     Literal(Literal),
     Call(Call),
-    MemberCall(MemberCall),
     BinaryOp(Box<BinaryOp>),
     UnaryOp(Box<UnaryOp>),
     PrefixExpr(Box<PrefixExpr>),
 }
 
 #[derive(Clone, PartialEq, Debug)]
-pub enum Expression2 {
+pub(crate) enum Expression2 {
     Literal(Literal),
     PrefixExpr(PrefixExpr),
 }
@@ -71,11 +44,11 @@ fn parse_flatexp(input: &str) -> Res<&str, FlatExpr> {
         .map(|(next_input, res)| (next_input, flat_expr_from_components(res.0, res.1)))
 }
 
-pub fn parse_expression(input: &str) -> Res<&str, Expression> {
+pub(crate) fn parse_expression(input: &str) -> Res<&str, Expression> {
     map(parse_flatexp, Expression::from)(input)
 }
 
-pub fn parse_expression2(input: &str) -> Res<&str, Expression2> {
+pub(crate) fn parse_expression2(input: &str) -> Res<&str, Expression2> {
     context(
         "Expression2",
         preceded(
@@ -133,9 +106,7 @@ pub struct PrefixExpr {
 
 /// This parser deals with all kind of suffix expressions which are part
 /// of a single expression
-///
-/// E.g. tbl.method()[idx](call, parameter)
-pub fn prefixexpr(input: &str) -> Res<&str, PrefixExpr> {
+pub(crate) fn prefixexpr(input: &str) -> Res<&str, PrefixExpr> {
     context(
         "PrefixExpr",
         preceded(sp, tuple((prefixexpr2, many0(prefixexpr3)))),
@@ -160,7 +131,7 @@ pub enum ExprOrVarname {
 struct FlatExpr(Vec<OpOrExp2>);
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum OpOrExp2 {
+pub(crate) enum OpOrExp2 {
     Op(UnOrBinOp),
     Exp2(Expression2),
 }
@@ -408,7 +379,7 @@ mod tests {
 
     use super::*;
 
-    use crate::parser::Variable;
+    use crate::parser::literals::Variable;
 
     #[test]
     fn test_parse_head() {

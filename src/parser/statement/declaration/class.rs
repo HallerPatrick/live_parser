@@ -1,8 +1,8 @@
 use super::function::{parse_function, Function};
 
 use crate::parser::{
+    literals::parse_variable_raw,
     literals::sp,
-    parse_variable_raw,
     statement::opt_line_ending,
     tokens::{class, end},
     Res,
@@ -56,62 +56,62 @@ fn parse_methods(input: &str) -> Res<&str, Vec<Function>> {
     )(input)
 }
 
-// #[cfg(test)]
-// mod tests {
+#[cfg(test)]
+mod tests {
 
-//     use super::*;
+    use super::*;
 
-//     use crate::parser::{
-//         expression::ExpressionTerm, literals::Literal,
-//         statement::declaration::assignment::Assignment, statement::Statement, Variable,
-//     };
+    //     use crate::parser::{
+    //         expression::ExpressionTerm, literals::Literal,
+    //         statement::declaration::assignment::Assignment, statement::Statement, Variable,
+    //     };
 
-//     #[test]
-//     fn test_prase_class_name() {
-//         let string = " class Hello ";
-//         let res = parse_class_name(string);
-//         assert_eq!(res, Ok((" ", "Hello")))
-//     }
+    //     #[test]
+    //     fn test_prase_class_name() {
+    //         let string = " class Hello ";
+    //         let res = parse_class_name(string);
+    //         assert_eq!(res, Ok((" ", "Hello")))
+    //     }
 
-//     #[test]
-//     fn test_parse_class() {
-//         let string = "class Hello\n\tfun foo()\n\t\tlet some = 1\n\tend\nend";
-//         let res = parse_class(string);
-//         assert_eq!(
-//             res,
-//             Ok((
-//                 "",
-//                 Class {
-//                     name: String::from("Hello"),
-//                     methods: vec![Function {
-//                         name: String::from("foo"),
-//                         parameters: vec![],
-//                         statements: vec![Statement::Assignment(Assignment {
-//                             variable: Variable {
-//                                 name: String::from("some")
-//                             },
-//                             expression: vec![ExpressionTerm::Literal(Literal::Num(1.0))]
-//                         })]
-//                     }]
-//                 }
-//             ))
-//         );
-//     }
+    //     #[test]
+    //     fn test_parse_class() {
+    //         let string = "class Hello\n\tfun foo()\n\t\tlet some = 1\n\tend\nend";
+    //         let res = parse_class(string);
+    //         assert_eq!(
+    //             res,
+    //             Ok((
+    //                 "",
+    //                 Class {
+    //                     name: String::from("Hello"),
+    //                     methods: vec![Function {
+    //                         name: String::from("foo"),
+    //                         parameters: vec![],
+    //                         statements: vec![Statement::Assignment(Assignment {
+    //                             variable: Variable {
+    //                                 name: String::from("some")
+    //                             },
+    //                             expression: vec![ExpressionTerm::Literal(Literal::Num(1.0))]
+    //                         })]
+    //                     }]
+    //                 }
+    //             ))
+    //         );
+    //     }
 
-//     #[test]
-//     fn test() {
-//         let string = "class Test\n\n   end\n";
-//         let res = parse_class(string);
+    #[test]
+    fn test() {
+        let string = "class Test\n\n   end\n";
+        let res = parse_class(string);
 
-//         assert_eq!(
-//             res,
-//             Ok((
-//                 "\n",
-//                 Class {
-//                     name: String::from("Test"),
-//                     methods: vec![]
-//                 }
-//             ))
-//         )
-//     }
-// }
+        assert_eq!(
+            res,
+            Ok((
+                "\n",
+                Class {
+                    name: String::from("Test"),
+                    methods: vec![]
+                }
+            ))
+        )
+    }
+}

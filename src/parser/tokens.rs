@@ -1,5 +1,6 @@
+//! Collection of all parsers and structs which represent tokens, operators and keywords
+
 use crate::parser::literals::sp;
-/// Colletion of some keywords and tokens which are common
 use crate::parser::Res;
 
 use nom::branch::alt;
@@ -7,53 +8,59 @@ use nom::bytes::complete::tag;
 use nom::error::context;
 use nom::sequence::preceded;
 
+/// Reserved keywords for the liva lang, which can not be used as identifiers
 pub const KEYWORDS: [&str; 14] = [
-    "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else", "external", "as", "import"
+    "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else", "external",
+    "as", "import",
 ];
 
 lazy_static! {
+
+    /// Vector of unary operators which show the precedence of the operators
+    /// with which unary expressions should be evaluated
     pub static ref UNOPS: Vec<UnOperator> = {
         let table = &mut [UnOperator::Sub, UnOperator::Not];
         table.sort();
         table.to_vec()
     };
 
-/// Vector of binary operators which show the precedence of the operators
-/// with which binary expressions should be evaluated
-pub static ref BINOP_PRECEDENCE: Vec<Vec<Operator>> = {
-    let table: &mut [&mut [Operator]] = &mut [
-        &mut [Operator::Pow],
-        &mut [Operator::Mul, Operator::Div, Operator::Mod],
-        &mut [Operator::Add, Operator::Sub],
-        // &mut [Operator::Concat],
-        // &mut [Operator::BitShl, BinOp::BitShr],
-        // &mut [Operator::BitAnd],
-        // &mut [Operator::BitXor],
-        // &mut [Operator::BitOr],
-        &mut [
-            Operator::Lt,
-            Operator::Gt,
-            Operator::Leq,
-            Operator::Geq,
-            Operator::Neq,
-            Operator::EQ,
-        ],
-        &mut [Operator::And],
-        &mut [Operator::Or],
-    ];
-    let mut acc = Vec::new();
-    for s in table.iter_mut() {
-        s.sort();
-        acc.push(s.to_vec());
-    }
-    acc
-};
+    /// Vector of binary operators which show the precedence of the operators
+    /// with which binary expressions should be evaluated
+    pub static ref BINOP_PRECEDENCE: Vec<Vec<Operator>> = {
+        let table: &mut [&mut [Operator]] = &mut [
+            &mut [Operator::Pow],
+            &mut [Operator::Mul, Operator::Div, Operator::Mod],
+            &mut [Operator::Add, Operator::Sub],
+            // &mut [Operator::Concat],
+            // &mut [Operator::BitShl, BinOp::BitShr],
+            // &mut [Operator::BitAnd],
+            // &mut [Operator::BitXor],
+            // &mut [Operator::BitOr],
+            &mut [
+                Operator::Lt,
+                Operator::Gt,
+                Operator::Leq,
+                Operator::Geq,
+                Operator::Neq,
+                Operator::EQ,
+            ],
+            &mut [Operator::And],
+            &mut [Operator::Or],
+        ];
+        let mut acc = Vec::new();
+        for s in table.iter_mut() {
+            s.sort();
+            acc.push(s.to_vec());
+        }
+        acc
+    };
 }
 
 macro_rules! define_token {
     ( $( { $fn_name:ident, $name:literal, $token:literal } ), *) => {
         $(
-            /// Token which is used to represent the $name token
+            /// Macro generated function
+            /// Token parser to parse token
             pub fn $fn_name(input: &str) -> Res<&str, &str> {
                 context(
                     $name,
@@ -131,20 +138,7 @@ pub enum UnOperator {
     Not,
 }
 
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub enum BoolOperator {
-    Or,
-    And,
-}
-
-#[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
-pub enum CompOperator {
-    LessThan,
-    GreaterThan,
-    Equal,
-}
-
-pub fn parse_unary_operator(input: &str) -> Res<&str, UnOperator> {
+pub(crate) fn parse_unary_operator(input: &str) -> Res<&str, UnOperator> {
     context("UnaryOperator", preceded(sp, alt((add, sub, mul, div))))(input).map(
         |(next_input, res)| {
             match res {
@@ -158,7 +152,7 @@ pub fn parse_unary_operator(input: &str) -> Res<&str, UnOperator> {
     )
 }
 
-pub fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
+pub(crate) fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
     context(
         "Operator",
         preceded(
@@ -196,18 +190,7 @@ pub fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
     })
 }
 
-pub fn parse_bool_operator(input: &str) -> Res<&str, BoolOperator> {
-    context("BoolOperator", alt((land, lor)))(input).map(|(next_input, res)| {
-        match res {
-            "and" => (next_input, BoolOperator::And),
-            "or" => (next_input, BoolOperator::Or),
-            // This should never reach!
-            _ => (next_input, BoolOperator::And),
-        }
-    })
-}
-
-pub fn parse_tokens(input: &str) -> Res<&str, &str> {
+pub(crate) fn parse_tokens(input: &str) -> Res<&str, &str> {
     alt((
         add,
         sub,
@@ -223,27 +206,4 @@ pub fn parse_tokens(input: &str) -> Res<&str, &str> {
         less_eq_than,
         greater_eq_than,
     ))(input)
-}
-
-// TODO: This shouldnt be a func
-pub fn parse_tokens_sans_paren(input: &str) -> Res<&str, &str> {
-    alt((
-        add,
-        sub,
-        mul,
-        div,
-        dot,
-        equal,
-        unequal,
-        // left_paren,
-        // right_paren,
-        less_than,
-        greater_than,
-        less_eq_than,
-        greater_eq_than,
-    ))(input)
-}
-
-pub fn parse_keywords(input: &str) -> Res<&str, &str> {
-    alt((lreturn, class, end, fun, ldo, lwhile, lfor, lif, llet))(input)
 }

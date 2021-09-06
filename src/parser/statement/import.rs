@@ -1,8 +1,7 @@
 use crate::parser::{
-    literals::sp,
-    parse_variable,
+    literals::{parse_variable, sp, Variable},
     tokens::{dot, external, import, las},
-    Res, Variable,
+    Res,
 };
 
 use nom::{

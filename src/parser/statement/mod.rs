@@ -1,3 +1,5 @@
+//! Collection of all statements
+
 mod declaration;
 mod import;
 
@@ -6,22 +8,34 @@ use nom::character::complete::line_ending;
 use nom::character::complete::space0;
 use nom::combinator::{map, opt};
 use nom::error::context;
-use nom::multi::{fold_many0, many0, separated_list0};
+use nom::multi::{many0, separated_list0};
 use nom::sequence::{preceded, terminated, tuple};
 use nom::Err;
 
-use crate::parser::expression::{parse_expression, prefixexpr, ExprSuffix, PrefixExpr};
-use crate::parser::literals::sp;
-use crate::parser::tokens::{comma, lreturn};
-use crate::parser::statement::import::{ parse_import, Import };
-use declaration::assignment::{parse_assignment, Assignment, LAssignment, parse_lassignment};
-use declaration::class::{parse_class, Class};
-use declaration::for_statement::{parse_for, For};
-use declaration::function::{parse_function, Function};
-use declaration::if_statement::{parse_if, If};
-use declaration::while_statement::{parse_while, While};
+use crate::parser::{
+    expression::{parse_expression, prefixexpr, ExprSuffix, Expression, PrefixExpr},
+    literals::sp,
+    statement::declaration::{
+        assignment::{Assignment, LAssignment},
+        class::Class,
+        for_statement::For,
+        function::Function,
+        if_statement::If,
+        while_statement::While,
+    },
+    statement::import::{parse_import, Import},
+    tokens::{comma, lreturn},
+    Res,
+};
 
-use super::{expression::Expression, Res};
+use declaration::{
+    assignment::{parse_assignment, parse_lassignment},
+    class::parse_class,
+    for_statement::parse_for,
+    function::parse_function,
+    if_statement::parse_if,
+    while_statement::parse_while,
+};
 
 #[derive(Debug, PartialEq)]
 pub struct Block {
@@ -60,7 +74,7 @@ pub fn parse_block(input: &str) -> Res<&str, Block> {
     })
 }
 
-pub fn parse_statement(input: &str) -> Res<&str, Statement> {
+fn parse_statement(input: &str) -> Res<&str, Statement> {
     context(
         "Stmt",
         terminated(
@@ -78,8 +92,6 @@ pub fn parse_statement(input: &str) -> Res<&str, Statement> {
                         map(parse_class, Statement::Class),
                         map(parse_function_call, Statement::FuncCall),
                         map(parse_import, Statement::Import),
-                        // map(parse_return_stmt, Statement::Return),
-                        // map(parse_expression, Statement::Expression),
                     )),
                 ),
             ),
@@ -126,19 +138,8 @@ fn parse_return_list(input: &str) -> Res<&str, Vec<Expression>> {
     )(input)
 }
 
-pub fn opt_line_ending(input: &str) -> Res<&str, &str> {
+pub(crate) fn opt_line_ending(input: &str) -> Res<&str, &str> {
     opt(many0(line_ending))(input).map(|(next_input, _)| (next_input, ""))
-}
-
-/// Statements are delimited by newlines
-pub fn parse_statements(input: &str) -> Res<&str, Vec<Statement>> {
-    context(
-        "Stmts",
-        fold_many0(parse_statement, Vec::new, |mut acc: Vec<_>, item| {
-            acc.push(item);
-            acc
-        }),
-    )(input)
 }
 
 #[cfg(test)]
@@ -148,9 +149,8 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::call::Call;
     use crate::parser::expression::ExprOrVarname;
-    use crate::parser::literals::Literal;
+    use crate::parser::literals::{Literal, Variable};
     use crate::parser::tokens::Operator;
-    use crate::parser::Variable;
 
     #[test]
     fn test_parse_assignemnt() {

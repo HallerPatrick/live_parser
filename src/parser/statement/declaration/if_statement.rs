@@ -62,11 +62,10 @@ mod tests {
 
     use crate::parser::expression::Expression;
     use crate::parser::expression::{binary::BinaryOp, ExprOrVarname, PrefixExpr};
-    use crate::parser::literals::Literal;
+    use crate::parser::literals::{Literal, Variable};
     use crate::parser::statement::declaration::assignment::LAssignment;
-    use crate::parser::statement::{ ReturnStmt, Statement };
+    use crate::parser::statement::{ReturnStmt, Statement};
     use crate::parser::tokens::Operator;
-    use crate::parser::Variable;
 
     #[test]
     fn parse_if_condition() {

@@ -6,8 +6,9 @@ pub mod if_statement;
 pub mod while_statement;
 
 use crate::parser::literals::sp;
+use crate::parser::literals::{parse_variable, Variable};
 use crate::parser::tokens::{left_paren, right_paren};
-use crate::parser::{parse_variable, Res, Variable};
+use crate::parser::Res;
 
 use nom::{
     character::complete::char,

@@ -1,8 +1,6 @@
 use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::literals::sp;
-use crate::parser::tokens::{
-    parse_binary_operator, Operator, UnOperator,
-};
+use crate::parser::tokens::{parse_binary_operator, Operator, UnOperator};
 
 use crate::parser::Res;
 
@@ -18,7 +16,7 @@ pub struct BinaryOp {
     pub op: Operator,
 }
 
-pub fn parse_binary(input: &str) -> Res<&str, BinaryOp> {
+pub(crate) fn parse_binary(input: &str) -> Res<&str, BinaryOp> {
     context(
         "Binary",
         tuple((

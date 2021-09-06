@@ -4,9 +4,10 @@ use nom::{
 };
 
 use crate::parser::literals::sp;
+use crate::parser::literals::{parse_variable, Variable};
 use crate::parser::statement::{parse_block, Block};
 use crate::parser::tokens::{end, ldo, lfor, lin};
-use crate::parser::{parse_variable, Res, Variable};
+use crate::parser::Res;
 
 #[derive(Debug, PartialEq)]
 pub struct For {
@@ -55,9 +56,9 @@ fn parse_iterator(input: &str) -> Res<&str, Variable> {
 mod tests {
 
     use super::*;
-    use crate::parser::literals::Literal;
-    use crate::parser::statement::{ LAssignment, Block, Statement };
     use crate::parser::expression::Expression;
+    use crate::parser::literals::Literal;
+    use crate::parser::statement::{Block, LAssignment, Statement};
 
     #[test]
     fn test_parse_iter_item() {
@@ -106,14 +107,12 @@ mod tests {
                         name: String::from("y")
                     },
                     block: Block {
-                        statements: vec![
-                            Statement::LAssignment(LAssignment {
-                                variable: Variable {
-                                    name: String::from("y")
-                                },
-                                expression: Expression::Literal(Literal::Num(3.0))
-                            })
-                        ],
+                        statements: vec![Statement::LAssignment(LAssignment {
+                            variable: Variable {
+                                name: String::from("y")
+                            },
+                            expression: Expression::Literal(Literal::Num(3.0))
+                        })],
                         return_stmt: None
                     }
                 }

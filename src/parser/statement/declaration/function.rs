@@ -1,11 +1,10 @@
 use crate::parser::{
-    literals::sp,
-    parse_variable_raw,
+    literals::{parse_variable_raw, sp, Variable},
     statement::opt_line_ending,
     statement::parse_block,
     statement::{declaration::parse_parameter_list, Block},
     tokens::{end, fun},
-    Res, Variable,
+    Res,
 };
 
 use nom::{
@@ -64,7 +63,7 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
-    use crate::parser::statement::{LAssignment, If, ReturnStmt, Statement};
+    use crate::parser::statement::{If, LAssignment, ReturnStmt, Statement};
     use crate::parser::tokens::Operator;
 
     #[test]

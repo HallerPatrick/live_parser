@@ -4,7 +4,7 @@ use crate::parser::literals::sp;
 use crate::parser::tokens::{end, ldo, lwhile};
 use crate::parser::Res;
 
-use crate::parser::statement::{parse_statements, Statement};
+use crate::parser::statement::{parse_block, Block};
 
 use nom::{
     error::context,
@@ -14,16 +14,16 @@ use nom::{
 #[derive(Debug, PartialEq)]
 pub struct While {
     cond: Expression,
-    stmts: Vec<Statement>,
+    block: Block,
 }
 
 pub fn parse_while(input: &str) -> Res<&str, While> {
-    tuple((while_condition, terminated(parse_statements, end)))(input).map(|(next_input, res)| {
+    tuple((while_condition, terminated(parse_block, end)))(input).map(|(next_input, res)| {
         (
             next_input,
             While {
                 cond: res.0,
-                stmts: res.1,
+                block: res.1,
             },
         )
     })
@@ -48,9 +48,8 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
-    use crate::parser::statement::declaration::assignment::LAssignment;
+    use crate::parser::literals::Variable;
     use crate::parser::tokens::Operator;
-    use crate::parser::Variable;
 
     #[test]
     fn parse_while_condition() {
@@ -91,23 +90,10 @@ mod tests {
                         })),
                         right: Expression::Literal(Literal::Num(3.0)),
                     })),
-                    stmts: vec![
-                        Statement::LAssignment(LAssignment {
-                            variable: Variable::new("z"),
-                            expression: Expression::BinaryOp(Box::new(BinaryOp {
-                                op: Operator::Add,
-                                left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                    prefix: ExprOrVarname::Varname(Variable::new("x")),
-                                    suffix_chain: vec![],
-                                })),
-                                right: Expression::Literal(Literal::Num(3.0)),
-                            })),
-                        }),
-                        Statement::LAssignment(LAssignment {
-                            variable: Variable::new("y"),
-                            expression: Expression::Literal(Literal::Num(3.0)),
-                        }),
-                    ]
+                    block: Block {
+                        statements: vec![],
+                        return_stmt: None
+                    }
                 }
             ))
         )

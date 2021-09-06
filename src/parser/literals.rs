@@ -1,18 +1,21 @@
+//! Collection of all possible literals
+
 use std::collections::HashMap;
 
-use crate::parser::{parse_variable, Res, Variable};
+use crate::parser::{tokens::KEYWORDS, Res};
 use nom::{
     branch::alt,
-    bytes::complete::{escaped, tag_no_case, take_while},
+    bytes::complete::{escaped, tag, tag_no_case, take_while},
     character::complete::char,
-    character::complete::{alphanumeric1 as alphanumeric, one_of, space1},
-    combinator::{cut, map},
+    character::complete::{alpha1, alphanumeric1 as alphanumeric, one_of, space1},
+    combinator::{cut, map, recognize, verify},
     error::context,
-    multi::separated_list0,
+    multi::{many0, separated_list0},
     number::complete::double,
-    sequence::{preceded, separated_pair, terminated},
+    sequence::{pair, preceded, separated_pair, terminated},
 };
 
+// Collection of all possible literals
 #[derive(Clone, Debug, PartialEq)]
 pub enum Literal {
     Str(String),
@@ -24,7 +27,48 @@ pub enum Literal {
     Variable(Variable),
 }
 
-pub fn sp(input: &str) -> Res<&str, &str> {
+// TODO: Change to identifier
+// Contains the name of a identifier, which has to start with letter, but can contain
+// numbers and underscores
+#[derive(Debug, PartialEq, Clone)]
+pub struct Variable {
+    pub name: String,
+}
+
+impl Variable {
+    pub fn new(name: &str) -> Self {
+        Variable {
+            name: String::from(name),
+        }
+    }
+}
+
+pub(crate) fn parse_variable_raw(input: &str) -> Res<&str, &str> {
+    context(
+        "Variable",
+        // Keywords should not be parsed
+        verify(
+            recognize(pair(
+                alt((alpha1, tag("_"))),
+                many0(alt((alphanumeric, tag("_")))),
+            )),
+            |s: &str| !KEYWORDS.contains(&s),
+        ),
+    )(input)
+}
+
+pub(crate) fn parse_variable(input: &str) -> Res<&str, Variable> {
+    parse_variable_raw(input).map(|(next_input, res)| {
+        (
+            next_input,
+            Variable {
+                name: String::from(res),
+            },
+        )
+    })
+}
+
+pub(crate) fn sp(input: &str) -> Res<&str, &str> {
     let chars = " \t\r\n";
     // nom combinators like `take_while` return a function. That function is the
     // parser,to which we can pass the input
@@ -116,7 +160,7 @@ fn parse_map(input: &str) -> Res<&str, Literal> {
     .map(|(next_input, res)| (next_input, Literal::Map(res)))
 }
 
-pub fn parse_literal(input: &str) -> Res<&str, Literal> {
+pub(crate) fn parse_literal(input: &str) -> Res<&str, Literal> {
     context(
         "Literal",
         preceded(
@@ -259,5 +303,50 @@ mod tests {
         let string = "Nil";
         let res = parse_literal(string);
         assert_eq!(res, Ok(("", Literal::Nil)))
+    }
+
+    #[test]
+    fn test_parse_variable() {
+        let string = "hello123";
+        let res = parse_variable(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Variable {
+                    name: String::from("hello123")
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_cap() {
+        let string = "Hello123";
+        let res = parse_variable(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Variable {
+                    name: String::from("Hello123")
+                }
+            ))
+        );
+    }
+
+    #[test]
+    fn test_parse_variable_func() {
+        let string = "hello()";
+        let res = parse_variable(string);
+        assert_eq!(
+            res,
+            Ok((
+                "()",
+                Variable {
+                    name: String::from("hello")
+                }
+            ))
+        );
     }
 }

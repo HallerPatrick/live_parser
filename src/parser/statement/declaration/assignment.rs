@@ -1,6 +1,9 @@
 use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::tokens::llet;
-use crate::parser::{literals::sp, parse_variable, Res, Variable};
+use crate::parser::{
+    literals::{parse_variable, sp, Variable},
+    Res,
+};
 
 use nom::{
     character::complete::char,
@@ -26,7 +29,7 @@ pub struct LAssignment {
 
 /// Assignment having following schema
 /// <let-keyword> <variable> = <expression>
-pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
+pub(crate) fn parse_assignment(input: &str) -> Res<&str, Assignment> {
     context(
         "Assignment",
         preceded(
@@ -51,7 +54,7 @@ pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
 
 /// Assignment having following schema
 /// <let-keyword> <variable> = <expression>
-pub fn parse_lassignment(input: &str) -> Res<&str, LAssignment> {
+pub(crate) fn parse_lassignment(input: &str) -> Res<&str, LAssignment> {
     context(
         "LAssignment",
         preceded(
