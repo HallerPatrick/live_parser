@@ -1,3 +1,4 @@
+import hello as f
 
 fun test(x, h, foo)
     let hello = 1

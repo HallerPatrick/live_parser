@@ -7,8 +7,8 @@ use nom::bytes::complete::tag;
 use nom::error::context;
 use nom::sequence::preceded;
 
-pub const KEYWORDS: [&'static str; 11] = [
-    "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else",
+pub const KEYWORDS: [&'static str; 14] = [
+    "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else", "external", "as", "import"
 ];
 
 lazy_static! {
@@ -94,7 +94,10 @@ define_token! {
     {llet, "Let", "let"},
     {lin, "In", "in"},
     {lor, "Or", "or"},
-    {land, "And", "and"}
+    {land, "And", "and"},
+    {external, "External", "external"},
+    {import, "Import", "import"},
+    {las, "As", "as"}
 }
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
