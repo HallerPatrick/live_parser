@@ -34,4 +34,13 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: doc
-          args: --verbose --features "std docsrs" --no-deps
+          args: --verbose --no-deps
+          
+      - name: Move to docs
+        run: "rm docs && mv ./target/doc/liva_parser docs"
+        
+      - name: Commit Docs
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: 'Update docs'
+          add: 'docs'
