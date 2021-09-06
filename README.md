@@ -33,6 +33,6 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
         * [x] Functions
         * [x] Assignment
     * [x] Return
-    * [ ] Case-Switch?
+    * [ ] Import 
 
 * [ ] Keep track of line number and line span
