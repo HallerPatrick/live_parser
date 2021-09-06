@@ -14,6 +14,7 @@ use nom::{
     sequence::{terminated, tuple},
 };
 
+/// Represents a function declaration.
 #[derive(Debug, PartialEq)]
 pub struct Function {
     pub name: String,
@@ -21,6 +22,7 @@ pub struct Function {
     pub statements: Block,
 }
 
+/// Parses a function declaration.
 pub fn parse_function(input: &str) -> Res<&str, Function> {
     context(
         "Func",
@@ -62,7 +64,7 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
-    use crate::parser::statement::{Assignment, If, ReturnStmt};
+    use crate::parser::statement::{LAssignment, If, ReturnStmt, Statement};
     use crate::parser::tokens::Operator;
 
     #[test]
@@ -92,7 +94,7 @@ mod tests {
                         }
                     ],
                     statements: Block {
-                        statements: vec![Statement::Assignment(Assignment {
+                        statements: vec![Statement::LAssignment(LAssignment {
                             variable: Variable {
                                 name: String::from("some")
                             },

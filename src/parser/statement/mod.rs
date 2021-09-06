@@ -14,7 +14,7 @@ use crate::parser::expression::{parse_expression, prefixexpr, ExprSuffix, Prefix
 use crate::parser::literals::sp;
 use crate::parser::tokens::{comma, lreturn};
 use crate::parser::statement::import::{ parse_import, Import };
-use declaration::assignment::{parse_assignment, Assignment};
+use declaration::assignment::{parse_assignment, Assignment, LAssignment, parse_lassignment};
 use declaration::class::{parse_class, Class};
 use declaration::for_statement::{parse_for, For};
 use declaration::function::{parse_function, Function};
@@ -32,6 +32,7 @@ pub struct Block {
 #[derive(Debug, PartialEq)]
 pub enum Statement {
     Assignment(Assignment),
+    LAssignment(LAssignment),
     FuncCall(PrefixExpr),
     While(While),
     For(For),
@@ -69,6 +70,7 @@ pub fn parse_statement(input: &str) -> Res<&str, Statement> {
                     space0,
                     alt((
                         map(parse_assignment, Statement::Assignment),
+                        map(parse_lassignment, Statement::LAssignment),
                         map(parse_if, Statement::If),
                         map(parse_for, Statement::For),
                         map(parse_while, Statement::While),
@@ -158,7 +160,7 @@ mod tests {
             res,
             Ok((
                 "",
-                Statement::Assignment(Assignment {
+                Statement::LAssignment(LAssignment {
                     variable: Variable {
                         name: String::from("x")
                     },
@@ -176,7 +178,7 @@ mod tests {
             res,
             Ok((
                 "",
-                Statement::Assignment(Assignment {
+                Statement::LAssignment(LAssignment {
                     variable: Variable {
                         name: String::from("x")
                     },
@@ -194,7 +196,7 @@ mod tests {
             res,
             Ok((
                 "",
-                Statement::Assignment(Assignment {
+                Statement::LAssignment(LAssignment {
                     variable: Variable {
                         name: String::from("x")
                     },
@@ -212,7 +214,7 @@ mod tests {
             res,
             Ok((
                 "let y = 3",
-                Statement::Assignment(Assignment {
+                Statement::LAssignment(LAssignment {
                     variable: Variable {
                         name: String::from("x")
                     },

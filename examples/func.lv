@@ -2,6 +2,7 @@ import hello as f
 
 fun test(x, h, foo)
     let hello = 1
+    hello = 2
     print("Hello")
 end
 

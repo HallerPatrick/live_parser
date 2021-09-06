@@ -48,7 +48,7 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
-    use crate::parser::statement::declaration::assignment::Assignment;
+    use crate::parser::statement::declaration::assignment::LAssignment;
     use crate::parser::tokens::Operator;
     use crate::parser::Variable;
 
@@ -92,7 +92,7 @@ mod tests {
                         right: Expression::Literal(Literal::Num(3.0)),
                     })),
                     stmts: vec![
-                        Statement::Assignment(Assignment {
+                        Statement::LAssignment(LAssignment {
                             variable: Variable::new("z"),
                             expression: Expression::BinaryOp(Box::new(BinaryOp {
                                 op: Operator::Add,
@@ -103,7 +103,7 @@ mod tests {
                                 right: Expression::Literal(Literal::Num(3.0)),
                             })),
                         }),
-                        Statement::Assignment(Assignment {
+                        Statement::LAssignment(LAssignment {
                             variable: Variable::new("y"),
                             expression: Expression::Literal(Literal::Num(3.0)),
                         }),
