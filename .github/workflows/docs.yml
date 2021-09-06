@@ -35,3 +35,12 @@ jobs:
         with:
           command: doc
           args: --verbose --no-deps
+          
+      - name: Move to docs
+        run: "rm docs && mv ./target/doc/liva_parser docs"
+        
+      - name: Commit Docs
+        uses: EndBug/add-and-commit@v7
+        with:
+          message: 'Update docs'
+          add: 'docs'
