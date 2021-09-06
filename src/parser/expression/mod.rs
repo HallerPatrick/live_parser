@@ -188,11 +188,7 @@ impl From<FlatExpr> for Expression {
         fn merge_all_binops(explist: &mut Vec<OpOrExp>, binops: &[Operator]) {
             loop {
                 let mut tojoin_idx: Option<usize> = None;
-                for (i, oe) in explist
-                    .iter()
-                    .enumerate()
-                    .filter(|&(_, ref oe)| oe.is_binop())
-                {
+                for (i, oe) in explist.iter().enumerate().filter(|&(_, oe)| oe.is_binop()) {
                     match *oe {
                         OpOrExp::Op(UnOrBinOp::BinOp(ref o)) => {
                             // Found something to join
@@ -242,7 +238,7 @@ impl From<FlatExpr> for Expression {
                 for (i, oe) in explist
                     .iter()
                     .enumerate()
-                    .filter(|&(_, ref oe)| oe.is_unop())
+                    .filter(|&(_, oe)| oe.is_unop())
                     .rev()
                 {
                     match *oe {

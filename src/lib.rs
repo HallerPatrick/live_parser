@@ -4,9 +4,9 @@
 //! ```rust
 //! use std::error::Error;
 //!
-//! use live_parser::print_ast;
+//! use liva_parser::print_ast;
 //!
-//! fn main() -> Result<(), Box<dyn, Error>> {
+//! fn main() -> Result<(), Box<dyn Error>> {
 //!     print_ast("lib.lv");
 //!     Ok(())
 //! }
