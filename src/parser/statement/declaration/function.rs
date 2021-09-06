@@ -3,7 +3,7 @@ use crate::parser::{
     parse_variable_raw,
     statement::opt_line_ending,
     statement::parse_block,
-    statement::{declaration::parse_parameter_list, Block, Statement},
+    statement::{declaration::parse_parameter_list, Block},
     tokens::{end, fun},
     Res, Variable,
 };

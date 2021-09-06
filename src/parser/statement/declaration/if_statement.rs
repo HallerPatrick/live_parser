@@ -4,7 +4,7 @@ use crate::parser::literals::sp;
 use crate::parser::tokens::{end, ldo, lelse, lif};
 use crate::parser::Res;
 
-use crate::parser::statement::{parse_block, parse_statements, Block, Statement};
+use crate::parser::statement::{parse_block, Block};
 
 use nom::{
     combinator::opt,
@@ -64,7 +64,7 @@ mod tests {
     use crate::parser::expression::{binary::BinaryOp, ExprOrVarname, PrefixExpr};
     use crate::parser::literals::Literal;
     use crate::parser::statement::declaration::assignment::Assignment;
-    use crate::parser::statement::ReturnStmt;
+    use crate::parser::statement::{ ReturnStmt, Statement };
     use crate::parser::tokens::Operator;
     use crate::parser::Variable;
 

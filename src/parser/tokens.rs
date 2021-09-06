@@ -7,7 +7,7 @@ use nom::bytes::complete::tag;
 use nom::error::context;
 use nom::sequence::preceded;
 
-pub const KEYWORDS: [&'static str; 14] = [
+pub const KEYWORDS: [&str; 14] = [
     "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else", "external", "as", "import"
 ];
 
@@ -18,7 +18,8 @@ lazy_static! {
         table.to_vec()
     };
 
-/// Precedence order
+/// Vector of binary operators which show the precedence of the operators
+/// with which binary expressions should be evaluated
 pub static ref BINOP_PRECEDENCE: Vec<Vec<Operator>> = {
     let table: &mut [&mut [Operator]] = &mut [
         &mut [Operator::Pow],
@@ -52,6 +53,7 @@ pub static ref BINOP_PRECEDENCE: Vec<Vec<Operator>> = {
 macro_rules! define_token {
     ( $( { $fn_name:ident, $name:literal, $token:literal } ), *) => {
         $(
+            /// Token which is used to represent the $name token
             pub fn $fn_name(input: &str) -> Res<&str, &str> {
                 context(
                     $name,
@@ -100,6 +102,8 @@ define_token! {
     {las, "As", "as"}
 }
 
+/// All Operators which are used in the language
+/// for binary expressions
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum Operator {
     Add,
@@ -118,6 +122,8 @@ pub enum Operator {
     Neq,
 }
 
+/// All Operators which are used in the language
+/// for unary expressions
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd)]
 pub enum UnOperator {
     Add,

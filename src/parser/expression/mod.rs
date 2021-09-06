@@ -173,27 +173,15 @@ enum OpOrExp {
 
 impl OpOrExp {
     fn is_binop(&self) -> bool {
-        if let &OpOrExp::Op(UnOrBinOp::BinOp(_)) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, OpOrExp::Op(UnOrBinOp::BinOp(_)))
     }
 
     fn is_unop(&self) -> bool {
-        if let &OpOrExp::Op(UnOrBinOp::UnOp(_)) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, OpOrExp::Op(UnOrBinOp::UnOp(_)))
     }
 
     fn is_exp(&self) -> bool {
-        if let &OpOrExp::Exp(_) = self {
-            true
-        } else {
-            false
-        }
+        matches!(self, OpOrExp::Exp(_))
     }
 }
 
@@ -215,7 +203,7 @@ impl From<FlatExpr> for Expression {
         }
 
         // Helper function. Expects o to be a UnOp and a to be an Exp
-        fn merge_nodes_unop<'a>(o: OpOrExp, a: OpOrExp) -> OpOrExp {
+        fn merge_nodes_unop(o: OpOrExp, a: OpOrExp) -> OpOrExp {
             match (o, a) {
                 (OpOrExp::Op(UnOrBinOp::UnOp(o)), OpOrExp::Exp(a)) => {
                     let merged_exp = Expression::UnaryOp(Box::new(UnaryOp { op: o, operand: a }));
@@ -234,8 +222,8 @@ impl From<FlatExpr> for Expression {
                     .enumerate()
                     .filter(|&(_, ref oe)| oe.is_binop())
                 {
-                    match oe {
-                        &OpOrExp::Op(UnOrBinOp::BinOp(ref o)) => {
+                    match *oe {
+                        OpOrExp::Op(UnOrBinOp::BinOp(ref o)) => {
                             // Found something to join
                             if binops.binary_search(o).is_ok() {
                                 assert!(i > 0);
@@ -246,12 +234,12 @@ impl From<FlatExpr> for Expression {
                                 // If UnOps haven't been merged yet, ignore them. If there are two
                                 // subsequent binops, that's an error. Otherwise we have a $ b
                                 // where a and b are Exps and $ is a BinOp
-                                match next {
-                                    &OpOrExp::Op(UnOrBinOp::UnOp(_)) => continue,
-                                    &OpOrExp::Op(UnOrBinOp::BinOp(_)) => {
+                                match *next {
+                                    OpOrExp::Op(UnOrBinOp::UnOp(_)) => continue,
+                                    OpOrExp::Op(UnOrBinOp::BinOp(_)) => {
                                         panic!("encountered two binops next to each other");
                                     }
-                                    &OpOrExp::Exp(_) => {
+                                    OpOrExp::Exp(_) => {
                                         tojoin_idx = Some(i);
                                         break;
                                     }
@@ -286,8 +274,8 @@ impl From<FlatExpr> for Expression {
                     .filter(|&(_, ref oe)| oe.is_unop())
                     .rev()
                 {
-                    match oe {
-                        &OpOrExp::Op(UnOrBinOp::UnOp(ref o)) => {
+                    match *oe {
+                        OpOrExp::Op(UnOrBinOp::UnOp(ref o)) => {
                             // Found something to join
                             if unops.binary_search(o).is_ok() {
                                 assert!(i.checked_add(1).is_some());

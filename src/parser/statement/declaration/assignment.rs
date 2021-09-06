@@ -3,7 +3,6 @@ use crate::parser::tokens::llet;
 use crate::parser::{literals::sp, parse_variable, Res, Variable};
 
 use nom::{
-    bytes::complete::tag,
     character::complete::char,
     combinator::cut,
     error::context,
@@ -39,8 +38,8 @@ pub fn parse_assignment(input: &str) -> Res<&str, Assignment> {
         (
             next_input,
             Assignment {
-                variable: variable,
-                expression: expression,
+                variable,
+                expression,
             },
         )
     })

@@ -83,7 +83,7 @@ fn parse_array(input: &str) -> Res<&str, Literal> {
             )),
         ),
     )(input)
-    .map(|(next_input, res)| (next_input, Literal::Array(Vec::from(res))))
+    .map(|(next_input, res)| (next_input, Literal::Array(res)))
 }
 
 fn parse_key_value(input: &str) -> Res<&str, (&str, Literal)> {

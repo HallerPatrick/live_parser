@@ -95,10 +95,7 @@ fn parse_function_call(input: &str) -> Res<&str, PrefixExpr> {
     let func_call_expr = prefixexpr(input);
 
     let is_func_call = match func_call_expr {
-        Ok((_, ref o)) => match o.suffix_chain.last().unwrap() {
-            ExprSuffix::FuncCall(_) => true,
-            _ => false,
-        },
+        Ok((_, ref o)) => matches!(o.suffix_chain.last().unwrap(), ExprSuffix::FuncCall(_)),
         _ => false,
     };
 
