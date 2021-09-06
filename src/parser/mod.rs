@@ -33,6 +33,14 @@ pub struct Variable {
     name: String,
 }
 
+impl Variable {
+    pub fn new(name: &str) -> Self {
+        Variable {
+            name: String::from(name),
+        }
+    }
+}
+
 fn parse_variable_raw(input: &str) -> Res<&str, &str> {
     context(
         "Variable",

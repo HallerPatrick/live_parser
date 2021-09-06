@@ -2,8 +2,8 @@ use crate::parser::{
     literals::sp,
     parse_variable_raw,
     statement::opt_line_ending,
-    statement::parse_statements,
-    statement::{declaration::parse_parameter_list, Statement},
+    statement::parse_block,
+    statement::{declaration::parse_parameter_list, Block, Statement},
     tokens::{end, fun},
     Res, Variable,
 };
@@ -18,18 +18,14 @@ use nom::{
 pub struct Function {
     pub name: String,
     pub parameters: Vec<Variable>,
-    pub statements: Vec<Statement>,
+    pub statements: Block,
 }
 
 pub fn parse_function(input: &str) -> Res<&str, Function> {
     context(
         "Func",
         terminated(
-            tuple((
-                parse_function_name,
-                parse_function_arguments,
-                parse_statements,
-            )),
+            tuple((parse_function_name, parse_function_arguments, parse_block)),
             preceded(sp, end),
         ),
     )(input)
@@ -63,9 +59,11 @@ fn parse_function_arguments(input: &str) -> Res<&str, Vec<Variable>> {
 mod tests {
 
     use super::*;
-    use crate::parser::expression::Expression;
+    use crate::parser::expression::binary::BinaryOp;
+    use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
-    use crate::parser::statement::Assignment;
+    use crate::parser::statement::{Assignment, If, ReturnStmt};
+    use crate::parser::tokens::Operator;
 
     #[test]
     fn test_parse_function_name() {
@@ -74,47 +72,99 @@ mod tests {
         assert_eq!(res, Ok((" ()", "hello")));
     }
 
-    // #[test]
-    // fn test_parse_function() {
-    //     let string = "fun hello(x, y)\n\tlet some = \"1\"\nend";
-    //     let res = parse_function(string);
+    #[test]
+    fn test_parse_function() {
+        let string = "fun hello(x, y)\n\tlet some = \"1\"\nend";
+        let res = parse_function(string);
 
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             Function {
-    //                 name: String::from("hello"),
-    //                 parameters: vec![
-    //                     Variable {
-    //                         name: String::from("x")
-    //                     },
-    //                     Variable {
-    //                         name: String::from("y")
-    //                     }
-    //                 ],
-    //                 statements: vec![Statement::Assignment(Assignment {
-    //                     variable: Variable {
-    //                         name: String::from("some")
-    //                     },
-    //                     expression: Expression
-    //                 })]
-    //             }
-    //         ))
-    //     );
-    // }
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Function {
+                    name: String::from("hello"),
+                    parameters: vec![
+                        Variable {
+                            name: String::from("x")
+                        },
+                        Variable {
+                            name: String::from("y")
+                        }
+                    ],
+                    statements: Block {
+                        statements: vec![Statement::Assignment(Assignment {
+                            variable: Variable {
+                                name: String::from("some")
+                            },
+                            expression: Expression::Literal(Literal::Str(String::from("1")))
+                        })],
+                        return_stmt: None
+                    }
+                }
+            ))
+        );
+    }
 
-    // #[test]
-    // fn test_fun() {
-    //     let string = "fun fib(n)\n    if n == 0  do\n        return 0\n    end\n\n    if n == 1 do\n        return 1\n    end\n\n    if n == 2 do\n        return 1\n    end\n\n    return fib(n-1) + fib(n-2)\nend";
-    //     let res = parse_function(string);
-    //     println!("{:?}", res);
-    // }
+    #[test]
+    fn test_fun_1() {
+        let string = "fun fib(n)\n\nend";
+        let res = parse_function(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Function {
+                    name: String::from("fib"),
+                    parameters: vec![Variable {
+                        name: String::from("n")
+                    }],
+                    statements: Block {
+                        statements: vec![],
+                        return_stmt: None
+                    }
+                }
+            ))
+        );
+    }
 
-    // #[test]
-    // fn test_fun_1() {
-    //     let string = "fun fib(n)\n\nend";
-    //     let res = parse_function(string);
-    //     println!("{:?}", res);
-    // }
+    #[test]
+    fn test_fun() {
+        let string = "fun fib(n)\n    if n == 0  do\n        return 0\n    end\nend";
+        let res = parse_function(string);
+
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Function {
+                    name: String::from("fib"),
+                    parameters: vec![Variable {
+                        name: String::from("n")
+                    }],
+                    statements: Block {
+                        statements: vec![Statement::If(If {
+                            cond: Expression::BinaryOp(Box::new(BinaryOp {
+                                left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                                    prefix: ExprOrVarname::Varname(Variable {
+                                        name: String::from("n")
+                                    }),
+                                    suffix_chain: vec![]
+                                })),
+                                op: Operator::EQ,
+                                right: Expression::Literal(Literal::Num(0.0))
+                            })),
+                            stmts: Block {
+                                statements: vec![],
+                                return_stmt: Some(ReturnStmt {
+                                    values: vec![Expression::Literal(Literal::Num(0.0))]
+                                })
+                            },
+                            else_statements: None
+                        })],
+                        return_stmt: None
+                    }
+                }
+            ))
+        )
+    }
 }

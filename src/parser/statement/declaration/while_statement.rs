@@ -45,65 +45,71 @@ mod tests {
 
     use super::*;
 
-    use crate::parser::expression::Expression;
+    use crate::parser::expression::binary::BinaryOp;
+    use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
     use crate::parser::statement::declaration::assignment::Assignment;
+    use crate::parser::tokens::Operator;
     use crate::parser::Variable;
 
-    // #[test]
-    // fn parse_while_condition() {
-    //     let string = "while x < 3 do";
-    //     let res = while_condition(string);
+    #[test]
+    fn parse_while_condition() {
+        let string = "while x < 3 do";
+        let res = while_condition(string);
 
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             vec![
-    //                 ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                     name: String::from("x")
-    //                 })),
-    //                 ExpressionTerm::Token(String::from("<")),
-    //                 ExpressionTerm::Literal(Literal::Num(3.0))
-    //             ]
-    //         ))
-    //     )
-    // }
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Expression::BinaryOp(Box::new(BinaryOp {
+                    op: Operator::Lt,
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Variable::new("x")),
+                        suffix_chain: vec![],
+                    })),
+                    right: Expression::Literal(Literal::Num(3.0)),
+                }))
+            ))
+        )
+    }
 
-    // #[test]
-    // fn parse_while_statement() {
-    //     let string = "while x < 3 do x + 3\n let y = 3 \nend";
-    //     let res = parse_while(string);
+    #[test]
+    fn parse_while_statement() {
+        let string = "while x < 3 do let z = x + 3\n let y = 3 \nend";
+        let res = parse_while(string);
 
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             While {
-    //                 cond: vec![
-    //                     ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                         name: String::from("x")
-    //                     })),
-    //                     ExpressionTerm::Token(String::from("<")),
-    //                     ExpressionTerm::Literal(Literal::Num(3.0))
-    //                 ],
-    //                 stmts: vec![
-    //                     Statement::Expression(vec![
-    //                         ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                             name: String::from("x")
-    //                         })),
-    //                         ExpressionTerm::Token(String::from("+")),
-    //                         ExpressionTerm::Literal(Literal::Num(3.0))
-    //                     ]),
-    //                     Statement::Assignment(Assignment {
-    //                         variable: Variable {
-    //                             name: String::from("y")
-    //                         },
-    //                         expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
-    //                     })
-    //                 ]
-    //             }
-    //         ))
-    //     )
-    // }
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                While {
+                    cond: Expression::BinaryOp(Box::new(BinaryOp {
+                        op: Operator::Lt,
+                        left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                            prefix: ExprOrVarname::Varname(Variable::new("x")),
+                            suffix_chain: vec![],
+                        })),
+                        right: Expression::Literal(Literal::Num(3.0)),
+                    })),
+                    stmts: vec![
+                        Statement::Assignment(Assignment {
+                            variable: Variable::new("z"),
+                            expression: Expression::BinaryOp(Box::new(BinaryOp {
+                                op: Operator::Add,
+                                left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                                    prefix: ExprOrVarname::Varname(Variable::new("x")),
+                                    suffix_chain: vec![],
+                                })),
+                                right: Expression::Literal(Literal::Num(3.0)),
+                            })),
+                        }),
+                        Statement::Assignment(Assignment {
+                            variable: Variable::new("y"),
+                            expression: Expression::Literal(Literal::Num(3.0)),
+                        }),
+                    ]
+                }
+            ))
+        )
+    }
 }

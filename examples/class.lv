@@ -1,0 +1,9 @@
+
+
+class Hello
+
+    fun method1()
+        return "Hello World"
+    end
+
+end

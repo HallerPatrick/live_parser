@@ -32,16 +32,14 @@ use crate::parser::{
     literals::{parse_literal, sp, Literal},
     parse_variable,
     tokens::{
-        dot, left_bracket, left_paren, parse_binary_operator, parse_tokens, parse_unary_operator,
-        right_bracket, right_paren, Operator, UnOperator, BINOP_PRECEDENCE, UNOPS,
+        dot, left_bracket, left_paren, parse_binary_operator, parse_unary_operator, right_bracket,
+        right_paren, Operator, UnOperator, BINOP_PRECEDENCE, UNOPS,
     },
     Res, Variable,
 };
 
-use crate::parser::expression::binary::{
-    parse_binary, parse_bool_op, parse_unary, BinaryOp, BoolOp, UnaryOp,
-};
-use call::{parse_call, parse_member_call, Call, MemberCall};
+use crate::parser::expression::binary::{BinaryOp, UnaryOp};
+use call::{parse_call, Call, MemberCall};
 
 use nom::{
     branch::alt,
@@ -80,12 +78,15 @@ pub fn parse_expression(input: &str) -> Res<&str, Expression> {
 pub fn parse_expression2(input: &str) -> Res<&str, Expression2> {
     context(
         "Expression2",
-        preceded(sp, 
-        alt((
-            // The order is important
-            map(parse_literal, Expression2::Literal),
-            map(prefixexpr, Expression2::PrefixExpr),
-        ))),
+        preceded(
+            sp,
+            alt((
+                // The order is important
+                // TODO: Figure out if we need to parse literals, this is done by prefixexpr
+                map(prefixexpr, Expression2::PrefixExpr),
+                map(parse_literal, Expression2::Literal),
+            )),
+        ),
     )(input)
 }
 
@@ -98,7 +99,10 @@ struct ExprHead {
 fn parse_head(input: &str) -> Res<&str, ExprHead> {
     context(
         "NestedExpression",
-        preceded(sp, tuple((many0(parse_unary_operator), preceded(sp, parse_expression2)))),
+        preceded(
+            sp,
+            tuple((many0(parse_unary_operator), preceded(sp, parse_expression2))),
+        ),
     )(input)
     .map(|(next_input, res)| {
         (
@@ -114,22 +118,24 @@ fn parse_head(input: &str) -> Res<&str, ExprHead> {
 fn parse_bin_op_chain(input: &str) -> Res<&str, Vec<(Operator, ExprHead)>> {
     context(
         "OpChain",
-        preceded(sp, 
-        many0(tuple((parse_binary_operator, preceded(sp, parse_head)))))
+        preceded(
+            sp,
+            many0(tuple((parse_binary_operator, preceded(sp, parse_head)))),
+        ),
     )(input)
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub struct PrefixExpr {
-    prefix: ExprOrVarname,
-    suffix_chain: Vec<ExprSuffix>,
+    pub prefix: ExprOrVarname,
+    pub suffix_chain: Vec<ExprSuffix>,
 }
 
 /// This parser deals with all kind of suffix expressions which are part
 /// of a single expression
 ///
 /// E.g. tbl.method()[idx](call, parameter)
-fn prefixexpr(input: &str) -> Res<&str, PrefixExpr> {
+pub fn prefixexpr(input: &str) -> Res<&str, PrefixExpr> {
     context(
         "PrefixExpr",
         preceded(sp, tuple((prefixexpr2, many0(prefixexpr3)))),
@@ -146,7 +152,7 @@ fn prefixexpr(input: &str) -> Res<&str, PrefixExpr> {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-enum ExprOrVarname {
+pub enum ExprOrVarname {
     Exp(Expression),
     Varname(Variable),
 }
@@ -339,7 +345,7 @@ impl From<FlatExpr> for Expression {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-enum UnOrBinOp {
+pub enum UnOrBinOp {
     UnOp(UnOperator),
     BinOp(Operator),
 }
@@ -380,7 +386,7 @@ fn prefixexpr2(input: &str) -> Res<&str, ExprOrVarname> {
 }
 
 #[derive(Clone, PartialEq, Debug)]
-enum ExprSuffix {
+pub enum ExprSuffix {
     TableDot(Variable),
     TableIdx(Expression),
     FuncCall(Call),
@@ -417,10 +423,75 @@ mod tests {
     use crate::parser::Variable;
 
     #[test]
+    fn test_parse_head() {
+        let string = "-hello and test";
+        let res = parse_head(string);
+        println!("{:?}", res);
+
+        assert_eq!(
+            res,
+            Ok((
+                " and test",
+                ExprHead {
+                    un_ops: vec![UnOperator::Sub],
+                    expr: Expression2::PrefixExpr(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Variable {
+                            name: String::from("hello")
+                        }),
+                        suffix_chain: vec![]
+                    })
+                }
+            ))
+        )
+    }
+
+    #[test]
+    fn test_parse_bin_op_chain() {
+        let string = "< hello() - 3";
+        let res = parse_bin_op_chain(string);
+        println!("{:?}", res);
+    }
+
+    #[test]
     fn test_expr_lexer6() {
         let string = "hello()";
         let res = parse_expression(string);
-        println!("{:?}", res);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Variable {
+                        name: String::from("hello")
+                    }),
+                    suffix_chain: vec![ExprSuffix::FuncCall(Call {
+                        args: vec![],
+                        callee: None
+                    })]
+                }))
+            ))
+        );
+    }
+
+    #[test]
+    fn test_expr_lexer7() {
+        let string = "hello()";
+        let res = prefixexpr(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Variable {
+                        name: String::from("hello")
+                    }),
+                    suffix_chain: vec![ExprSuffix::FuncCall(Call {
+                        args: vec![],
+                        callee: None
+                    })]
+                }
+            ))
+        );
     }
 
     #[test]
@@ -441,7 +512,12 @@ mod tests {
                 Expression::BinaryOp(Box::new(BinaryOp {
                     op: Operator::Lt,
                     left: Expression::Literal(Literal::Num(3.0)),
-                    right: Expression::Literal(Literal::Variable(Variable { name: String::from("x") }))
+                    right: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Variable {
+                            name: String::from("x")
+                        }),
+                        suffix_chain: vec![]
+                    }))
                 }))
             ))
         )
@@ -451,57 +527,67 @@ mod tests {
     fn test_expr_lexer5() {
         let string = "(3 < x) and Nil == Nil";
         let res = parse_expression(string);
-        println!("{:?}", res);
-        // assert_eq!(
-        //     res,
-        //     Ok((
-        //         "",
-        //         Expression::CompOp(Box::new(CompOp {
-        //             op: CompOperator::LessThan,
-        //             left: Expression::Literal(Literal::Num(3.0)),
-        //             right: Expression::Literal(Literal::Num(3.0))
-        //         }))
-        //     ))
-        // )
+
+        let left = Expression::PrefixExpr(Box::new(PrefixExpr {
+            prefix: ExprOrVarname::Exp(Expression::BinaryOp(Box::new(BinaryOp {
+                op: Operator::Lt,
+                left: Expression::Literal(Literal::Num(3.0)),
+                right: Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Variable {
+                        name: String::from("x"),
+                    }),
+                    suffix_chain: vec![],
+                })),
+            }))),
+            suffix_chain: vec![],
+        }));
+
+        let right = Expression::BinaryOp(Box::new(BinaryOp {
+            op: Operator::EQ,
+            left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                prefix: ExprOrVarname::Varname(Variable {
+                    name: String::from("Nil"),
+                }),
+                suffix_chain: vec![],
+            })),
+            right: Expression::PrefixExpr(Box::new(PrefixExpr {
+                prefix: ExprOrVarname::Varname(Variable {
+                    name: String::from("Nil"),
+                }),
+                suffix_chain: vec![],
+            })),
+        }));
+
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Expression::BinaryOp(Box::new(BinaryOp {
+                    left: left,
+                    op: Operator::And,
+                    right: right
+                }))
+            ))
+        )
     }
 
-    // #[test]
-    // fn test_expr_lexer2() {
-    //     let string = "(3 + 4)";
-    //     let res = expression_lexer(string);
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             vec![
-    //                 ExpressionTerm::Token(String::from("(")),
-    //                 ExpressionTerm::Literal(Literal::Num(3.0)),
-    //                 ExpressionTerm::Token(String::from("+")),
-    //                 ExpressionTerm::Literal(Literal::Num(4.0)),
-    //                 ExpressionTerm::Token(String::from(")"))
-    //             ]
-    //         ))
-    //     )
-    // }
-
-    // #[test]
-    // fn test_expr_lexer1() {
-    //     let string = "(3 + x)";
-    //     let res = expression_lexer(string);
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             vec![
-    //                 ExpressionTerm::Token(String::from("(")),
-    //                 ExpressionTerm::Literal(Literal::Num(3.0)),
-    //                 ExpressionTerm::Token(String::from("+")),
-    //                 ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                     name: String::from("x")
-    //                 })),
-    //                 ExpressionTerm::Token(String::from(")"))
-    //             ]
-    //         ))
-    //     )
-    // }
+    #[test]
+    fn test_expr_lexer2() {
+        let string = "(3 + 4)";
+        let res = parse_expression(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Exp(Expression::BinaryOp(Box::new(BinaryOp {
+                        op: Operator::Add,
+                        left: Expression::Literal(Literal::Num(3.0)),
+                        right: Expression::Literal(Literal::Num(4.0))
+                    }))),
+                    suffix_chain: vec![]
+                }))
+            ))
+        )
+    }
 }

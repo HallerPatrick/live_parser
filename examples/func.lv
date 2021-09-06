@@ -1,7 +1,6 @@
 
 fun test(x, h, foo)
     let hello = 1
-    x * 2
     print("Hello")
 end
 

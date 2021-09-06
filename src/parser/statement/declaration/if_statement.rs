@@ -4,7 +4,7 @@ use crate::parser::literals::sp;
 use crate::parser::tokens::{end, ldo, lelse, lif};
 use crate::parser::Res;
 
-use crate::parser::statement::{parse_statements, Statement};
+use crate::parser::statement::{parse_block, parse_statements, Block, Statement};
 
 use nom::{
     combinator::opt,
@@ -14,9 +14,9 @@ use nom::{
 
 #[derive(Debug, PartialEq)]
 pub struct If {
-    cond: Expression,
-    stmts: Vec<Statement>,
-    else_statements: Option<Vec<Statement>>,
+    pub cond: Expression,
+    pub stmts: Block,
+    pub else_statements: Option<Block>,
 }
 
 pub fn parse_if(input: &str) -> Res<&str, If> {
@@ -24,7 +24,7 @@ pub fn parse_if(input: &str) -> Res<&str, If> {
         "If",
         tuple((
             if_condition,
-            parse_statements,
+            parse_block,
             terminated(opt(else_statements), preceded(sp, end)),
         )),
     )(input)
@@ -40,8 +40,8 @@ pub fn parse_if(input: &str) -> Res<&str, If> {
     })
 }
 
-fn else_statements(input: &str) -> Res<&str, Vec<Statement>> {
-    context("ElseStmt", preceded(preceded(sp, lelse), parse_statements))(input)
+fn else_statements(input: &str) -> Res<&str, Block> {
+    context("ElseStmt", preceded(preceded(sp, lelse), parse_block))(input)
 }
 
 fn if_condition(input: &str) -> Res<&str, Expression> {
@@ -61,12 +61,12 @@ mod tests {
     use super::*;
 
     use crate::parser::expression::Expression;
+    use crate::parser::expression::{binary::BinaryOp, ExprOrVarname, PrefixExpr};
     use crate::parser::literals::Literal;
     use crate::parser::statement::declaration::assignment::Assignment;
     use crate::parser::statement::ReturnStmt;
-    use crate::parser::Variable;
     use crate::parser::tokens::Operator;
-    use crate::parser::expression::binary::BinaryOp;
+    use crate::parser::Variable;
 
     #[test]
     fn parse_if_condition() {
@@ -78,7 +78,10 @@ mod tests {
             Ok((
                 "",
                 Expression::BinaryOp(Box::new(BinaryOp {
-                    left: Expression::Literal(Literal::Variable(Variable { name: String::from("x") })),
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Variable::new("x")),
+                        suffix_chain: vec![],
+                    })),
                     op: Operator::Lt,
                     right: Expression::Literal(Literal::Num(3.0)),
                 }))
@@ -86,69 +89,77 @@ mod tests {
         )
     }
 
-    // #[test]
-    // fn parse_if_statements() {
-    //     let string = "if x < 3 do x + 3\n let y = 3 \nend";
-    //     let res = parse_if(string);
+    #[test]
+    fn parse_if_statements() {
+        let string = "if x < 3 do let z = x + 3\n let y = 3 \nend";
+        let res = parse_if(string);
 
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             If {
-    //                 cond: vec![
-    //                     ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                         name: String::from("x")
-    //                     })),
-    //                     ExpressionTerm::Token(String::from("<")),
-    //                     ExpressionTerm::Literal(Literal::Num(3.0))
-    //                 ],
-    //                 stmts: vec![
-    //                     Statement::Expression(vec![
-    //                         ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                             name: String::from("x")
-    //                         })),
-    //                         ExpressionTerm::Token(String::from("+")),
-    //                         ExpressionTerm::Literal(Literal::Num(3.0))
-    //                     ]),
-    //                     Statement::Assignment(Assignment {
-    //                         variable: Variable {
-    //                             name: String::from("y")
-    //                         },
-    //                         expression: vec![ExpressionTerm::Literal(Literal::Num(3.0))]
-    //                     })
-    //                 ],
-    //                 else_statements: None
-    //             }
-    //         ))
-    //     )
-    // }
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                If {
+                    cond: Expression::BinaryOp(Box::new(BinaryOp {
+                        left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                            prefix: ExprOrVarname::Varname(Variable::new("x")),
+                            suffix_chain: vec![],
+                        })),
+                        op: Operator::Lt,
+                        right: Expression::Literal(Literal::Num(3.0)),
+                    })),
+                    stmts: Block {
+                        statements: vec![
+                            Statement::Assignment(Assignment {
+                                variable: Variable::new("z"),
+                                expression: Expression::BinaryOp(Box::new(BinaryOp {
+                                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                                        prefix: ExprOrVarname::Varname(Variable::new("x")),
+                                        suffix_chain: vec![],
+                                    })),
+                                    op: Operator::Add,
+                                    right: Expression::Literal(Literal::Num(3.0)),
+                                })),
+                            }),
+                            Statement::Assignment(Assignment {
+                                variable: Variable::new("y"),
+                                expression: Expression::Literal(Literal::Num(3.0)),
+                            }),
+                        ],
+                        return_stmt: None,
+                    },
+                    else_statements: None
+                }
+            ))
+        )
+    }
 
-    // #[test]
-    // fn parse_if_statements_with_return() {
-    //     let string = "if x < 3 do return 0 \nend";
-    //     let res = parse_if(string);
+    #[test]
+    fn parse_if_statements_with_return() {
+        let string = "if x < 3 do return 0 \nend";
+        let res = parse_if(string);
 
-    //     assert_eq!(
-    //         res,
-    //         Ok((
-    //             "",
-    //             If {
-    //                 cond: vec![
-    //                     ExpressionTerm::Literal(Literal::Variable(Variable {
-    //                         name: String::from("x")
-    //                     })),
-    //                     ExpressionTerm::Token(String::from("<")),
-    //                     ExpressionTerm::Literal(Literal::Num(3.0))
-    //                 ],
-    //                 stmts: vec![
-    //                     Statement::Return(ReturnStmt {values: vec![ExpressionTerm::Literal(Literal::Num(0.0))]}),
-    //                 ],
-    //                 else_statements: None
-    //             }
-    //         ))
-    //     )
-    // }
-
-    // TODO: Test with else stmts
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                If {
+                    cond: Expression::BinaryOp(Box::new(BinaryOp {
+                        left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                            prefix: ExprOrVarname::Varname(Variable::new("x")),
+                            suffix_chain: vec![],
+                        })),
+                        op: Operator::Lt,
+                        right: Expression::Literal(Literal::Num(3.0)),
+                    })),
+                    stmts: Block {
+                        statements: vec![],
+                        return_stmt: Some(ReturnStmt {
+                            values: vec![Expression::Literal(Literal::Num(0.0))],
+                        }),
+                    },
+                    else_statements: None
+                }
+            ))
+        )
+    }
 }

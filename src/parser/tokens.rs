@@ -1,9 +1,11 @@
+use crate::parser::literals::sp;
 /// Colletion of some keywords and tokens which are common
 use crate::parser::Res;
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
 use nom::error::context;
+use nom::sequence::preceded;
 
 pub const KEYWORDS: [&'static str; 11] = [
     "return", "class", "end", "fun", "do", "while", "for", "if", "let", "in", "else",
@@ -134,33 +136,38 @@ pub enum CompOperator {
 }
 
 pub fn parse_unary_operator(input: &str) -> Res<&str, UnOperator> {
-    context("UnaryOperator", alt((add, sub, mul, div)))(input).map(|(next_input, res)| {
-        match res {
-            "+" => (next_input, UnOperator::Add),
-            "-" => (next_input, UnOperator::Sub),
-            "not" => (next_input, UnOperator::Not),
-            // This should never reach!
-            _ => (next_input, UnOperator::Add),
-        }
-    })
+    context("UnaryOperator", preceded(sp, alt((add, sub, mul, div))))(input).map(
+        |(next_input, res)| {
+            match res {
+                "+" => (next_input, UnOperator::Add),
+                "-" => (next_input, UnOperator::Sub),
+                "not" => (next_input, UnOperator::Not),
+                // This should never reach!
+                _ => (next_input, UnOperator::Add),
+            }
+        },
+    )
 }
 
 pub fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
     context(
         "Operator",
-        alt((
-            add,
-            sub,
-            mul,
-            div,
-            equal,
-            unequal,
-            less_than,
-            greater_than,
-            greater_eq_than,
-            less_eq_than,
-            land,
-        )),
+        preceded(
+            sp,
+            alt((
+                add,
+                sub,
+                mul,
+                div,
+                equal,
+                unequal,
+                less_than,
+                greater_than,
+                greater_eq_than,
+                less_eq_than,
+                land,
+            )),
+        ),
     )(input)
     .map(|(next_input, res)| {
         match res {

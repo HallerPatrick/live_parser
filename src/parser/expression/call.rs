@@ -1,11 +1,11 @@
 use nom::{
+    combinator::opt,
     error::context,
     multi::separated_list0,
     sequence::{delimited, preceded, terminated, tuple},
-    combinator::opt
 };
 
-use super::{ Expression, parse_expression };
+use super::{parse_expression, Expression};
 
 use crate::parser::{
     literals::{parse_literal, sp, Literal},
@@ -28,8 +28,8 @@ pub struct Call {
 pub fn args(input: &str) -> Res<&str, Vec<Expression>> {
     context(
         "Args",
-        separated_list0(preceded(sp, comma), parse_expression)
-        )(input)
+        separated_list0(preceded(sp, comma), parse_expression),
+    )(input)
 }
 
 pub fn parse_call(input: &str) -> Res<&str, Call> {
@@ -39,10 +39,7 @@ pub fn parse_call(input: &str) -> Res<&str, Call> {
             opt(preceded(sp, parse_literal)),
             delimited(
                 preceded(sp, left_paren),
-                preceded(
-                    sp,
-                    args
-                ),
+                preceded(sp, args),
                 preceded(sp, right_paren),
             ),
         )),
