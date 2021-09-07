@@ -35,13 +35,10 @@ jobs:
         with:
           command: doc
           args: --verbose --no-deps
-          
-      - name: Move to docs
-        run: "rm -rf docs && mv ./target/doc/liva_parser docs"
-        
+      
       - name: Commit Docs
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          publish_dir: ./target/doc
 
