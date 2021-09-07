@@ -87,7 +87,9 @@ define_token! {
     {less_than, "LessThan", "<"},
     {greater_than, "GreaterThan", ">"},
     {less_eq_than, "LessEqThan", "<="},
-    {greater_eq_than, "GreaterEqThan", ">="}
+    {greater_eq_than, "GreaterEqThan", ">="},
+    {comment, "Comment", "//"},
+    {newline, "Newline", "\n"}
 }
 
 define_token! {

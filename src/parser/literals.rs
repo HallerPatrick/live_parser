@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use crate::parser::{tokens::KEYWORDS, Res};
+use crate::parser::{comment::parse_comment, tokens::KEYWORDS, Res};
 use nom::{
     branch::alt,
     bytes::complete::{escaped, tag, tag_no_case, take_while},
@@ -72,7 +72,7 @@ pub(crate) fn sp(input: &str) -> Res<&str, &str> {
     let chars = " \t\r\n";
     // nom combinators like `take_while` return a function. That function is the
     // parser,to which we can pass the input
-    take_while(move |c| chars.contains(c))(input)
+    alt((take_while(move |c| chars.contains(c)), parse_comment))(input)
 }
 
 fn alphanumeric_ws(input: &str) -> Res<&str, &str> {
@@ -84,9 +84,19 @@ fn parse_string(input: &str) -> Res<&str, &str> {
 }
 
 fn parse_str_raw(input: &str) -> Res<&str, &str> {
+    alt((parse_str_raw_single, parse_str_raw_double))(input)
+}
+fn parse_str_raw_single(input: &str) -> Res<&str, &str> {
     context(
         "String",
         preceded(char('\"'), cut(terminated(parse_string, char('\"')))),
+    )(input)
+}
+
+fn parse_str_raw_double(input: &str) -> Res<&str, &str> {
+    context(
+        "String",
+        preceded(char('\''), cut(terminated(parse_string, char('\'')))),
     )(input)
 }
 
@@ -116,6 +126,7 @@ fn parse_nil(input: &str) -> Res<&str, Literal> {
     context("Nil", tag_no_case("Nil"))(input).map(|(next_input, _)| (next_input, Literal::Nil))
 }
 
+// TODO: Not only literals, but also expressions are allowed in list
 fn parse_array(input: &str) -> Res<&str, Literal> {
     context(
         "Array",
@@ -138,6 +149,7 @@ fn parse_key_value(input: &str) -> Res<&str, (&str, Literal)> {
     )(input)
 }
 
+// TODO: Not only literals, but also expressions are allowed in maps
 fn parse_map(input: &str) -> Res<&str, Literal> {
     context(
         "Map",

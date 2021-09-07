@@ -3,6 +3,7 @@ use nom::{
     sequence::{delimited, preceded, terminated, tuple},
 };
 
+use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::literals::sp;
 use crate::parser::literals::{parse_variable, Variable};
 use crate::parser::statement::{parse_block, Block};
@@ -11,8 +12,8 @@ use crate::parser::Res;
 
 #[derive(Debug, PartialEq)]
 pub struct For {
-    iterator: Variable,
     iter_item: Variable,
+    iterator: Expression,
     block: Block,
 }
 
@@ -41,12 +42,12 @@ fn parse_iter_item(input: &str) -> Res<&str, Variable> {
     )(input)
 }
 
-fn parse_iterator(input: &str) -> Res<&str, Variable> {
+fn parse_iterator(input: &str) -> Res<&str, Expression> {
     context(
         "ForIterator",
         delimited(
             preceded(sp, lin),
-            preceded(sp, parse_variable),
+            preceded(sp, parse_expression),
             preceded(sp, ldo),
         ),
     )(input)
@@ -56,7 +57,7 @@ fn parse_iterator(input: &str) -> Res<&str, Variable> {
 mod tests {
 
     use super::*;
-    use crate::parser::expression::Expression;
+    use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
     use crate::parser::statement::{Block, LAssignment, Statement};
 
@@ -83,9 +84,10 @@ mod tests {
             res,
             Ok((
                 "",
-                Variable {
-                    name: String::from("iterator")
-                }
+                Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Variable::new("iterator")),
+                    suffix_chain: vec![]
+                }))
             ))
         );
     }
@@ -103,9 +105,10 @@ mod tests {
                     iter_item: Variable {
                         name: String::from("x")
                     },
-                    iterator: Variable {
-                        name: String::from("y")
-                    },
+                    iterator: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Variable::new("y")),
+                        suffix_chain: vec![]
+                    })),
                     block: Block {
                         statements: vec![Statement::LAssignment(LAssignment {
                             variable: Variable {

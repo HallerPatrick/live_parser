@@ -327,6 +327,7 @@ fn flat_expr_from_components(head: ExprHead, binop_chain: Vec<(Operator, ExprHea
     FlatExpr(res)
 }
 
+// TODO: Rename this to prefix_expr
 fn prefixexpr2(input: &str) -> Res<&str, ExprOrVarname> {
     preceded(
         sp,
@@ -347,6 +348,7 @@ pub enum ExprSuffix {
     FuncCall(Call),
 }
 
+// TODO: Rename this to suffix_chain
 fn prefixexpr3(input: &str) -> Res<&str, ExprSuffix> {
     preceded(
         sp,
@@ -542,6 +544,24 @@ mod tests {
                     }))),
                     suffix_chain: vec![]
                 }))
+            ))
+        )
+    }
+
+    #[test]
+    fn test_parse_list_as_expr() {
+        let string = "[1, 2, 3, 4]";
+        let res = parse_expression(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Expression::Literal(Literal::Array(vec![
+                    Literal::Num(1.0),
+                    Literal::Num(2.0),
+                    Literal::Num(3.0),
+                    Literal::Num(4.0)
+                ]))
             ))
         )
     }

@@ -30,3 +30,11 @@ pub fn print_ast(filename: &str) -> Result<(), Box<dyn Error>> {
     println!("{:?}", parse_source(source.as_str()));
     Ok(())
 }
+
+#[test]
+fn test_parser() -> Result<(), Box<dyn Error>> {
+    let source: String = fs::read_to_string("examples/class.lv")?;
+    let res = parse_source(source.as_str());
+    println!("{:?}", res);
+    Ok(())
+}

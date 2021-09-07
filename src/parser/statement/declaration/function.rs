@@ -129,6 +129,33 @@ mod tests {
     }
 
     #[test]
+    fn test_fun_return() {
+        let string = "\n\n\tfun fib(n)\n\t\treturn 'Hello World'\n\tend";
+        let res = parse_function(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Function {
+                    name: String::from("fib"),
+                    parameters: vec![Variable {
+                        name: String::from("n")
+                    }],
+                    statements: Block {
+                        statements: vec![],
+                        return_stmt: Some(ReturnStmt {
+                            values: vec![Expression::Literal(Literal::Str(String::from(
+                                "Hello World"
+                            )))],
+                        })
+                    }
+                }
+            ))
+        );
+    }
+
+    #[test]
+    #[test]
     fn test_fun() {
         let string = "fun fib(n)\n    if n == 0  do\n        return 0\n    end\nend";
         let res = parse_function(string);
@@ -167,5 +194,12 @@ mod tests {
                 }
             ))
         )
+    }
+
+    #[test]
+    fn test_fun_2() {
+        let string = "fun init(self, height, weight)\r\n       self.height = height\r\n       self.weight = weight \r\n    end\r\n\r\n     ";
+        let res = parse_function(string);
+        // println!("{:?}", res);
     }
 }

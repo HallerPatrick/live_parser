@@ -47,10 +47,10 @@ mod tests {
 
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
-    use crate::parser::statement::Statement;
-    use crate::parser::statement::declaration::assignment::LAssignment;
     use crate::parser::literals::Literal;
     use crate::parser::literals::Variable;
+    use crate::parser::statement::declaration::assignment::LAssignment;
+    use crate::parser::statement::Statement;
     use crate::parser::tokens::Operator;
 
     #[test]
@@ -94,27 +94,21 @@ mod tests {
                     })),
                     block: Block {
                         statements: vec![
-                            Statement::LAssignment(
-                                LAssignment {
-                                    variable: Variable::new("z"),
-                                    expression: Expression::BinaryOp(Box::new(
-                                            BinaryOp {
-                                                left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                                    prefix: ExprOrVarname::Varname(Variable::new("x")),
-                                                    suffix_chain: vec![]
-                                                })),
-                                                op: Operator::Add,
-                                                right: Expression::Literal(Literal::Num(3.0))
-                                            }
-                                            ))
-                                }
-                            ),
-                            Statement::LAssignment(
-                                LAssignment {
-                                    variable: Variable::new("y"),
-                                    expression: Expression::Literal(Literal::Num(3.0))
-                                }
-                            )
+                            Statement::LAssignment(LAssignment {
+                                variable: Variable::new("z"),
+                                expression: Expression::BinaryOp(Box::new(BinaryOp {
+                                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                                        prefix: ExprOrVarname::Varname(Variable::new("x")),
+                                        suffix_chain: vec![]
+                                    })),
+                                    op: Operator::Add,
+                                    right: Expression::Literal(Literal::Num(3.0))
+                                }))
+                            }),
+                            Statement::LAssignment(LAssignment {
+                                variable: Variable::new("y"),
+                                expression: Expression::Literal(Literal::Num(3.0))
+                            })
                         ],
                         return_stmt: None
                     }

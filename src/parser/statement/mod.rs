@@ -79,21 +79,18 @@ fn parse_statement(input: &str) -> Res<&str, Statement> {
         "Stmt",
         terminated(
             preceded(
-                opt_line_ending,
-                preceded(
-                    space0,
-                    alt((
-                        map(parse_assignment, Statement::Assignment),
-                        map(parse_lassignment, Statement::LAssignment),
-                        map(parse_if, Statement::If),
-                        map(parse_for, Statement::For),
-                        map(parse_while, Statement::While),
-                        map(parse_function, Statement::Fun),
-                        map(parse_class, Statement::Class),
-                        map(parse_function_call, Statement::FuncCall),
-                        map(parse_import, Statement::Import),
-                    )),
-                ),
+                sp,
+                alt((
+                    map(parse_assignment, Statement::Assignment),
+                    map(parse_lassignment, Statement::LAssignment),
+                    map(parse_if, Statement::If),
+                    map(parse_for, Statement::For),
+                    map(parse_while, Statement::While),
+                    map(parse_function, Statement::Fun),
+                    map(parse_class, Statement::Class),
+                    map(parse_import, Statement::Import),
+                    // map(parse_function_call, Statement::FuncCall),
+                )),
             ),
             opt_line_ending,
         ),
@@ -109,6 +106,8 @@ fn parse_function_call(input: &str) -> Res<&str, PrefixExpr> {
     let func_call_expr = prefixexpr(input);
 
     let is_func_call = match func_call_expr {
+        // There should be an uncatched unwrap
+        // Shoudl return a error message
         Ok((_, ref o)) => matches!(o.suffix_chain.last().unwrap(), ExprSuffix::FuncCall(_)),
         _ => false,
     };

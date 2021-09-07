@@ -1,4 +1,4 @@
-use crate::parser::expression::{parse_expression, Expression};
+use crate::parser::expression::{parse_expression, prefixexpr, Expression, PrefixExpr};
 use crate::parser::tokens::llet;
 use crate::parser::{
     literals::{parse_variable, sp, Variable},
@@ -15,7 +15,7 @@ use nom::{
 /// so we only parse a statement here, therefore is the let mandatory
 #[derive(Debug, PartialEq)]
 pub struct Assignment {
-    pub variable: Variable,
+    pub variable: PrefixExpr,
     pub expression: Expression,
 }
 
@@ -35,7 +35,7 @@ pub(crate) fn parse_assignment(input: &str) -> Res<&str, Assignment> {
         preceded(
             sp,
             separated_pair(
-                preceded(sp, parse_variable),
+                preceded(sp, prefixexpr),
                 preceded(sp, char('=')),
                 parse_expression,
             ),
