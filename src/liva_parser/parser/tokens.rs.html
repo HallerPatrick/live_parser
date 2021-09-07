@@ -207,6 +207,8 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all parsers and structs which represent tokens, operators and keywords</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::sp</span>;
@@ -296,7 +298,9 @@
     {<span class="ident">less_than</span>, <span class="string">&quot;LessThan&quot;</span>, <span class="string">&quot;&lt;&quot;</span>},
     {<span class="ident">greater_than</span>, <span class="string">&quot;GreaterThan&quot;</span>, <span class="string">&quot;&gt;&quot;</span>},
     {<span class="ident">less_eq_than</span>, <span class="string">&quot;LessEqThan&quot;</span>, <span class="string">&quot;&lt;=&quot;</span>},
-    {<span class="ident">greater_eq_than</span>, <span class="string">&quot;GreaterEqThan&quot;</span>, <span class="string">&quot;&gt;=&quot;</span>}
+    {<span class="ident">greater_eq_than</span>, <span class="string">&quot;GreaterEqThan&quot;</span>, <span class="string">&quot;&gt;=&quot;</span>},
+    {<span class="ident">comment</span>, <span class="string">&quot;Comment&quot;</span>, <span class="string">&quot;//&quot;</span>},
+    {<span class="ident">newline</span>, <span class="string">&quot;Newline&quot;</span>, <span class="string">&quot;\n&quot;</span>}
 }
 
 <span class="macro">define_token!</span> {

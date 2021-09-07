@@ -106,7 +106,7 @@
 <span id="106">106</span>
 <span id="107">107</span>
 <span id="108">108</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">Expression</span>};
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">prefixexpr</span>, <span class="ident">Expression</span>, <span class="ident">PrefixExpr</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::tokens::llet</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
     <span class="ident">literals</span>::{<span class="ident">parse_variable</span>, <span class="ident">sp</span>, <span class="ident">Variable</span>},
@@ -123,7 +123,7 @@
 <span class="doccomment">/// so we only parse a statement here, therefore is the let mandatory</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Assignment</span> {
-    <span class="kw">pub</span> <span class="ident">variable</span>: <span class="ident">Variable</span>,
+    <span class="kw">pub</span> <span class="ident">variable</span>: <span class="ident">PrefixExpr</span>,
     <span class="kw">pub</span> <span class="ident">expression</span>: <span class="ident">Expression</span>,
 }
 
@@ -143,7 +143,7 @@
         <span class="ident">preceded</span>(
             <span class="ident">sp</span>,
             <span class="ident">separated_pair</span>(
-                <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">parse_variable</span>),
+                <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">prefixexpr</span>),
                 <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">char</span>(<span class="string">&#39;=&#39;</span>)),
                 <span class="ident">parse_expression</span>,
             ),

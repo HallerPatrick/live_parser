@@ -302,7 +302,6 @@
 <span id="302">302</span>
 <span id="303">303</span>
 <span id="304">304</span>
-<span id="305">305</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all statements</span>
 
 <span class="kw">mod</span> <span class="ident">declaration</span>;
@@ -384,21 +383,18 @@
         <span class="string">&quot;Stmt&quot;</span>,
         <span class="ident">terminated</span>(
             <span class="ident">preceded</span>(
-                <span class="ident">opt_line_ending</span>,
-                <span class="ident">preceded</span>(
-                    <span class="ident">space0</span>,
-                    <span class="ident">alt</span>((
-                        <span class="ident">map</span>(<span class="ident">parse_assignment</span>, <span class="ident">Statement::Assignment</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_lassignment</span>, <span class="ident">Statement::LAssignment</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_if</span>, <span class="ident">Statement::If</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_for</span>, <span class="ident">Statement::For</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_while</span>, <span class="ident">Statement::While</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_function</span>, <span class="ident">Statement::Fun</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_class</span>, <span class="ident">Statement::Class</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_function_call</span>, <span class="ident">Statement::FuncCall</span>),
-                        <span class="ident">map</span>(<span class="ident">parse_import</span>, <span class="ident">Statement::Import</span>),
-                    )),
-                ),
+                <span class="ident">sp</span>,
+                <span class="ident">alt</span>((
+                    <span class="ident">map</span>(<span class="ident">parse_assignment</span>, <span class="ident">Statement::Assignment</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_lassignment</span>, <span class="ident">Statement::LAssignment</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_if</span>, <span class="ident">Statement::If</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_for</span>, <span class="ident">Statement::For</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_while</span>, <span class="ident">Statement::While</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_function</span>, <span class="ident">Statement::Fun</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_class</span>, <span class="ident">Statement::Class</span>),
+                    <span class="ident">map</span>(<span class="ident">parse_import</span>, <span class="ident">Statement::Import</span>),
+                    <span class="comment">// map(parse_function_call, Statement::FuncCall),</span>
+                )),
             ),
             <span class="ident">opt_line_ending</span>,
         ),
@@ -414,6 +410,8 @@
     <span class="kw">let</span> <span class="ident">func_call_expr</span> <span class="op">=</span> <span class="ident">prefixexpr</span>(<span class="ident">input</span>);
 
     <span class="kw">let</span> <span class="ident">is_func_call</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">func_call_expr</span> {
+        <span class="comment">// There should be an uncatched unwrap</span>
+        <span class="comment">// Shoudl return a error message</span>
         <span class="prelude-val">Ok</span>((<span class="kw">_</span>, <span class="kw-2">ref</span> <span class="ident">o</span>)) <span class="op">=</span><span class="op">&gt;</span> <span class="macro">matches!</span>(<span class="ident">o</span>.<span class="ident">suffix_chain</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>(), <span class="ident">ExprSuffix::FuncCall</span>(<span class="kw">_</span>)),
         <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="bool-val">false</span>,
     };
