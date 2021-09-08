@@ -13,6 +13,5 @@ fun fib(n)
         return 1
     end
     
-    // TODO: Allow comments
     return fib(n-1) + fib(n-2)
 end

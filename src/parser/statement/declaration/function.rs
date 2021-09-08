@@ -1,15 +1,17 @@
 use crate::parser::{
-    literals::{parse_variable_raw, sp, Variable},
+    literals::{parse_variable, parse_variable_raw, sp, Variable},
     statement::opt_line_ending,
     statement::parse_block,
-    statement::{declaration::parse_parameter_list, Block},
-    tokens::{end, fun},
+    statement::Block,
+    tokens::{end, fun, left_paren, right_paren},
     Res,
 };
 
 use nom::{
+    character::complete::char,
     error::context,
-    sequence::preceded,
+    multi::separated_list0,
+    sequence::{delimited, preceded},
     sequence::{terminated, tuple},
 };
 
@@ -53,7 +55,17 @@ fn parse_function_name(input: &str) -> Res<&str, &str> {
 }
 
 fn parse_function_arguments(input: &str) -> Res<&str, Vec<Variable>> {
-    context("FuncArguments", parse_parameter_list)(input)
+    context(
+        "ParameterList",
+        preceded(
+            sp,
+            delimited(
+                left_paren,
+                separated_list0(preceded(sp, char(',')), preceded(sp, parse_variable)),
+                preceded(sp, right_paren),
+            ),
+        ),
+    )(input)
 }
 
 #[cfg(test)]

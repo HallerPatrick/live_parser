@@ -5,7 +5,6 @@ mod import;
 
 use nom::branch::alt;
 use nom::character::complete::line_ending;
-use nom::character::complete::space0;
 use nom::combinator::{map, opt};
 use nom::error::context;
 use nom::multi::{many0, separated_list0};
@@ -77,22 +76,19 @@ pub fn parse_block(input: &str) -> Res<&str, Block> {
 fn parse_statement(input: &str) -> Res<&str, Statement> {
     context(
         "Stmt",
-        terminated(
-            preceded(
-                sp,
-                alt((
-                    map(parse_assignment, Statement::Assignment),
-                    map(parse_lassignment, Statement::LAssignment),
-                    map(parse_if, Statement::If),
-                    map(parse_for, Statement::For),
-                    map(parse_while, Statement::While),
-                    map(parse_function, Statement::Fun),
-                    map(parse_class, Statement::Class),
-                    map(parse_import, Statement::Import),
-                    // map(parse_function_call, Statement::FuncCall),
-                )),
-            ),
-            opt_line_ending,
+        preceded(
+            sp,
+            alt((
+                map(parse_assignment, Statement::Assignment),
+                map(parse_lassignment, Statement::LAssignment),
+                map(parse_if, Statement::If),
+                map(parse_for, Statement::For),
+                map(parse_while, Statement::While),
+                map(parse_function, Statement::Fun),
+                map(parse_class, Statement::Class),
+                map(parse_import, Statement::Import),
+                // map(parse_function_call, Statement::FuncCall),
+            )),
         ),
     )(input)
 }
@@ -298,6 +294,26 @@ mod tests {
                         })]
                     }))]
                 }
+            ))
+        )
+    }
+
+    #[test]
+    fn test_stmt_leading_nl_sp() {
+        let string = "\n\n// Hello Test \nfun hello() end";
+        let res = parse_statement(string);
+        assert_eq!(
+            res,
+            Ok((
+                "",
+                Statement::Fun(Function {
+                    name: String::from("hello"),
+                    parameters: vec![],
+                    statements: Block {
+                        statements: vec![],
+                        return_stmt: None
+                    }
+                })
             ))
         )
     }

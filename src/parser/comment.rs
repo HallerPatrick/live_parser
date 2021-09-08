@@ -1,21 +1,21 @@
 use crate::parser::{
-    literals::sp,
     tokens::{comment, newline},
     Res,
 };
 
 use nom::{
-    bytes::complete::take_while,
-    character::complete::line_ending,
+    bytes::complete::is_not,
     error::context,
-    sequence::{preceded, terminated},
+    sequence::{delimited},
 };
 
+
+/// Parses a comment and discards it
 pub(crate) fn parse_comment(input: &str) -> Res<&str, &str> {
     context(
         "Comment",
-        preceded(take_while(move |s| s != '\n'), line_ending),
-    )(input)
+        delimited(comment, is_not("\n"), newline),
+    )(input).map(|(next_input, _)| {(next_input, "")})
 }
 
 #[cfg(test)]
@@ -25,8 +25,9 @@ mod tests {
 
     #[test]
     fn test_parse_comment() {
-        let string = "// This is a comment\n";
+        let string = "// This is a comment\nSome code";
         let res = parse_comment(string);
-        assert_eq!(res, Ok(("", "\n")));
+        assert_eq!(res, Ok(("Some code", "")));
     }
+
 }

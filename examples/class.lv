@@ -11,7 +11,7 @@ class Person
     end
 end
 
-// TODO
+// Hello World
 for i in [1, 2, 3, 4] do
     let person = Person(i, i)
     print(person.get_bmi())

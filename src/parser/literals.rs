@@ -8,11 +8,11 @@ use nom::{
     bytes::complete::{escaped, tag, tag_no_case, take_while},
     character::complete::char,
     character::complete::{alpha1, alphanumeric1 as alphanumeric, one_of, space1},
-    combinator::{cut, map, recognize, verify},
+    combinator::{cut, map, opt, recognize, verify},
     error::context,
     multi::{many0, separated_list0},
     number::complete::double,
-    sequence::{pair, preceded, separated_pair, terminated},
+    sequence::{pair, preceded, separated_pair, terminated, tuple},
 };
 
 // Collection of all possible literals
@@ -70,10 +70,13 @@ pub(crate) fn parse_variable(input: &str) -> Res<&str, Variable> {
 
 pub(crate) fn sp(input: &str) -> Res<&str, &str> {
     let chars = " \t\r\n";
-    // nom combinators like `take_while` return a function. That function is the
-    // parser,to which we can pass the input
-    alt((take_while(move |c| chars.contains(c)), parse_comment))(input)
+    tuple((take_while(move |c| chars.contains(c)), opt(parse_comment)))(input)
+        .map(|(next_input, _)| (next_input, ""))
 }
+
+// pub(crate) fn sp(input: &str) -> Res<&str, Vec<&str>> {
+//     many0(_sp)(input)
+// }
 
 fn alphanumeric_ws(input: &str) -> Res<&str, &str> {
     alt((space1, alphanumeric))(input)
@@ -195,6 +198,18 @@ mod tests {
 
     use super::*;
     use nom::error::{ErrorKind, VerboseError, VerboseErrorKind};
+
+    #[test]
+    fn test_sp() {
+        let string = " \n\n";
+        assert_eq!(sp(string), Ok(("", "")));
+    }
+
+    #[test]
+    fn test_sp2() {
+        let string = " \n\n// \n";
+        assert_eq!(sp(string), Ok(("", "")));
+    }
 
     #[test]
     fn parse_nil_test() {
