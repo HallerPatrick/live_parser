@@ -1,4 +1,5 @@
 # Liva specs
+[![codecov](https://codecov.io/gh/HallerPatrick/live_parser/branch/master/graph/badge.svg?token=B4T9MOAJAT)](https://codecov.io/gh/HallerPatrick/live_parser)
 
 This module contains a parser, which is able to parse the liva programming language.
 
