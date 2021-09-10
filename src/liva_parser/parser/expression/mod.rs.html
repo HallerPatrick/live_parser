@@ -557,15 +557,6 @@
 <span id="557">557</span>
 <span id="558">558</span>
 <span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Logic for expressions and their representation</span>
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">binary</span>;
@@ -577,7 +568,7 @@
         <span class="ident">dot</span>, <span class="ident">left_bracket</span>, <span class="ident">left_paren</span>, <span class="ident">parse_binary_operator</span>, <span class="ident">parse_unary_operator</span>, <span class="ident">right_bracket</span>,
         <span class="ident">right_paren</span>, <span class="ident">Operator</span>, <span class="ident">UnOperator</span>, <span class="ident">BINOP_PRECEDENCE</span>, <span class="ident">UNOPS</span>,
     },
-    <span class="ident">Res</span>,
+    <span class="ident">Res</span>, <span class="ident">Span</span>,
 };
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::binary</span>::{<span class="ident">BinaryOp</span>, <span class="ident">UnaryOp</span>};
@@ -593,30 +584,30 @@
 
 <span class="comment">// Represent a token or literal in a expression</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Expression</span> {
-    <span class="ident">Literal</span>(<span class="ident">Literal</span>),
-    <span class="ident">Call</span>(<span class="ident">Call</span>),
-    <span class="ident">BinaryOp</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">BinaryOp</span><span class="op">&gt;</span>),
-    <span class="ident">UnaryOp</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">UnaryOp</span><span class="op">&gt;</span>),
-    <span class="ident">PrefixExpr</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">PrefixExpr</span><span class="op">&gt;</span>),
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">Literal</span>(<span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Call</span>(<span class="ident">Call</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">BinaryOp</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">BinaryOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">UnaryOp</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">UnaryOp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">PrefixExpr</span>(<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">PrefixExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Expression2</span> {
-    <span class="ident">Literal</span>(<span class="ident">Literal</span>),
-    <span class="ident">PrefixExpr</span>(<span class="ident">PrefixExpr</span>),
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">Expression2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">Literal</span>(<span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">PrefixExpr</span>(<span class="ident">PrefixExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">fn</span> <span class="ident">parse_flatexp</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">FlatExpr</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_flatexp</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">FlatExpr</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(<span class="string">&quot;FlatExpr&quot;</span>, <span class="ident">tuple</span>((<span class="ident">parse_head</span>, <span class="ident">parse_bin_op_chain</span>)))(<span class="ident">input</span>)
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">flat_expr_from_components</span>(<span class="ident">res</span>.<span class="number">0</span>, <span class="ident">res</span>.<span class="number">1</span>)))
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expression</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Expression</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expression</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
     <span class="ident">map</span>(<span class="ident">parse_flatexp</span>, <span class="ident">Expression::from</span>)(<span class="ident">input</span>)
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expression2</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Expression2</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_expression2</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Expression2</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Expression2&quot;</span>,
         <span class="ident">preceded</span>(
@@ -632,12 +623,12 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">ExprHead</span> {
+<span class="kw">struct</span> <span class="ident">ExprHead</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">un_ops</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">UnOperator</span><span class="op">&gt;</span>,
-    <span class="ident">expr</span>: <span class="ident">Expression2</span>,
+    <span class="ident">expr</span>: <span class="ident">Expression2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">parse_head</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ExprHead</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_head</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">ExprHead</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;NestedExpression&quot;</span>,
         <span class="ident">preceded</span>(
@@ -656,7 +647,7 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">parse_bin_op_chain</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Operator</span>, <span class="ident">ExprHead</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_bin_op_chain</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Operator</span>, <span class="ident">ExprHead</span>)<span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;OpChain&quot;</span>,
         <span class="ident">preceded</span>(
@@ -667,14 +658,14 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrefixExpr</span> {
-    <span class="kw">pub</span> <span class="ident">prefix</span>: <span class="ident">ExprOrVarname</span>,
-    <span class="kw">pub</span> <span class="ident">suffix_chain</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExprSuffix</span><span class="op">&gt;</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PrefixExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">prefix</span>: <span class="ident">ExprOrVarname</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">suffix_chain</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ExprSuffix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// This parser deals with all kind of suffix expressions which are part</span>
 <span class="doccomment">/// of a single expression</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">prefixexpr</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">PrefixExpr</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">prefixexpr</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">PrefixExpr</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;PrefixExpr&quot;</span>,
         <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">tuple</span>((<span class="ident">prefixexpr2</span>, <span class="ident">many0</span>(<span class="ident">prefixexpr3</span>)))),
@@ -691,26 +682,26 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExprOrVarname</span> {
-    <span class="ident">Exp</span>(<span class="ident">Expression</span>),
-    <span class="ident">Varname</span>(<span class="ident">Variable</span>),
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExprOrVarname</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">Exp</span>(<span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">Varname</span>(<span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">struct</span> <span class="ident">FlatExpr</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OpOrExp2</span><span class="op">&gt;</span>);
+<span class="kw">struct</span> <span class="ident">FlatExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">OpOrExp2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>);
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">OpOrExp2</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">enum</span> <span class="ident">OpOrExp2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">Op</span>(<span class="ident">UnOrBinOp</span>),
-    <span class="ident">Exp2</span>(<span class="ident">Expression2</span>),
+    <span class="ident">Exp2</span>(<span class="ident">Expression2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">enum</span> <span class="ident">OpOrExp</span> {
+<span class="kw">enum</span> <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="ident">Op</span>(<span class="ident">UnOrBinOp</span>),
-    <span class="ident">Exp</span>(<span class="ident">Expression</span>),
+    <span class="ident">Exp</span>(<span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">OpOrExp</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">is_binop</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident">OpOrExp::Op</span>(<span class="ident">UnOrBinOp::BinOp</span>(<span class="kw">_</span>)))
     }
@@ -724,10 +715,10 @@
     }
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">FlatExpr</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">fe</span>: <span class="ident">FlatExpr</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">FlatExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">fe</span>: <span class="ident">FlatExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="comment">// Helper function. Expects a,b to be Exps and o to be a BinOp</span>
-        <span class="kw">fn</span> <span class="ident">merge_nodes_binop</span>(<span class="ident">a</span>: <span class="ident">OpOrExp</span>, <span class="ident">o</span>: <span class="ident">OpOrExp</span>, <span class="ident">b</span>: <span class="ident">OpOrExp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OpOrExp</span> {
+        <span class="kw">fn</span> <span class="ident">merge_nodes_binop</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">a</span>: <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">o</span>: <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">b</span>: <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="kw">match</span> (<span class="ident">a</span>, <span class="ident">o</span>, <span class="ident">b</span>) {
                 (<span class="ident">OpOrExp::Exp</span>(<span class="ident">a</span>), <span class="ident">OpOrExp::Op</span>(<span class="ident">UnOrBinOp::BinOp</span>(<span class="ident">o</span>)), <span class="ident">OpOrExp::Exp</span>(<span class="ident">b</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">merged_exp</span> <span class="op">=</span> <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
@@ -742,7 +733,7 @@
         }
 
         <span class="comment">// Helper function. Expects o to be a UnOp and a to be an Exp</span>
-        <span class="kw">fn</span> <span class="ident">merge_nodes_unop</span>(<span class="ident">o</span>: <span class="ident">OpOrExp</span>, <span class="ident">a</span>: <span class="ident">OpOrExp</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OpOrExp</span> {
+        <span class="kw">fn</span> <span class="ident">merge_nodes_unop</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">o</span>: <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">a</span>: <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">OpOrExp</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
             <span class="kw">match</span> (<span class="ident">o</span>, <span class="ident">a</span>) {
                 (<span class="ident">OpOrExp::Op</span>(<span class="ident">UnOrBinOp::UnOp</span>(<span class="ident">o</span>)), <span class="ident">OpOrExp::Exp</span>(<span class="ident">a</span>)) <span class="op">=</span><span class="op">&gt;</span> {
                     <span class="kw">let</span> <span class="ident">merged_exp</span> <span class="op">=</span> <span class="ident">Expression::UnaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">UnaryOp</span> { <span class="ident">op</span>: <span class="ident">o</span>, <span class="ident">operand</span>: <span class="ident">a</span> }));
@@ -884,7 +875,10 @@
     <span class="ident">v</span>
 }
 
-<span class="kw">fn</span> <span class="ident">flat_expr_from_components</span>(<span class="ident">head</span>: <span class="ident">ExprHead</span>, <span class="ident">binop_chain</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Operator</span>, <span class="ident">ExprHead</span>)<span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FlatExpr</span> {
+<span class="kw">fn</span> <span class="ident">flat_expr_from_components</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(
+    <span class="ident">head</span>: <span class="ident">ExprHead</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="ident">binop_chain</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Operator</span>, <span class="ident">ExprHead</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>)<span class="op">&gt;</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">FlatExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">acc</span> <span class="op">=</span> <span class="ident">tuple_to_flat_vec</span>(<span class="ident">head</span>);
     <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">binop_chain</span>.<span class="ident">into_iter</span>().<span class="ident">fold</span>(<span class="ident">acc</span>, <span class="op">|</span><span class="kw-2">mut</span> <span class="ident">a</span>, <span class="ident">head</span><span class="op">|</span> {
         <span class="ident">a</span>.<span class="ident">push</span>(<span class="ident">OpOrExp2::Op</span>(<span class="ident">UnOrBinOp::BinOp</span>(<span class="ident">head</span>.<span class="number">0</span>)));
@@ -896,7 +890,7 @@
 }
 
 <span class="comment">// TODO: Rename this to prefix_expr</span>
-<span class="kw">fn</span> <span class="ident">prefixexpr2</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ExprOrVarname</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">prefixexpr2</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">ExprOrVarname</span><span class="op">&gt;</span> {
     <span class="ident">preceded</span>(
         <span class="ident">sp</span>,
         <span class="ident">alt</span>((
@@ -910,14 +904,14 @@
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExprSuffix</span> {
-    <span class="ident">TableDot</span>(<span class="ident">Variable</span>),
-    <span class="ident">TableIdx</span>(<span class="ident">Expression</span>),
-    <span class="ident">FuncCall</span>(<span class="ident">Call</span>),
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">ExprSuffix</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">TableDot</span>(<span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">TableIdx</span>(<span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
+    <span class="ident">FuncCall</span>(<span class="ident">Call</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
 }
 
 <span class="comment">// TODO: Rename this to suffix_chain</span>
-<span class="kw">fn</span> <span class="ident">prefixexpr3</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">ExprSuffix</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">prefixexpr3</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">ExprSuffix</span><span class="op">&gt;</span> {
     <span class="ident">preceded</span>(
         <span class="ident">sp</span>,
         <span class="ident">alt</span>((
@@ -931,8 +925,8 @@
     )(<span class="ident">input</span>)
 }
 
-<span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Expression2</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">Expression2</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">Expression2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">e</span>: <span class="ident">Expression2</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
         <span class="kw">match</span> <span class="ident">e</span> {
             <span class="ident">Expression2::Literal</span>(<span class="ident">l</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::Literal</span>(<span class="ident">l</span>),
             <span class="ident">Expression2::PrefixExpr</span>(<span class="ident">p</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">p</span>)),
@@ -945,122 +939,117 @@
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::Variable</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">Token</span>, <span class="ident">Variable</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_head</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;-hello and test&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_head</span>(<span class="ident">string</span>);
-        <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">res</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_head</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot; and test&quot;</span>,
-                <span class="ident">ExprHead</span> {
-                    <span class="ident">un_ops</span>: <span class="macro">vec!</span>[<span class="ident">UnOperator::Sub</span>],
-                    <span class="ident">expr</span>: <span class="ident">Expression2::PrefixExpr</span>(<span class="ident">PrefixExpr</span> {
-                        <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                            <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;hello&quot;</span>)
-                        }),
-                        <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
-                    })
-                }
-            ))
+            <span class="ident">ExprHead</span> {
+                <span class="ident">un_ops</span>: <span class="macro">vec!</span>[<span class="ident">UnOperator::Sub</span>],
+                <span class="ident">expr</span>: <span class="ident">Expression2::PrefixExpr</span>(<span class="ident">PrefixExpr</span> {
+                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                        <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;hello&quot;</span> },
+                        <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)
+                    ))),
+                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
+                })
+            }
         )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_bin_op_chain</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;&lt; hello() - 3&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_bin_op_chain</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_bin_op_chain</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">println!</span>(<span class="string">&quot;{:?}&quot;</span>, <span class="ident">res</span>);
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_expr_lexer6</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello()&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;hello&quot;</span>)
-                    }),
-                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[<span class="ident">ExprSuffix::FuncCall</span>(<span class="ident">Call</span> {
-                        <span class="ident">args</span>: <span class="macro">vec!</span>[],
-                        <span class="ident">callee</span>: <span class="prelude-val">None</span>
-                    })]
-                }))
-            ))
+            <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
+                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;hello&quot;</span> },
+                    <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)
+                ))),
+                <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[<span class="ident">ExprSuffix::FuncCall</span>(<span class="ident">Call</span> {
+                    <span class="ident">args</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">callee</span>: <span class="prelude-val">None</span>
+                })]
+            }))
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_expr_lexer7</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello()&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">prefixexpr</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">prefixexpr</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">PrefixExpr</span> {
-                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;hello&quot;</span>)
-                    }),
-                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[<span class="ident">ExprSuffix::FuncCall</span>(<span class="ident">Call</span> {
-                        <span class="ident">args</span>: <span class="macro">vec!</span>[],
-                        <span class="ident">callee</span>: <span class="prelude-val">None</span>
-                    })]
-                }
-            ))
+            <span class="ident">PrefixExpr</span> {
+                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;hello&quot;</span> },
+                    <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)
+                ))),
+                <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[<span class="ident">ExprSuffix::FuncCall</span>(<span class="ident">Call</span> {
+                    <span class="ident">args</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">callee</span>: <span class="prelude-val">None</span>
+                })]
+            }
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_expr_lexer4</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;3&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">string</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="prelude-val">Ok</span>((<span class="string">&quot;&quot;</span>, <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">3.0</span>)))))
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">res</span>,
+            <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>))))
+        )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_expr_lexer3</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;3 &lt; x&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
-                    <span class="ident">op</span>: <span class="ident">Operator::Lt</span>,
-                    <span class="ident">left</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">3.0</span>)),
-                    <span class="ident">right</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                        <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                            <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;x&quot;</span>)
-                        }),
-                        <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
-                    }))
+            <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
+                <span class="ident">op</span>: <span class="ident">Operator::Lt</span>,
+                <span class="ident">left</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)))),
+                <span class="ident">right</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
+                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                        <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;x&quot;</span> },
+                        <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)
+                    ))),
+                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
                 }))
-            ))
+            }))
         )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_expr_lexer5</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;(3 &lt; x) and Nil == Nil&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
 
         <span class="kw">let</span> <span class="ident">left</span> <span class="op">=</span> <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
             <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Exp</span>(<span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                 <span class="ident">op</span>: <span class="ident">Operator::Lt</span>,
-                <span class="ident">left</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">3.0</span>)),
+                <span class="ident">left</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)))),
                 <span class="ident">right</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;x&quot;</span>),
-                    }),
+                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                        <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;x&quot;</span> },
+                        <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>),
+                    ))),
                     <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
                 })),
             }))),
@@ -1070,67 +1059,60 @@
         <span class="kw">let</span> <span class="ident">right</span> <span class="op">=</span> <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
             <span class="ident">op</span>: <span class="ident">Operator::EQ</span>,
             <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                    <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;Nil&quot;</span>),
-                }),
+                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;Nil&quot;</span> },
+                    <span class="ident">Span::new</span>(<span class="string">&quot;Nil&quot;</span>),
+                ))),
                 <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
             })),
             <span class="ident">right</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                    <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;Nil&quot;</span>),
-                }),
+                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;Nil&quot;</span> },
+                    <span class="ident">Span::new</span>(<span class="string">&quot;Nil&quot;</span>),
+                ))),
                 <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
             })),
         }));
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
-                    <span class="ident">left</span>: <span class="ident">left</span>,
-                    <span class="ident">op</span>: <span class="ident">Operator::And</span>,
-                    <span class="ident">right</span>: <span class="ident">right</span>
-                }))
-            ))
+            <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
+                <span class="ident">left</span>: <span class="ident">left</span>,
+                <span class="ident">op</span>: <span class="ident">Operator::And</span>,
+                <span class="ident">right</span>: <span class="ident">right</span>
+            }))
         )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_expr_lexer2</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;(3 + 4)&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Exp</span>(<span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
-                        <span class="ident">op</span>: <span class="ident">Operator::Add</span>,
-                        <span class="ident">left</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">3.0</span>)),
-                        <span class="ident">right</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">4.0</span>))
-                    }))),
-                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
-                }))
-            ))
+            <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
+                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Exp</span>(<span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
+                    <span class="ident">op</span>: <span class="ident">Operator::Add</span>,
+                    <span class="ident">left</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)))),
+                    <span class="ident">right</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">4.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;4&quot;</span>)))),
+                }))),
+                <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
+            }))
         )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_list_as_expr</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;[1, 2, 3, 4]&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_expression</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Array</span>(<span class="macro">vec!</span>[
-                    <span class="ident">Literal::Num</span>(<span class="number">1.0</span>),
-                    <span class="ident">Literal::Num</span>(<span class="number">2.0</span>),
-                    <span class="ident">Literal::Num</span>(<span class="number">3.0</span>),
-                    <span class="ident">Literal::Num</span>(<span class="number">4.0</span>)
-                ]))
-            ))
+            <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Array</span>(<span class="macro">vec!</span>[
+                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>))),
+                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">2.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>))),
+                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>))),
+                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">4.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)))
+            ]))
         )
     }
 }

@@ -215,15 +215,20 @@
 <span id="215">215</span>
 <span id="216">216</span>
 <span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
     <span class="ident">literals</span>::{<span class="ident">parse_variable</span>, <span class="ident">parse_variable_raw</span>, <span class="ident">sp</span>, <span class="ident">Variable</span>},
     <span class="ident">statement::opt_line_ending</span>,
     <span class="ident">statement::parse_block</span>,
     <span class="ident">statement::Block</span>,
     <span class="ident">tokens</span>::{<span class="ident">end</span>, <span class="ident">fun</span>, <span class="ident">left_paren</span>, <span class="ident">right_paren</span>},
-    <span class="ident">Res</span>,
+    <span class="ident">Res</span>, <span class="ident">Span</span>,
 };
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Literal</span>;
 <span class="kw">use</span> <span class="ident">nom</span>::{
     <span class="ident">character::complete::char</span>,
     <span class="ident">error::context</span>,
@@ -234,14 +239,14 @@
 
 <span class="doccomment">/// Represents a function declaration.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Function</span> {
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">String</span>,
-    <span class="kw">pub</span> <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&gt;</span>,
-    <span class="kw">pub</span> <span class="ident">statements</span>: <span class="ident">Block</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">statements</span>: <span class="ident">Block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Parses a function declaration.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_function</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Function</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_function</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Function</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Func&quot;</span>,
         <span class="ident">terminated</span>(
@@ -253,7 +258,7 @@
         (
             <span class="ident">next_input</span>,
             <span class="ident">Function</span> {
-                <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="ident">res</span>.<span class="number">0</span>),
+                <span class="ident">name</span>: <span class="ident">res</span>.<span class="number">0</span>,
                 <span class="ident">parameters</span>: <span class="ident">res</span>.<span class="number">1</span>,
                 <span class="ident">statements</span>: <span class="ident">res</span>.<span class="number">2</span>,
             },
@@ -261,17 +266,17 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">parse_function_name</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_function_name</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;FuncName&quot;</span>,
         <span class="ident">preceded</span>(
             <span class="ident">opt_line_ending</span>,
-            <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">preceded</span>(<span class="ident">fun</span>, <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">parse_variable_raw</span>))),
+            <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">preceded</span>(<span class="ident">fun</span>, <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">parse_variable</span>))),
         ),
     )(<span class="ident">input</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">parse_function_arguments</span>(<span class="ident">input</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_function_arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;ParameterList&quot;</span>,
         <span class="ident">preceded</span>(
@@ -289,6 +294,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Token</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::binary::BinaryOp</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">ExprOrVarname</span>, <span class="ident">Expression</span>, <span class="ident">PrefixExpr</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::Literal</span>;
@@ -298,88 +304,85 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_function_name</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;fun hello ()&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_function_name</span>(<span class="ident">string</span>);
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="prelude-val">Ok</span>((<span class="string">&quot; ()&quot;</span>, <span class="string">&quot;hello&quot;</span>)));
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_function_name</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">res</span>,
+            <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;hello&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)))
+        );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_function</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;fun hello(x, y)\n\tlet some = \&quot;1\&quot;\nend&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Function</span> {
-                    <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;hello&quot;</span>),
-                    <span class="ident">parameters</span>: <span class="macro">vec!</span>[
-                        <span class="ident">Variable</span> {
-                            <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;x&quot;</span>)
-                        },
-                        <span class="ident">Variable</span> {
-                            <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;y&quot;</span>)
-                        }
-                    ],
-                    <span class="ident">statements</span>: <span class="ident">Block</span> {
-                        <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-                            <span class="ident">variable</span>: <span class="ident">Variable</span> {
-                                <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;some&quot;</span>)
-                            },
-                            <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">String::from</span>(<span class="string">&quot;1&quot;</span>)))
-                        })],
-                        <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
-                    }
+            <span class="ident">Function</span> {
+                <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;hello&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))),
+                <span class="ident">parameters</span>: <span class="macro">vec!</span>[
+                    <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;x&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
+                    <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;y&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>)))
+                ],
+                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                    <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
+                        <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                            <span class="ident">Variable::new</span>(<span class="string">&quot;some&quot;</span>),
+                            <span class="ident">Span::new</span>(<span class="string">&quot;some&quot;</span>)
+                        )),
+                        <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(
+                            <span class="ident">String::from</span>(<span class="string">&quot;1&quot;</span>),
+                            <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)
+                        )))
+                    })],
+                    <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
                 }
-            ))
+            }
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_fun_1</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;fun fib(n)\n\nend&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Function</span> {
-                    <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;fib&quot;</span>),
-                    <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Variable</span> {
-                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;n&quot;</span>)
-                    }],
-                    <span class="ident">statements</span>: <span class="ident">Block</span> {
-                        <span class="ident">statements</span>: <span class="macro">vec!</span>[],
-                        <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
-                    }
+            <span class="ident">Function</span> {
+                <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;fib&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;fib&quot;</span>))),
+                <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable::new</span>(<span class="string">&quot;n&quot;</span>),
+                    <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)
+                ))],
+                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                    <span class="ident">statements</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
                 }
-            ))
+            }
         );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_fun_return</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;\n\n\tfun fib(n)\n\t\treturn &#39;Hello World&#39;\n\tend&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Function</span> {
-                    <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;fib&quot;</span>),
-                    <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Variable</span> {
-                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;n&quot;</span>)
-                    }],
-                    <span class="ident">statements</span>: <span class="ident">Block</span> {
-                        <span class="ident">statements</span>: <span class="macro">vec!</span>[],
-                        <span class="ident">return_stmt</span>: <span class="prelude-val">Some</span>(<span class="ident">ReturnStmt</span> {
-                            <span class="ident">values</span>: <span class="macro">vec!</span>[<span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">String::from</span>(
-                                <span class="string">&quot;Hello World&quot;</span>
-                            )))],
-                        })
-                    }
+            <span class="ident">Function</span> {
+                <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;fib&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;fib&quot;</span>))),
+                <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable::new</span>(<span class="string">&quot;n&quot;</span>),
+                    <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)
+                ))],
+                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                    <span class="ident">statements</span>: <span class="macro">vec!</span>[],
+                    <span class="ident">return_stmt</span>: <span class="prelude-val">Some</span>(<span class="ident">ReturnStmt</span> {
+                        <span class="ident">values</span>: <span class="macro">vec!</span>[<span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(
+                            <span class="ident">String::from</span>(<span class="string">&quot;Hello World&quot;</span>),
+                            <span class="ident">Span::new</span>(<span class="string">&quot;Hello World&quot;</span>)
+                        )))],
+                    })
                 }
-            ))
+            }
         );
     }
 
@@ -387,48 +390,53 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_fun</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;fun fib(n)\n    if n == 0  do\n        return 0\n    end\nend&quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="prelude-val">Ok</span>((
-                <span class="string">&quot;&quot;</span>,
-                <span class="ident">Function</span> {
-                    <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;fib&quot;</span>),
-                    <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Variable</span> {
-                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;n&quot;</span>)
-                    }],
-                    <span class="ident">statements</span>: <span class="ident">Block</span> {
-                        <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::If</span>(<span class="ident">If</span> {
-                            <span class="ident">cond</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
-                                <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Variable</span> {
-                                        <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;n&quot;</span>)
-                                    }),
-                                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
-                                })),
-                                <span class="ident">op</span>: <span class="ident">Operator::EQ</span>,
-                                <span class="ident">right</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">0.0</span>))
+            <span class="ident">Function</span> {
+                <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;fib&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;fib&quot;</span>))),
+                <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">Variable::new</span>(<span class="string">&quot;n&quot;</span>),
+                    <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)
+                ))],
+                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                    <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::If</span>(<span class="ident">If</span> {
+                        <span class="ident">cond</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
+                            <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
+                                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
+                                    <span class="ident">Variable::new</span>(<span class="string">&quot;n&quot;</span>),
+                                    <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)
+                                ))),
+                                <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
                             })),
-                            <span class="ident">stmts</span>: <span class="ident">Block</span> {
-                                <span class="ident">statements</span>: <span class="macro">vec!</span>[],
-                                <span class="ident">return_stmt</span>: <span class="prelude-val">Some</span>(<span class="ident">ReturnStmt</span> {
-                                    <span class="ident">values</span>: <span class="macro">vec!</span>[<span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="number">0.0</span>))]
-                                })
-                            },
-                            <span class="ident">else_statements</span>: <span class="prelude-val">None</span>
-                        })],
-                        <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
-                    }
+                            <span class="ident">op</span>: <span class="ident">Operator::EQ</span>,
+                            <span class="ident">right</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(
+                                <span class="number">0.0</span>,
+                                <span class="ident">Span::new</span>(<span class="string">&quot;0&quot;</span>)
+                            )))
+                        })),
+                        <span class="ident">stmts</span>: <span class="ident">Block</span> {
+                            <span class="ident">statements</span>: <span class="macro">vec!</span>[],
+                            <span class="ident">return_stmt</span>: <span class="prelude-val">Some</span>(<span class="ident">ReturnStmt</span> {
+                                <span class="ident">values</span>: <span class="macro">vec!</span>[<span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(
+                                    <span class="number">0.0</span>,
+                                    <span class="ident">Span::new</span>(<span class="string">&quot;0&quot;</span>)
+                                )))]
+                            })
+                        },
+                        <span class="ident">else_statements</span>: <span class="prelude-val">None</span>
+                    })],
+                    <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
                 }
-            ))
+            }
         )
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_fun_2</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;fun init(self, height, weight)\r\n       self.height = height\r\n       self.weight = weight \r\n    end\r\n\r\n     &quot;</span>;
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">string</span>);
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_function</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="comment">// println!(&quot;{:?}&quot;, res);</span>
     }
 }

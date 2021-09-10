@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["liva_parser"] = [{"text":"impl&lt;'a&gt; <a class=\"trait\" href=\"https://doc.rust-lang.org/nightly/alloc/string/trait.ToString.html\" title=\"trait alloc::string::ToString\">ToString</a> for <a class=\"struct\" href=\"liva_parser/literals/struct.Variable.html\" title=\"struct liva_parser::literals::Variable\">Variable</a>&lt;'a&gt;","synthetic":false,"types":["liva_parser::parser::literals::Variable"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
