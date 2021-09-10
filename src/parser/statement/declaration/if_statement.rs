@@ -2,7 +2,7 @@ use crate::parser::expression::parse_expression;
 use crate::parser::expression::Expression;
 use crate::parser::literals::sp;
 use crate::parser::tokens::{end, ldo, lelse, lif};
-use crate::parser::Res;
+use crate::parser::{Res, Span};
 
 use crate::parser::statement::{parse_block, Block};
 
@@ -13,13 +13,13 @@ use nom::{
 };
 
 #[derive(Debug, PartialEq)]
-pub struct If {
-    pub cond: Expression,
-    pub stmts: Block,
-    pub else_statements: Option<Block>,
+pub struct If<'a> {
+    pub cond: Expression<'a>,
+    pub stmts: Block<'a>,
+    pub else_statements: Option<Block<'a>>,
 }
 
-pub fn parse_if(input: &str) -> Res<&str, If> {
+pub fn parse_if(input: Span) -> Res<If> {
     context(
         "If",
         tuple((
@@ -40,11 +40,11 @@ pub fn parse_if(input: &str) -> Res<&str, If> {
     })
 }
 
-fn else_statements(input: &str) -> Res<&str, Block> {
+fn else_statements(input: Span) -> Res<Block> {
     context("ElseStmt", preceded(preceded(sp, lelse), parse_block))(input)
 }
 
-fn if_condition(input: &str) -> Res<&str, Expression> {
+fn if_condition(input: Span) -> Res<Expression> {
     context(
         "IfCond",
         delimited(
@@ -60,6 +60,7 @@ mod tests {
 
     use super::*;
 
+    use crate::literals::Token;
     use crate::parser::expression::Expression;
     use crate::parser::expression::{binary::BinaryOp, ExprOrVarname, PrefixExpr};
     use crate::parser::literals::{Literal, Variable};
@@ -70,95 +71,113 @@ mod tests {
     #[test]
     fn parse_if_condition() {
         let string = "if x < 3 do";
-        let res = if_condition(string);
+        let (_, res) = if_condition(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                Expression::BinaryOp(Box::new(BinaryOp {
-                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Variable::new("x")),
-                        suffix_chain: vec![],
-                    })),
-                    op: Operator::Lt,
-                    right: Expression::Literal(Literal::Num(3.0)),
-                }))
-            ))
+            Expression::BinaryOp(Box::new(BinaryOp {
+                left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                        Variable::new("x"),
+                        Span::new("x")
+                    ))),
+                    suffix_chain: vec![],
+                })),
+                op: Operator::Lt,
+                right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+            }))
         )
     }
 
     #[test]
     fn parse_if_statements() {
         let string = "if x < 3 do let z = x + 3\n let y = 3 \nend";
-        let res = parse_if(string);
+        let (_, res) = parse_if(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                If {
-                    cond: Expression::BinaryOp(Box::new(BinaryOp {
-                        left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                            prefix: ExprOrVarname::Varname(Variable::new("x")),
-                            suffix_chain: vec![],
-                        })),
-                        op: Operator::Lt,
-                        right: Expression::Literal(Literal::Num(3.0)),
+            If {
+                cond: Expression::BinaryOp(Box::new(BinaryOp {
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                            Variable::new("x"),
+                            Span::new("x")
+                        ))),
+                        suffix_chain: vec![],
                     })),
-                    stmts: Block {
-                        statements: vec![
-                            Statement::LAssignment(LAssignment {
-                                variable: Variable::new("z"),
-                                expression: Expression::BinaryOp(Box::new(BinaryOp {
-                                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                        prefix: ExprOrVarname::Varname(Variable::new("x")),
-                                        suffix_chain: vec![],
-                                    })),
-                                    op: Operator::Add,
-                                    right: Expression::Literal(Literal::Num(3.0)),
+                    op: Operator::Lt,
+                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                })),
+                stmts: Block {
+                    statements: vec![
+                        Statement::LAssignment(LAssignment {
+                            variable: Literal::Variable(Token::new(
+                                Variable::new("z"),
+                                Span::new("z")
+                            )),
+                            expression: Expression::BinaryOp(Box::new(BinaryOp {
+                                left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                                        Variable::new("x"),
+                                        Span::new("x")
+                                    ))),
+                                    suffix_chain: vec![],
                                 })),
-                            }),
-                            Statement::LAssignment(LAssignment {
-                                variable: Variable::new("y"),
-                                expression: Expression::Literal(Literal::Num(3.0)),
-                            }),
-                        ],
-                        return_stmt: None,
-                    },
-                    else_statements: None
-                }
-            ))
+                                op: Operator::Add,
+                                right: Expression::Literal(Literal::Num(Token::new(
+                                    3.0,
+                                    Span::new("3")
+                                ))),
+                            })),
+                        }),
+                        Statement::LAssignment(LAssignment {
+                            variable: Literal::Variable(Token::new(
+                                Variable::new("y"),
+                                Span::new("y")
+                            )),
+                            expression: Expression::Literal(Literal::Num(Token::new(
+                                3.0,
+                                Span::new("3")
+                            ))),
+                        }),
+                    ],
+                    return_stmt: None,
+                },
+                else_statements: None
+            }
         )
     }
 
     #[test]
     fn parse_if_statements_with_return() {
         let string = "if x < 3 do return 0 \nend";
-        let res = parse_if(string);
+        let (_, res) = parse_if(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                If {
-                    cond: Expression::BinaryOp(Box::new(BinaryOp {
-                        left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                            prefix: ExprOrVarname::Varname(Variable::new("x")),
-                            suffix_chain: vec![],
-                        })),
-                        op: Operator::Lt,
-                        right: Expression::Literal(Literal::Num(3.0)),
+            If {
+                cond: Expression::BinaryOp(Box::new(BinaryOp {
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                            Variable::new("x"),
+                            Span::new("x")
+                        ))),
+                        suffix_chain: vec![],
                     })),
-                    stmts: Block {
-                        statements: vec![],
-                        return_stmt: Some(ReturnStmt {
-                            values: vec![Expression::Literal(Literal::Num(0.0))],
-                        }),
-                    },
-                    else_statements: None
-                }
-            ))
+                    op: Operator::Lt,
+                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                })),
+                stmts: Block {
+                    statements: vec![],
+                    return_stmt: Some(ReturnStmt {
+                        values: vec![Expression::Literal(Literal::Num(Token::new(
+                            0.0,
+                            Span::new("0")
+                        )))],
+                    }),
+                },
+                else_statements: None
+            }
         )
     }
 }

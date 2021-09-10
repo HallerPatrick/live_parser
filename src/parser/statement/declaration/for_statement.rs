@@ -3,21 +3,22 @@ use nom::{
     sequence::{delimited, preceded, terminated, tuple},
 };
 
+use crate::literals::Literal;
 use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::literals::sp;
 use crate::parser::literals::{parse_variable, Variable};
 use crate::parser::statement::{parse_block, Block};
 use crate::parser::tokens::{end, ldo, lfor, lin};
-use crate::parser::Res;
+use crate::parser::{Res, Span};
 
 #[derive(Debug, PartialEq)]
-pub struct For {
-    iter_item: Variable,
-    iterator: Expression,
-    block: Block,
+pub struct For<'a> {
+    iter_item: Literal<'a>,
+    iterator: Expression<'a>,
+    block: Block<'a>,
 }
 
-pub fn parse_for(input: &str) -> Res<&str, For> {
+pub fn parse_for(input: Span) -> Res<For> {
     tuple((
         parse_iter_item,
         parse_iterator,
@@ -35,14 +36,14 @@ pub fn parse_for(input: &str) -> Res<&str, For> {
     })
 }
 
-fn parse_iter_item(input: &str) -> Res<&str, Variable> {
+fn parse_iter_item<'a>(input: Span<'a>) -> Res<Literal<'a>> {
     context(
         "ForIterItem",
         preceded(preceded(sp, lfor), preceded(sp, parse_variable)),
     )(input)
 }
 
-fn parse_iterator(input: &str) -> Res<&str, Expression> {
+fn parse_iterator(input: Span) -> Res<Expression> {
     context(
         "ForIterator",
         delimited(
@@ -57,6 +58,7 @@ fn parse_iterator(input: &str) -> Res<&str, Expression> {
 mod tests {
 
     use super::*;
+    use crate::literals::Token;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
     use crate::parser::statement::{Block, LAssignment, Statement};
@@ -64,62 +66,56 @@ mod tests {
     #[test]
     fn test_parse_iter_item() {
         let string = "for item in iterator do";
-        let res = parse_iter_item(string);
+        let (_, res) = parse_iter_item(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Ok((
-                " in iterator do",
-                Variable {
-                    name: String::from("item")
-                }
-            ))
+            Literal::Variable(Token::new(Variable { name: "item" }, Span::new("item")))
         );
     }
 
     #[test]
     fn test_parse_iterator() {
         let string = " in iterator do";
-        let res = parse_iterator(string);
+        let (_, res) = parse_iterator(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Ok((
-                "",
-                Expression::PrefixExpr(Box::new(PrefixExpr {
-                    prefix: ExprOrVarname::Varname(Variable::new("iterator")),
-                    suffix_chain: vec![]
-                }))
-            ))
+            Expression::PrefixExpr(Box::new(PrefixExpr {
+                prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                    Variable::new("iterator"),
+                    Span::new("iterator")
+                ))),
+                suffix_chain: vec![]
+            }))
         );
     }
 
     #[test]
     fn test_parse_for_loop() {
         let string = "for x in y do \n let y = 3 \nend";
-        let res = parse_for(string);
+        let (_, res) = parse_for(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                For {
-                    iter_item: Variable {
-                        name: String::from("x")
-                    },
-                    iterator: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Variable::new("y")),
-                        suffix_chain: vec![]
-                    })),
-                    block: Block {
-                        statements: vec![Statement::LAssignment(LAssignment {
-                            variable: Variable {
-                                name: String::from("y")
-                            },
-                            expression: Expression::Literal(Literal::Num(3.0))
-                        })],
-                        return_stmt: None
-                    }
+            For {
+                iter_item: Literal::Variable(Token::new(Variable::new("x"), Span::new("x"))),
+                iterator: Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                        Variable::new("y"),
+                        Span::new("y")
+                    ))),
+                    suffix_chain: vec![]
+                })),
+                block: Block {
+                    statements: vec![Statement::LAssignment(LAssignment {
+                        variable: Literal::Variable(Token::new(Variable::new("y"), Span::new("y"))),
+                        expression: Expression::Literal(Literal::Num(Token::new(
+                            3.0,
+                            Span::new("3")
+                        )))
+                    })],
+                    return_stmt: None
                 }
-            ))
+            }
         )
     }
 }

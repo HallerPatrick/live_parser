@@ -11,7 +11,7 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
 
 ## What to parse
 
-* [ ] Comments
+* [x] Comments
 * [x] Literals:
     * [x] Num
     * [x] String
@@ -25,7 +25,7 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
         -> Complete parsing will be done at compile time
       
 
-* [] Statements:
+* [x] Statements:
     * [x] For loop
     * [x] While loop
     * [x] If(/Else) // TODO: ELSE
@@ -36,4 +36,4 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
     * [x] Return
     * [x] Import 
 
-* [ ] Keep track of line number and line span
+* [x] Keep track of line number and line span

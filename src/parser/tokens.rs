@@ -1,7 +1,7 @@
 //! Collection of all parsers and structs which represent tokens, operators and keywords
 
 use crate::parser::literals::sp;
-use crate::parser::Res;
+use crate::parser::{Res, Span};
 
 use nom::branch::alt;
 use nom::bytes::complete::tag;
@@ -61,7 +61,7 @@ macro_rules! define_token {
         $(
             /// Macro generated function
             /// Token parser to parse token
-            pub fn $fn_name(input: &str) -> Res<&str, &str> {
+            pub fn $fn_name(input: Span) -> Res<Span> {
                 context(
                     $name,
                     tag($token)
@@ -140,10 +140,10 @@ pub enum UnOperator {
     Not,
 }
 
-pub(crate) fn parse_unary_operator(input: &str) -> Res<&str, UnOperator> {
+pub(crate) fn parse_unary_operator(input: Span) -> Res<UnOperator> {
     context("UnaryOperator", preceded(sp, alt((add, sub, mul, div))))(input).map(
         |(next_input, res)| {
-            match res {
+            match *res.fragment() {
                 "+" => (next_input, UnOperator::Add),
                 "-" => (next_input, UnOperator::Sub),
                 "not" => (next_input, UnOperator::Not),
@@ -154,7 +154,7 @@ pub(crate) fn parse_unary_operator(input: &str) -> Res<&str, UnOperator> {
     )
 }
 
-pub(crate) fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
+pub(crate) fn parse_binary_operator(input: Span) -> Res<Operator> {
     context(
         "Operator",
         preceded(
@@ -175,7 +175,7 @@ pub(crate) fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
         ),
     )(input)
     .map(|(next_input, res)| {
-        match res {
+        match *res.fragment() {
             "+" => (next_input, Operator::Add),
             "-" => (next_input, Operator::Sub),
             "*" => (next_input, Operator::Div),
@@ -192,7 +192,7 @@ pub(crate) fn parse_binary_operator(input: &str) -> Res<&str, Operator> {
     })
 }
 
-pub(crate) fn parse_tokens(input: &str) -> Res<&str, &str> {
+pub(crate) fn parse_tokens(input: Span) -> Res<Span> {
     alt((
         add,
         sub,

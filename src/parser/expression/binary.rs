@@ -2,7 +2,7 @@ use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::literals::sp;
 use crate::parser::tokens::{parse_binary_operator, Operator, UnOperator};
 
-use crate::parser::Res;
+use crate::parser::{Res, Span};
 
 use nom::{
     error::context,
@@ -10,13 +10,13 @@ use nom::{
 };
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct BinaryOp {
-    pub left: Expression,
-    pub right: Expression,
+pub struct BinaryOp<'a> {
+    pub left: Expression<'a>,
+    pub right: Expression<'a>,
     pub op: Operator,
 }
 
-pub(crate) fn parse_binary(input: &str) -> Res<&str, BinaryOp> {
+pub(crate) fn parse_binary(input: Span) -> Res<BinaryOp> {
     context(
         "Binary",
         tuple((
@@ -38,7 +38,7 @@ pub(crate) fn parse_binary(input: &str) -> Res<&str, BinaryOp> {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct UnaryOp {
+pub struct UnaryOp<'a> {
     pub op: UnOperator,
-    pub operand: Expression,
+    pub operand: Expression<'a>,
 }

@@ -1,9 +1,10 @@
 use crate::parser::{
     literals::{parse_variable, sp, Variable},
     tokens::{dot, external, import, las},
-    Res,
+    Res, Span,
 };
 
+use crate::literals::Literal;
 use nom::{
     combinator::opt,
     error::context,
@@ -12,13 +13,13 @@ use nom::{
 };
 
 #[derive(PartialEq, Debug)]
-pub struct Import {
+pub struct Import<'a> {
     pub external: bool,
-    pub path: Vec<Variable>,
-    pub alias: Option<Variable>,
+    pub path: Vec<Literal<'a>>,
+    pub alias: Option<Literal<'a>>,
 }
 
-pub fn parse_import(input: &str) -> Res<&str, Import> {
+pub fn parse_import(input: Span) -> Res<Import> {
     context(
         "Import",
         preceded(
@@ -49,92 +50,82 @@ pub fn parse_import(input: &str) -> Res<&str, Import> {
 mod tests {
 
     use super::*;
+    use crate::literals::Token;
 
     #[test]
     fn test_import() {
         let string = "import hello";
-        let res = parse_import(string);
+        let (_, res) = parse_import(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                Import {
-                    external: false,
-                    path: vec![Variable {
-                        name: String::from("hello")
-                    }],
-                    alias: None
-                }
-            ))
+            Import {
+                external: false,
+                path: vec![Literal::Variable(Token::new(
+                    Variable::new("hello"),
+                    Span::new("hello")
+                ))],
+                alias: None
+            }
         )
     }
 
     #[test]
     fn test_import_multi() {
         let string = "import hello.world as tuna";
-        let res = parse_import(string);
+        let (_, res) = parse_import(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                Import {
-                    external: false,
-                    path: vec![
-                        Variable {
-                            name: String::from("hello")
-                        },
-                        Variable {
-                            name: String::from("world")
-                        }
-                    ],
-                    alias: Some(Variable {
-                        name: String::from("tuna")
-                    })
-                }
-            ))
+            Import {
+                external: false,
+                path: vec![
+                    Literal::Variable(Token::new(Variable::new("hello"), Span::new("hello"))),
+                    Literal::Variable(Token::new(Variable::new("world"), Span::new("world")))
+                ],
+                alias: Some(Literal::Variable(Token::new(
+                    Variable::new("tuna"),
+                    Span::new("tuna")
+                )))
+            }
         )
     }
 
     #[test]
     fn test_import_external() {
         let string = "external import hello";
-        let res = parse_import(string);
+        let (_, res) = parse_import(Span::new(string)).unwrap();
 
         assert_eq!(
             res,
-            Ok((
-                "",
-                Import {
-                    external: true,
-                    path: vec![Variable {
-                        name: String::from("hello")
-                    }],
-                    alias: None
-                }
-            ))
+            Import {
+                external: true,
+                path: vec![Literal::Variable(Token::new(
+                    Variable::new("hello"),
+                    Span::new("hello")
+                ))],
+                alias: None
+            }
         )
     }
 
     #[test]
     fn test_import_alias() {
         let string = "import hello as h";
-        let res = parse_import(string);
+        let (_, res) = parse_import(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Ok((
-                "",
-                Import {
-                    external: false,
-                    path: vec![Variable {
-                        name: String::from("hello")
-                    }],
-                    alias: Some(Variable {
-                        name: String::from("h")
-                    })
-                }
-            ))
+            Import {
+                external: false,
+                path: vec![Literal::Variable(Token::new(
+                    Variable::new("hello"),
+                    Span::new("hello")
+                ))],
+                alias: Some(Literal::Variable(Token::new(
+                    Variable::new("h"),
+                    Span::new("h")
+                )))
+            }
         )
     }
 }

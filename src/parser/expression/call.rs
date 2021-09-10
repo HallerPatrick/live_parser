@@ -10,23 +10,23 @@ use super::{parse_expression, Expression};
 use crate::parser::{
     literals::{parse_literal, sp, Literal},
     tokens::{comma, left_paren, right_paren},
-    Res,
+    Res, Span,
 };
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct Call {
-    pub callee: Option<Literal>,
-    pub args: Vec<Expression>,
+pub struct Call<'a> {
+    pub callee: Option<Literal<'a>>,
+    pub args: Vec<Expression<'a>>,
 }
 
-pub(crate) fn args(input: &str) -> Res<&str, Vec<Expression>> {
+pub(crate) fn args(input: Span) -> Res<Vec<Expression>> {
     context(
         "Args",
         separated_list0(preceded(sp, comma), parse_expression),
     )(input)
 }
 
-pub(crate) fn parse_call(input: &str) -> Res<&str, Call> {
+pub(crate) fn parse_call(input: Span) -> Res<Call> {
     context(
         "Call",
         tuple((
@@ -55,17 +55,19 @@ mod tests {
     use crate::parser::literals::Variable;
 
     use super::*;
+    use crate::literals::Token;
 
     #[test]
     fn test_call() {
         let string = "call()";
-        let res = parse_call(string);
+        let (_, res) = parse_call(Span::new(string)).unwrap();
         let e_res = Call {
-            callee: Some(Literal::Variable(Variable {
-                name: String::from("call"),
-            })),
+            callee: Some(Literal::Variable(Token::new(
+                Variable { name: "call" },
+                Span::new("call"),
+            ))),
             args: vec![],
         };
-        assert_eq!(res, Ok(("", e_res)));
+        assert_eq!(res, e_res);
     }
 }
