@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["parse_function","Parses a function declaration."]],"struct":[["Function","Represents a function declaration."]]});

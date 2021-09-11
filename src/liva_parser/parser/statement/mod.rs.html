@@ -298,20 +298,20 @@
 <span id="298">298</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all statements</span>
 
-<span class="kw">mod</span> <span class="ident">declaration</span>;
-<span class="kw">mod</span> <span class="ident">import</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">declaration</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">import</span>;
 
 <span class="kw">use</span> <span class="ident">nom::branch::alt</span>;
 <span class="kw">use</span> <span class="ident">nom::character::complete::line_ending</span>;
 <span class="kw">use</span> <span class="ident">nom::combinator</span>::{<span class="ident">map</span>, <span class="ident">opt</span>};
 <span class="kw">use</span> <span class="ident">nom::error::context</span>;
 <span class="kw">use</span> <span class="ident">nom::multi</span>::{<span class="ident">many0</span>, <span class="ident">separated_list0</span>};
-<span class="kw">use</span> <span class="ident">nom::sequence</span>::{<span class="ident">preceded</span>, <span class="ident">terminated</span>, <span class="ident">tuple</span>};
+<span class="kw">use</span> <span class="ident">nom::sequence</span>::{<span class="ident">preceded</span>, <span class="ident">tuple</span>};
 <span class="kw">use</span> <span class="ident">nom::Err</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
     <span class="ident">expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">prefixexpr</span>, <span class="ident">ExprSuffix</span>, <span class="ident">Expression</span>, <span class="ident">PrefixExpr</span>},
-    <span class="ident">literals</span>::{<span class="ident">sp</span>, <span class="ident">Token</span>},
+    <span class="ident">literals::sp</span>,
     <span class="ident">statement::declaration</span>::{
         <span class="ident">assignment</span>::{<span class="ident">Assignment</span>, <span class="ident">LAssignment</span>},
         <span class="ident">class::Class</span>,
@@ -442,7 +442,7 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::binary::BinaryOp</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::call::Call</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::ExprOrVarname</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">Literal</span>, <span class="ident">Variable</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">Literal</span>, <span class="ident">Token</span>, <span class="ident">Variable</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::tokens::Operator</span>;
 
     <span class="kw">fn</span> <span class="ident">ass_x_eq_3</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Statement</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {

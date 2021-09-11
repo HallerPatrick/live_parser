@@ -1,0 +1,1 @@
+initSidebarItems({"mod":[["assignment",""],["class",""],["for_statement",""],["function","Functions are declared with the `fun` keyword, followed by the name of the function. The naming convention follows variables names."],["if_statement","Conditional code execution though If statements"],["while_statement",""]]});
