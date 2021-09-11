@@ -1,3 +1,13 @@
+//! Conditional code execution though If statements
+//!
+//! ```code
+//! if x < 3 do
+//!     // Code to execute if x less than 3
+//! else
+//!     // Code to execute if x greate or equal 3
+//! end
+//! ```
+
 use crate::parser::expression::parse_expression;
 use crate::parser::expression::Expression;
 use crate::parser::literals::sp;
@@ -12,13 +22,22 @@ use nom::{
     sequence::{delimited, preceded, terminated, tuple},
 };
 
+/// Struct to represent a If-Block
 #[derive(Debug, PartialEq)]
 pub struct If<'a> {
+    /// Expression which will be evaluated. If it yields
+    /// a truthy value, the If code block with be executed
     pub cond: Expression<'a>,
+
+    /// Code block to execute
     pub stmts: Block<'a>,
+
+    /// Code block to execute if condition returns a falsy value.
+    /// This is optional
     pub else_statements: Option<Block<'a>>,
 }
 
+/// Parses the input into a If struct
 pub fn parse_if(input: Span) -> Res<If> {
     context(
         "If",
@@ -177,6 +196,61 @@ mod tests {
                     }),
                 },
                 else_statements: None
+            }
+        )
+    }
+
+    #[test]
+    fn parse_else_stmt() {
+        let string = "else return 0";
+        let (_, res) = else_statements(Span::new(string)).unwrap();
+
+        assert_eq!(
+            res,
+            Block {
+                statements: vec![],
+                return_stmt: Some(ReturnStmt {
+                    values: vec![Expression::Literal(Literal::Num(Token::new(
+                        0.0,
+                        Span::new("0")
+                    )))],
+                }),
+            }
+        )
+    }
+
+    #[test]
+    fn parse_if_statements_with_else() {
+        let string = "if x < 3 do // Nothing \nelse return 0 \nend";
+        let (_, res) = parse_if(Span::new(string)).unwrap();
+
+        assert_eq!(
+            res,
+            If {
+                cond: Expression::BinaryOp(Box::new(BinaryOp {
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                            Variable::new("x"),
+                            Span::new("x")
+                        ))),
+                        suffix_chain: vec![],
+                    })),
+                    op: Operator::Lt,
+                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                })),
+                stmts: Block {
+                    statements: vec![],
+                    return_stmt: None
+                },
+                else_statements: Some(Block {
+                    statements: vec![],
+                    return_stmt: Some(ReturnStmt {
+                        values: vec![Expression::Literal(Literal::Num(Token::new(
+                            0.0,
+                            Span::new("0")
+                        )))],
+                    }),
+                })
             }
         )
     }

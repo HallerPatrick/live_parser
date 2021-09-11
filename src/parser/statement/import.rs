@@ -1,5 +1,16 @@
+//! Import other modules into the current namespace
+//!
+//! The import statement allowes to import modules from
+//! the standard lib, local modules or thid-party modules
+//!
+//! ```py
+//! import math
+//! import lib.functools
+//!
+//! external import frosch.handler as fhandler
+//! ```
 use crate::parser::{
-    literals::{parse_variable, sp, Variable},
+    literals::{parse_variable, sp},
     tokens::{dot, external, import, las},
     Res, Span,
 };
@@ -12,13 +23,24 @@ use nom::{
     sequence::{preceded, tuple},
 };
 
+/// The import struct represents one import statement
 #[derive(PartialEq, Debug)]
 pub struct Import<'a> {
+    /// If a module is a third-party module, therefore not
+    /// in the local project or part of the standard lib
+    /// it has to be marked as an external module.
     pub external: bool,
+
+    /// The path defines where to look for the import.
+    /// A path is represented as a list of Identifier names
     pub path: Vec<Literal<'a>>,
+
+    /// For convenience can a import be aliased, which
+    /// represented the imported module
     pub alias: Option<Literal<'a>>,
 }
 
+/// Parses the input inot a Import struct
 pub fn parse_import(input: Span) -> Res<Import> {
     context(
         "Import",
@@ -50,7 +72,7 @@ pub fn parse_import(input: Span) -> Res<Import> {
 mod tests {
 
     use super::*;
-    use crate::literals::Token;
+    use crate::literals::{Token, Variable};
 
     #[test]
     fn test_import() {

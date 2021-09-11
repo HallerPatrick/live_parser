@@ -1,5 +1,21 @@
+//!
+//! Functions are declared with the `fun` keyword, followed by the
+//! name of the function. The naming convention follows variables
+//! names.
+//!
+//! Function can accept multiple arguments. A function ends with
+//! the `end` keyword.
+//!
+//! ```code
+//!
+//! fun foo(arg1, arg2)
+//!     return arg1 + arg2
+//! end
+//!
+//! ```
+//!
 use crate::parser::{
-    literals::{parse_variable, parse_variable_raw, sp, Variable},
+    literals::{parse_variable, sp},
     statement::opt_line_ending,
     statement::parse_block,
     statement::Block,
@@ -19,8 +35,14 @@ use nom::{
 /// Represents a function declaration.
 #[derive(Debug, PartialEq)]
 pub struct Function<'a> {
+    /// Name of the function
     pub name: Literal<'a>,
+
+    /// Parameter list, of the function
     pub parameters: Vec<Literal<'a>>,
+
+    /// Block contains all statements which
+    /// are executed, when the function is called
     pub statements: Block<'a>,
 }
 
@@ -73,7 +95,7 @@ fn parse_function_arguments<'a>(input: Span<'a>) -> Res<Vec<Literal<'a>>> {
 mod tests {
 
     use super::*;
-    use crate::literals::Token;
+    use crate::literals::{Token, Variable};
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;

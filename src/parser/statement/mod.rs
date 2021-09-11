@@ -1,19 +1,19 @@
 //! Collection of all statements
 
-mod declaration;
-mod import;
+pub mod declaration;
+pub mod import;
 
 use nom::branch::alt;
 use nom::character::complete::line_ending;
 use nom::combinator::{map, opt};
 use nom::error::context;
 use nom::multi::{many0, separated_list0};
-use nom::sequence::{preceded, terminated, tuple};
+use nom::sequence::{preceded, tuple};
 use nom::Err;
 
 use crate::parser::{
     expression::{parse_expression, prefixexpr, ExprSuffix, Expression, PrefixExpr},
-    literals::{sp, Token},
+    literals::sp,
     statement::declaration::{
         assignment::{Assignment, LAssignment},
         class::Class,
@@ -144,7 +144,7 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::call::Call;
     use crate::parser::expression::ExprOrVarname;
-    use crate::parser::literals::{Literal, Variable};
+    use crate::parser::literals::{Literal, Token, Variable};
     use crate::parser::tokens::Operator;
 
     fn ass_x_eq_3() -> Statement<'static> {
