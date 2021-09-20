@@ -13,4 +13,4 @@ path = "src/lib.rs"
 nom = "7.0.0"
 nom_locate = "4.0.0"
 lazy_static = "1.4.0"
-
+pretty-trait = "^0.1.2"

@@ -6,7 +6,7 @@ use nom::{
 use crate::literals::Literal;
 use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::literals::sp;
-use crate::parser::literals::{parse_variable, Variable};
+use crate::parser::literals::{parse_variable};
 use crate::parser::statement::{parse_block, Block};
 use crate::parser::tokens::{end, ldo, lfor, lin};
 use crate::parser::{Res, Span};
@@ -60,7 +60,7 @@ mod tests {
     use super::*;
     use crate::literals::Token;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
-    use crate::parser::literals::Literal;
+    use crate::parser::literals::{ Literal, Identifier };
     use crate::parser::statement::{Block, LAssignment, Statement};
 
     #[test]
@@ -69,7 +69,7 @@ mod tests {
         let (_, res) = parse_iter_item(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Variable(Token::new(Variable { name: "item" }, Span::new("item")))
+            Literal::Variable(Token::new(Identifier { name: "item" }, Span::new("item")))
         );
     }
 
@@ -81,7 +81,7 @@ mod tests {
             res,
             Expression::PrefixExpr(Box::new(PrefixExpr {
                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                    Variable::new("iterator"),
+                    Identifier::new("iterator"),
                     Span::new("iterator")
                 ))),
                 suffix_chain: vec![]
@@ -97,17 +97,17 @@ mod tests {
         assert_eq!(
             res,
             For {
-                iter_item: Literal::Variable(Token::new(Variable::new("x"), Span::new("x"))),
+                iter_item: Literal::Variable(Token::new(Identifier::new("x"), Span::new("x"))),
                 iterator: Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                        Variable::new("y"),
+                        Identifier::new("y"),
                         Span::new("y")
                     ))),
                     suffix_chain: vec![]
                 })),
                 block: Block {
                     statements: vec![Statement::LAssignment(LAssignment {
-                        variable: Literal::Variable(Token::new(Variable::new("y"), Span::new("y"))),
+                        variable: Literal::Variable(Token::new(Identifier::new("y"), Span::new("y"))),
                         expression: Expression::Literal(Literal::Num(Token::new(
                             3.0,
                             Span::new("3")

@@ -21,6 +21,7 @@ dependencies = [
  "lazy_static",
  "nom",
  "nom_locate",
+ "pretty-trait",
 ]
 
 [[package]]
@@ -56,6 +57,12 @@ dependencies = [
  "memchr",
  "nom",
 ]
+
+[[package]]
+name = "pretty-trait"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "daec4d692c635836c824fc01a578b47fb380fd6c0b124aa61e3ba5fec40af33a"
 
 [[package]]
 name = "version_check"

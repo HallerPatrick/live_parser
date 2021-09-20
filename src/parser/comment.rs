@@ -19,7 +19,7 @@ mod tests {
     #[test]
     fn test_parse_comment() {
         let string = "// This is a comment\nSome code";
-        let (sp, res) = parse_comment(Span::new(string)).unwrap();
+        let (_, res) = parse_comment(Span::new(string)).unwrap();
 
         assert_eq!(res, "");
     }

@@ -72,7 +72,7 @@ pub fn parse_import(input: Span) -> Res<Import> {
 mod tests {
 
     use super::*;
-    use crate::literals::{Token, Variable};
+    use crate::literals::{Token, Identifier};
 
     #[test]
     fn test_import() {
@@ -84,7 +84,7 @@ mod tests {
             Import {
                 external: false,
                 path: vec![Literal::Variable(Token::new(
-                    Variable::new("hello"),
+                    Identifier::new("hello"),
                     Span::new("hello")
                 ))],
                 alias: None
@@ -102,11 +102,11 @@ mod tests {
             Import {
                 external: false,
                 path: vec![
-                    Literal::Variable(Token::new(Variable::new("hello"), Span::new("hello"))),
-                    Literal::Variable(Token::new(Variable::new("world"), Span::new("world")))
+                    Literal::Variable(Token::new(Identifier::new("hello"), Span::new("hello"))),
+                    Literal::Variable(Token::new(Identifier::new("world"), Span::new("world")))
                 ],
                 alias: Some(Literal::Variable(Token::new(
-                    Variable::new("tuna"),
+                    Identifier::new("tuna"),
                     Span::new("tuna")
                 )))
             }
@@ -123,7 +123,7 @@ mod tests {
             Import {
                 external: true,
                 path: vec![Literal::Variable(Token::new(
-                    Variable::new("hello"),
+                    Identifier::new("hello"),
                     Span::new("hello")
                 ))],
                 alias: None
@@ -140,11 +140,11 @@ mod tests {
             Import {
                 external: false,
                 path: vec![Literal::Variable(Token::new(
-                    Variable::new("hello"),
+                    Identifier::new("hello"),
                     Span::new("hello")
                 ))],
                 alias: Some(Literal::Variable(Token::new(
-                    Variable::new("h"),
+                    Identifier::new("h"),
                     Span::new("h")
                 )))
             }

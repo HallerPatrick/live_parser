@@ -67,7 +67,7 @@ mod tests {
     use crate::literals::Token;
     use crate::parser::{
         expression::Expression,
-        literals::{Literal, Variable},
+        literals::{Literal, Identifier},
         statement::declaration::assignment::LAssignment,
         statement::declaration::function::Function,
         statement::{Block, ReturnStmt, Statement},
@@ -89,13 +89,13 @@ mod tests {
             Class {
                 name: String::from("Hello"),
                 methods: vec![Function {
-                    name: Literal::Variable(Token::new(Variable::new("foo"), Span::new("foo"))),
+                    name: Literal::Variable(Token::new(Identifier::new("foo"), Span::new("foo"))),
                     parameters: vec![],
                     statements: Block {
                         return_stmt: None,
                         statements: vec![Statement::LAssignment(LAssignment {
                             variable: Literal::Variable(Token::new(
-                                Variable::new("some"),
+                                Identifier::new("some"),
                                 Span::new("some")
                             )),
                             expression: Expression::Literal(Literal::Num(Token::new(
@@ -119,7 +119,7 @@ mod tests {
                 name: String::from("Hello"),
                 methods: vec![Function {
                     name: Literal::Variable(Token::new(
-                        Variable::new("method1"),
+                        Identifier::new("method1"),
                         Span::new("method1")
                     )),
                     parameters: vec![],
@@ -154,7 +154,7 @@ mod tests {
     #[test]
     fn test_class_1() {
         let string = "class Person\r\n\r\n    fun init(self, height, weight)\r\n       self.height = height\r\n       self.weight = weight \r\n    end\r\n\r\n    fun get_bmi(self)\r\n       let w_res = self.height * self.height\r\n       return self.weight / w_res\r\n    end\r\nend\r\n\r\n";
-        let (_, res) = parse_class(Span::new(string)).unwrap();
-        println!("{:?}", res);
+        let (_, _) = parse_class(Span::new(string)).unwrap();
+        // println!("{:?}", res);
     }
 }

@@ -50,7 +50,7 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::{ExprOrVarname, Expression, PrefixExpr};
     use crate::parser::literals::Literal;
-    use crate::parser::literals::Variable;
+    use crate::parser::literals::Identifier;
     use crate::parser::statement::declaration::assignment::LAssignment;
     use crate::parser::statement::Statement;
     use crate::parser::tokens::Operator;
@@ -66,7 +66,7 @@ mod tests {
                 op: Operator::Lt,
                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                        Variable::new("x"),
+                        Identifier::new("x"),
                         Span::new("x")
                     ))),
                     suffix_chain: vec![],
@@ -88,7 +88,7 @@ mod tests {
                     op: Operator::Lt,
                     left: Expression::PrefixExpr(Box::new(PrefixExpr {
                         prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                            Variable::new("x"),
+                            Identifier::new("x"),
                             Span::new("x")
                         ))),
                         suffix_chain: vec![],
@@ -99,13 +99,13 @@ mod tests {
                     statements: vec![
                         Statement::LAssignment(LAssignment {
                             variable: Literal::Variable(Token::new(
-                                Variable::new("z"),
+                                Identifier::new("z"),
                                 Span::new("z")
                             )),
                             expression: Expression::BinaryOp(Box::new(BinaryOp {
                                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
                                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                                        Variable::new("x"),
+                                        Identifier::new("x"),
                                         Span::new("x")
                                     ))),
                                     suffix_chain: vec![]
@@ -119,7 +119,7 @@ mod tests {
                         }),
                         Statement::LAssignment(LAssignment {
                             variable: Literal::Variable(Token::new(
-                                Variable::new("y"),
+                                Identifier::new("y"),
                                 Span::new("y")
                             )),
                             expression: Expression::Literal(Literal::Num(Token::new(

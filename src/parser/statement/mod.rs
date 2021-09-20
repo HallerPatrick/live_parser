@@ -36,10 +36,22 @@ use declaration::{
     while_statement::parse_while,
 };
 
+// TODO: Impl iter over stmts?
 #[derive(Debug, PartialEq)]
 pub struct Block<'a> {
-    statements: Vec<Statement<'a>>,
-    return_stmt: Option<ReturnStmt<'a>>,
+    pub statements: Vec<Statement<'a>>,
+    pub return_stmt: Option<ReturnStmt<'a>>,
+}
+
+impl<'a> IntoIterator for Block<'a> {
+
+    type Item = Statement<'a>;
+    type IntoIter = std::vec::IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.statements.into_iter()
+    }
+
 }
 
 #[derive(Debug, PartialEq)]
@@ -53,7 +65,6 @@ pub enum Statement<'a> {
     Fun(Function<'a>),
     Class(Class<'a>),
     Return(ReturnStmt<'a>),
-    Expression(Expression<'a>),
     Import(Import<'a>),
 }
 
@@ -73,7 +84,33 @@ pub fn parse_block(input: Span) -> Res<Block> {
     })
 }
 
-fn parse_statement(input: Span) -> Res<Statement> {
+/// Parse a single statement into a [`Statement`]
+///
+/// # Example
+///
+/// ```
+/// use liva_parser::{
+///     Span,
+///     parse_statement,
+///     statement::{
+///         Statement,
+///         declaration::assignment::LAssignment
+///     },
+///     expression::Expression,
+///     literals::{Literal, Token, Identifier}
+/// }; 
+///
+/// let input = Span::new("let x = 3");
+/// let (_, res) = parse_statement(input).unwrap();
+/// assert_eq!(
+///     res,
+///     Statement::LAssignment(LAssignment {
+///         variable: Literal::Variable(Token::new(Identifier { name: "x" }, Span::new("x"))),
+///         expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
+///     })
+/// );
+/// ```
+pub fn parse_statement(input: Span) -> Res<Statement> {
     context(
         "Stmt",
         preceded(
@@ -144,12 +181,12 @@ mod tests {
     use crate::parser::expression::binary::BinaryOp;
     use crate::parser::expression::call::Call;
     use crate::parser::expression::ExprOrVarname;
-    use crate::parser::literals::{Literal, Token, Variable};
+    use crate::parser::literals::{Literal, Token, Identifier};
     use crate::parser::tokens::Operator;
 
     fn ass_x_eq_3() -> Statement<'static> {
         Statement::LAssignment(LAssignment {
-            variable: Literal::Variable(Token::new(Variable { name: "x" }, Span::new("x"))),
+            variable: Literal::Variable(Token::new(Identifier { name: "x" }, Span::new("x"))),
             expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
         })
     }
@@ -161,7 +198,7 @@ mod tests {
         assert_eq!(
             res,
             Statement::LAssignment(LAssignment {
-                variable: Literal::Variable(Token::new(Variable { name: "x" }, Span::new("x"))),
+                variable: Literal::Variable(Token::new(Identifier { name: "x" }, Span::new("x"))),
                 expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3.0"))))
             })
         );
@@ -198,7 +235,7 @@ mod tests {
                 values: vec![
                     Expression::PrefixExpr(Box::new(PrefixExpr {
                         prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                            Variable::new("hello"),
+                            Identifier::new("hello"),
                             Span::new("hello")
                         ))),
                         suffix_chain: vec![]
@@ -219,21 +256,21 @@ mod tests {
                 values: vec![
                     Expression::PrefixExpr(Box::new(PrefixExpr {
                         prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                            Variable::new("hello"),
+                            Identifier::new("hello"),
                             Span::new("hello")
                         ))),
                         suffix_chain: vec![]
                     })),
                     Expression::PrefixExpr(Box::new(PrefixExpr {
                         prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                            Variable::new("func"),
+                            Identifier::new("func"),
                             Span::new("func")
                         ))),
                         suffix_chain: vec![ExprSuffix::FuncCall(Call {
                             callee: None,
                             args: vec![Expression::PrefixExpr(Box::new(PrefixExpr {
                                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                                    Variable::new("n"),
+                                    Identifier::new("n"),
                                     Span::new("n")
                                 ))),
                                 suffix_chain: vec![]
@@ -254,7 +291,7 @@ mod tests {
             ReturnStmt {
                 values: vec![Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                        Variable::new("fib"),
+                        Identifier::new("fib"),
                         Span::new("fib")
                     ))),
                     suffix_chain: vec![ExprSuffix::FuncCall(Call {
@@ -263,7 +300,7 @@ mod tests {
                             op: Operator::Sub,
                             left: Expression::PrefixExpr(Box::new(PrefixExpr {
                                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                                    Variable::new("n"),
+                                    Identifier::new("n"),
                                     Span::new("n")
                                 ))),
                                 suffix_chain: vec![]
@@ -286,7 +323,7 @@ mod tests {
         assert_eq!(
             res,
             Statement::Fun(Function {
-                name: Literal::Variable(Token::new(Variable::new("hello"), Span::new("hello"))),
+                name: Literal::Variable(Token::new(Identifier::new("hello"), Span::new("hello"))),
                 parameters: vec![],
                 statements: Block {
                     statements: vec![],

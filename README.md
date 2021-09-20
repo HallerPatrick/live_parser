@@ -21,11 +21,7 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
     * [x] Map
     * [x] Nil
     * [x] Variable Names
-
-* [x] Expressions: Are getting lexed, while literals are being parsed.
-        -> Complete parsing will be done at compile time
-      
-
+* [x] Expressions:
 * [x] Statements:
     * [x] For loop
     * [x] While loop
@@ -36,5 +32,9 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
         * [x] Assignment
     * [x] Return
     * [x] Import 
-
 * [x] Keep track of line number and line span
+* [ ] Type annotations
+* [ ] Annonymus functios?
+
+
+

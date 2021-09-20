@@ -16,11 +16,9 @@ use nom::{
     error::context,
     error_position,
     multi::{many0, separated_list0},
-    number::complete::double,
     sequence::{pair, preceded, separated_pair, terminated, tuple},
     IResult,
 };
-use nom_locate::position;
 
 #[derive(Clone, Debug)]
 pub struct Token<'a, T> {
@@ -29,7 +27,7 @@ pub struct Token<'a, T> {
 }
 
 impl<'a, T> Token<'a, T> {
-    pub(crate) fn new(value: T, pos: Span) -> Token<T> {
+    pub fn new(value: T, pos: Span) -> Token<T> {
         Token { value, pos }
     }
 }
@@ -43,7 +41,7 @@ pub enum Literal<'a> {
     Num(Token<'a, f64>),
     Array(Vec<Literal<'a>>),
     Map(HashMap<String, Literal<'a>>),
-    Variable(Token<'a, Variable<'a>>),
+    Variable(Token<'a, Identifier<'a>>),
 }
 
 impl<'a, T> PartialEq for Token<'a, T>
@@ -63,19 +61,19 @@ where
 // Contains the name of a identifier, which has to start with letter, but can contain
 // numbers and underscores
 #[derive(Debug, PartialEq, Clone)]
-pub struct Variable<'a> {
+pub struct Identifier<'a> {
     pub name: &'a str,
 }
 
-impl<'a> ToString for Variable<'a> {
+impl<'a> ToString for Identifier<'a> {
     fn to_string(&self) -> String {
         String::from(self.name)
     }
 }
 
-impl<'a> Variable<'a> {
+impl<'a> Identifier<'a> {
     pub fn new(name: &'a str) -> Self {
-        Variable { name }
+        Identifier { name }
     }
 }
 
@@ -105,7 +103,7 @@ pub(crate) fn parse_variable(input: Span) -> Res<Literal> {
         (
             next_input,
             Literal::Variable(Token::new(
-                Variable {
+                Identifier {
                     name: *res.fragment(),
                 },
                 res,
@@ -250,8 +248,6 @@ pub(crate) fn parse_literal<'a>(input: Span<'a>) -> Res<Literal<'a>> {
 mod tests {
 
     use super::*;
-    use nom::error::{ErrorKind, VerboseError, VerboseErrorKind};
-    use nom::Offset;
 
     #[test]
     fn test_token() {
@@ -420,7 +416,7 @@ mod tests {
         assert_eq!(
             res,
             Literal::Variable(Token::new(
-                Variable { name: "hello123" },
+                Identifier { name: "hello123" },
                 Span::new("hello123")
             ))
         );
@@ -433,7 +429,7 @@ mod tests {
         assert_eq!(
             res,
             Literal::Variable(Token::new(
-                Variable { name: "Hello123" },
+                Identifier { name: "Hello123" },
                 Span::new("Hello123")
             ))
         );
@@ -445,7 +441,7 @@ mod tests {
         let (_, res) = parse_variable(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Variable(Token::new(Variable { name: "hello" }, Span::new("hello")))
+            Literal::Variable(Token::new(Identifier { name: "hello" }, Span::new("hello")))
         );
     }
 }

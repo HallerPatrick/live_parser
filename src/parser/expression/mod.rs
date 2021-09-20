@@ -4,7 +4,7 @@ pub mod binary;
 pub mod call;
 
 use crate::parser::{
-    literals::{parse_literal, parse_variable, sp, Literal, Variable},
+    literals::{parse_literal, parse_variable, sp, Literal},
     tokens::{
         dot, left_bracket, left_paren, parse_binary_operator, parse_unary_operator, right_bracket,
         right_paren, Operator, UnOperator, BINOP_PRECEDENCE, UNOPS,
@@ -380,7 +380,7 @@ mod tests {
 
     use super::*;
 
-    use crate::parser::literals::{Token, Variable};
+    use crate::parser::literals::{Token, Identifier};
 
     #[test]
     fn test_parse_head() {
@@ -393,7 +393,7 @@ mod tests {
                 un_ops: vec![UnOperator::Sub],
                 expr: Expression2::PrefixExpr(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                        Variable { name: "hello" },
+                        Identifier { name: "hello" },
                         Span::new("hello")
                     ))),
                     suffix_chain: vec![]
@@ -405,8 +405,8 @@ mod tests {
     #[test]
     fn test_parse_bin_op_chain() {
         let string = "< hello() - 3";
-        let (_, res) = parse_bin_op_chain(Span::new(string)).unwrap();
-        println!("{:?}", res);
+        let (_, _) = parse_bin_op_chain(Span::new(string)).unwrap();
+        // println!("{:?}", res);
     }
 
     #[test]
@@ -417,7 +417,7 @@ mod tests {
             res,
             Expression::PrefixExpr(Box::new(PrefixExpr {
                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                    Variable { name: "hello" },
+                    Identifier { name: "hello" },
                     Span::new("hello")
                 ))),
                 suffix_chain: vec![ExprSuffix::FuncCall(Call {
@@ -436,7 +436,7 @@ mod tests {
             res,
             PrefixExpr {
                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                    Variable { name: "hello" },
+                    Identifier { name: "hello" },
                     Span::new("hello")
                 ))),
                 suffix_chain: vec![ExprSuffix::FuncCall(Call {
@@ -468,7 +468,7 @@ mod tests {
                 left: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
                 right: Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                        Variable { name: "x" },
+                        Identifier { name: "x" },
                         Span::new("x")
                     ))),
                     suffix_chain: vec![]
@@ -488,7 +488,7 @@ mod tests {
                 left: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
                 right: Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                        Variable { name: "x" },
+                        Identifier { name: "x" },
                         Span::new("x"),
                     ))),
                     suffix_chain: vec![],
@@ -501,14 +501,14 @@ mod tests {
             op: Operator::EQ,
             left: Expression::PrefixExpr(Box::new(PrefixExpr {
                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                    Variable { name: "Nil" },
+                    Identifier { name: "Nil" },
                     Span::new("Nil"),
                 ))),
                 suffix_chain: vec![],
             })),
             right: Expression::PrefixExpr(Box::new(PrefixExpr {
                 prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
-                    Variable { name: "Nil" },
+                    Identifier { name: "Nil" },
                     Span::new("Nil"),
                 ))),
                 suffix_chain: vec![],

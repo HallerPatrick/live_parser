@@ -1,7 +1,7 @@
 use crate::parser::expression::{parse_expression, prefixexpr, Expression, PrefixExpr};
 use crate::parser::tokens::llet;
 use crate::parser::{
-    literals::{parse_variable, sp, Variable},
+    literals::{parse_variable, sp},
     Res, Span,
 };
 
@@ -88,7 +88,7 @@ mod tests {
 
     use crate::literals::Token;
     use crate::parser::expression::Expression;
-    use crate::parser::literals::Literal;
+    use crate::parser::literals::{ Literal, Identifier };
 
     #[test]
     fn test_assignment() {
@@ -97,7 +97,7 @@ mod tests {
         assert_eq!(
             res,
             LAssignment {
-                variable: Literal::Variable(Token::new(Variable { name: "x" }, Span::new("x"))),
+                variable: Literal::Variable(Token::new(Identifier { name: "x" }, Span::new("x"))),
                 expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
             }
         );
