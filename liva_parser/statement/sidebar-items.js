@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Statement",""]],"fn":[["parse_block",""]],"mod":[["declaration",""],["import","Import other modules into the current namespace"]],"struct":[["Block",""],["ReturnStmt",""]]});
+initSidebarItems({"enum":[["Statement",""]],"fn":[["parse_block",""],["parse_statement","Parse a single statement into a [`Statement`]"]],"mod":[["declaration",""],["import","Import other modules into the current namespace"]],"struct":[["Block",""],["ReturnStmt",""]]});

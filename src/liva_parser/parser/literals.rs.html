@@ -445,10 +445,6 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all possible literals</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Span</span>;
@@ -467,11 +463,9 @@
     <span class="ident">error::context</span>,
     <span class="ident">error_position</span>,
     <span class="ident">multi</span>::{<span class="ident">many0</span>, <span class="ident">separated_list0</span>},
-    <span class="ident">number::complete::double</span>,
     <span class="ident">sequence</span>::{<span class="ident">pair</span>, <span class="ident">preceded</span>, <span class="ident">separated_pair</span>, <span class="ident">terminated</span>, <span class="ident">tuple</span>},
     <span class="ident">IResult</span>,
 };
-<span class="kw">use</span> <span class="ident">nom_locate::position</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
@@ -480,7 +474,7 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">pos</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">value</span>: <span class="ident">T</span>, <span class="ident">pos</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> {
         <span class="ident">Token</span> { <span class="ident">value</span>, <span class="ident">pos</span> }
     }
 }
@@ -494,7 +488,7 @@
     <span class="ident">Num</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">f64</span><span class="op">&gt;</span>),
     <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
     <span class="ident">Map</span>(<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">Variable</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">Variable</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">Identifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
@@ -514,19 +508,19 @@
 <span class="comment">// Contains the name of a identifier, which has to start with letter, but can contain</span>
 <span class="comment">// numbers and underscores</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Identifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToString</span> <span class="kw">for</span> <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">ToString</span> <span class="kw">for</span> <span class="ident">Identifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">fn</span> <span class="ident">to_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
         <span class="ident">String::from</span>(<span class="self">self</span>.<span class="ident">name</span>)
     }
 }
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Identifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
-        <span class="ident">Variable</span> { <span class="ident">name</span> }
+        <span class="ident">Identifier</span> { <span class="ident">name</span> }
     }
 }
 
@@ -556,7 +550,7 @@
         (
             <span class="ident">next_input</span>,
             <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                <span class="ident">Variable</span> {
+                <span class="ident">Identifier</span> {
                     <span class="ident">name</span>: <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">fragment</span>(),
                 },
                 <span class="ident">res</span>,
@@ -701,8 +695,6 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">nom::error</span>::{<span class="ident">ErrorKind</span>, <span class="ident">VerboseError</span>, <span class="ident">VerboseErrorKind</span>};
-    <span class="kw">use</span> <span class="ident">nom::Offset</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_token</span>() {
@@ -871,7 +863,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
             <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;hello123&quot;</span> },
+                <span class="ident">Identifier</span> { <span class="ident">name</span>: <span class="string">&quot;hello123&quot;</span> },
                 <span class="ident">Span::new</span>(<span class="string">&quot;hello123&quot;</span>)
             ))
         );
@@ -884,7 +876,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
             <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                <span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;Hello123&quot;</span> },
+                <span class="ident">Identifier</span> { <span class="ident">name</span>: <span class="string">&quot;Hello123&quot;</span> },
                 <span class="ident">Span::new</span>(<span class="string">&quot;Hello123&quot;</span>)
             ))
         );
@@ -896,7 +888,7 @@
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_variable</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;hello&quot;</span> }, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)))
+            <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>: <span class="string">&quot;hello&quot;</span> }, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)))
         );
     }
 }

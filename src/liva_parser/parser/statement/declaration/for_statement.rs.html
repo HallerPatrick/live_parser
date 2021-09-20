@@ -127,7 +127,7 @@
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Literal</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">Expression</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::sp</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">parse_variable</span>, <span class="ident">Variable</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">parse_variable</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::statement</span>::{<span class="ident">parse_block</span>, <span class="ident">Block</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::tokens</span>::{<span class="ident">end</span>, <span class="ident">ldo</span>, <span class="ident">lfor</span>, <span class="ident">lin</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{<span class="ident">Res</span>, <span class="ident">Span</span>};
@@ -181,7 +181,7 @@
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Token</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">ExprOrVarname</span>, <span class="ident">Expression</span>, <span class="ident">PrefixExpr</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::Literal</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{ <span class="ident">Literal</span>, <span class="ident">Identifier</span> };
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::statement</span>::{<span class="ident">Block</span>, <span class="ident">LAssignment</span>, <span class="ident">Statement</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -190,7 +190,7 @@
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_iter_item</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable</span> { <span class="ident">name</span>: <span class="string">&quot;item&quot;</span> }, <span class="ident">Span::new</span>(<span class="string">&quot;item&quot;</span>)))
+            <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>: <span class="string">&quot;item&quot;</span> }, <span class="ident">Span::new</span>(<span class="string">&quot;item&quot;</span>)))
         );
     }
 
@@ -202,7 +202,7 @@
             <span class="ident">res</span>,
             <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                 <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                    <span class="ident">Variable::new</span>(<span class="string">&quot;iterator&quot;</span>),
+                    <span class="ident">Identifier::new</span>(<span class="string">&quot;iterator&quot;</span>),
                     <span class="ident">Span::new</span>(<span class="string">&quot;iterator&quot;</span>)
                 ))),
                 <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
@@ -218,17 +218,17 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
             <span class="ident">For</span> {
-                <span class="ident">iter_item</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;x&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
+                <span class="ident">iter_item</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier::new</span>(<span class="string">&quot;x&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
                 <span class="ident">iterator</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                     <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                        <span class="ident">Variable::new</span>(<span class="string">&quot;y&quot;</span>),
+                        <span class="ident">Identifier::new</span>(<span class="string">&quot;y&quot;</span>),
                         <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>)
                     ))),
                     <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
                 })),
                 <span class="ident">block</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-                        <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Variable::new</span>(<span class="string">&quot;y&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>))),
+                        <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier::new</span>(<span class="string">&quot;y&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>))),
                         <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(
                             <span class="number">3.0</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)

@@ -31,53 +31,9 @@
 <span id="31">31</span>
 <span id="32">32</span>
 <span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
-<span id="42">42</span>
-<span id="43">43</span>
-<span id="44">44</span>
-<span id="45">45</span>
-<span id="46">46</span>
-<span id="47">47</span>
-<span id="48">48</span>
-<span id="49">49</span>
-<span id="50">50</span>
-<span id="51">51</span>
-<span id="52">52</span>
-<span id="53">53</span>
-<span id="54">54</span>
-<span id="55">55</span>
-<span id="56">56</span>
-<span id="57">57</span>
-<span id="58">58</span>
-<span id="59">59</span>
-<span id="60">60</span>
-<span id="61">61</span>
-<span id="62">62</span>
-<span id="63">63</span>
-<span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
-<span id="68">68</span>
-<span id="69">69</span>
-<span id="70">70</span>
-<span id="71">71</span>
-<span id="72">72</span>
-<span id="73">73</span>
-<span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
-<span id="77">77</span>
-<span id="78">78</span>
-<span id="79">79</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
+
+<span class="kw">use</span> <span class="ident">std::fs</span>;
 
 <span class="kw">mod</span> <span class="ident">comment</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">expression</span>;
@@ -87,7 +43,7 @@
 
 <span class="kw">use</span> <span class="ident">nom</span>::{
     <span class="ident">error</span>::{<span class="ident">context</span>, <span class="ident">VerboseError</span>},
-    <span class="ident">IResult</span>, <span class="ident">InputIter</span>, <span class="ident">Needed</span>,
+    <span class="ident">IResult</span>
 };
 
 <span class="kw">use</span> <span class="ident">nom_locate::LocatedSpan</span>;
@@ -98,64 +54,16 @@
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">O</span>, <span class="ident">VerboseError</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
-<span class="comment">//</span>
-<span class="comment">// #[derive(Debug, Clone, UnspecializedInput)]</span>
-<span class="comment">// pub struct Span&lt;&#39;a, X = ()&gt; {</span>
-<span class="comment">//     sp: LocatedSpan&lt;&amp;&#39;a str, X&gt;</span>
-<span class="comment">// }</span>
-<span class="comment">//</span>
-<span class="comment">// impl&lt;&#39;a&gt; Span&lt;&#39;a&gt; {</span>
-<span class="comment">//</span>
-<span class="comment">//     pub fn new(inp: &amp;&#39;a str) -&gt; Span&lt;&#39;a&gt; {</span>
-<span class="comment">//         Span {</span>
-<span class="comment">//             sp: LocatedSpan::new(inp)</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-<span class="comment">//</span>
-<span class="comment">//     pub fn fragment(&amp;self) -&gt; &amp;str {</span>
-<span class="comment">//         self.sp.fragment()</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
-<span class="comment">//</span>
-<span class="comment">// impl &lt;&#39;a&gt;PartialEq for Span&lt;&#39;a&gt; {</span>
-<span class="comment">//     fn eq(&amp;self, other: &amp;Self) -&gt; bool {</span>
-<span class="comment">//         self.fragment() == other.fragment()</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
-<span class="comment">//</span>
-<span class="comment">// impl &lt;&#39;a&gt; nom::InputLength for Span&lt;&#39;a&gt; {</span>
-<span class="comment">//     fn input_len(&amp;self) -&gt; usize {</span>
-<span class="comment">//         self.sp.input_len()</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
-<span class="comment">//</span>
-<span class="comment">// impl &lt;&#39;a&gt; nom::InputIter for Span&lt;&#39;a&gt; {</span>
-<span class="comment">//     type Item = &lt;&amp;&#39;a str as InputIter&gt;::Item;</span>
-<span class="comment">//     type Iter = &lt;&amp;&#39;a str as InputIter&gt;::Iter;</span>
-<span class="comment">//     type IterElem = &lt;&amp;&#39;a str as InputIter&gt;::IterElem;</span>
-<span class="comment">//</span>
-<span class="comment">//     fn iter_indices(&amp; self) -&gt; Self::Iter {</span>
-<span class="comment">//         self.fragment().iter_indices()</span>
-<span class="comment">//     }</span>
-<span class="comment">//</span>
-<span class="comment">//     fn iter_elements(&amp; self) -&gt; Self::IterElem {</span>
-<span class="comment">//         self.fragment().iter_elements()</span>
-<span class="comment">//     }</span>
-<span class="comment">//</span>
-<span class="comment">//     fn position&lt;P&gt;(&amp; self, predicate: P) -&gt; Option&lt;usize&gt; where P: Fn(Self::Item) -&gt; bool {</span>
-<span class="comment">//         self.fragment().position(predicate)</span>
-<span class="comment">//     }</span>
-<span class="comment">//</span>
-<span class="comment">//     fn slice_index(&amp; self, count: usize) -&gt; Result&lt;usize, Needed&gt; {</span>
-<span class="comment">//         self.fragment().slice_index(count)</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
-<span class="comment">//</span>
-<span class="comment">//</span>
 <span class="doccomment">/// Entry point to the parser, which parse the liva language</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_source</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
-    <span class="ident">context</span>(<span class="string">&quot;Root&quot;</span>, <span class="ident">parse_block</span>)(<span class="ident">input</span>)
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_source</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Block</span> {
+    <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">root</span>) <span class="op">=</span> <span class="ident">parse_block</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
+    <span class="ident">root</span>
 }
+
+<span class="comment">// pub fn parse_source_from_file(filename: &amp;str) -&gt; Result&lt;Block, Box&lt;dyn std::error::Error&gt;&gt; {</span>
+<span class="comment">//     let source: String = fs::read_to_string(filename)?;</span>
+<span class="comment">//     Ok(parse_source(Span::new(source.as_str())))</span>
+<span class="comment">// }</span>
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="liva_parser" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>
