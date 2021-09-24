@@ -29,11 +29,7 @@
 <span id="29">29</span>
 <span id="30">30</span>
 <span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-
-<span class="kw">use</span> <span class="ident">std::fs</span>;
 
 <span class="kw">mod</span> <span class="ident">comment</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">expression</span>;
@@ -42,8 +38,8 @@
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">tokens</span>;
 
 <span class="kw">use</span> <span class="ident">nom</span>::{
-    <span class="ident">error</span>::{<span class="ident">context</span>, <span class="ident">VerboseError</span>},
-    <span class="ident">IResult</span>
+    <span class="ident">error</span>::{<span class="ident">VerboseError</span>},
+    <span class="ident">IResult</span>,
 };
 
 <span class="kw">use</span> <span class="ident">nom_locate::LocatedSpan</span>;

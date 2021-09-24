@@ -249,12 +249,6 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Conditional code execution though If statements</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! ```code</span>
@@ -339,7 +333,7 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Token</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::Expression</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">binary::BinaryOp</span>, <span class="ident">ExprOrVarname</span>, <span class="ident">PrefixExpr</span>};
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">Literal</span>, <span class="ident">Identifier</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::Literal</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::statement::declaration::assignment::LAssignment</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::statement</span>::{<span class="ident">ReturnStmt</span>, <span class="ident">Statement</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::tokens::Operator</span>;
@@ -354,7 +348,7 @@
             <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                 <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                     <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                        <span class="ident">Identifier::new</span>(<span class="string">&quot;x&quot;</span>),
+                        <span class="string">&quot;x&quot;</span>,
                         <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)
                     ))),
                     <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
@@ -376,7 +370,7 @@
                 <span class="ident">cond</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                     <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                         <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                            <span class="ident">Identifier::new</span>(<span class="string">&quot;x&quot;</span>),
+                            <span class="string">&quot;x&quot;</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)
                         ))),
                         <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
@@ -387,14 +381,11 @@
                 <span class="ident">stmts</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[
                         <span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-                            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                                <span class="ident">Identifier::new</span>(<span class="string">&quot;z&quot;</span>),
-                                <span class="ident">Span::new</span>(<span class="string">&quot;z&quot;</span>)
-                            )),
+                            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;z&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;z&quot;</span>))),
                             <span class="ident">expression</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                                 <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                                     <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                                        <span class="ident">Identifier::new</span>(<span class="string">&quot;x&quot;</span>),
+                                        <span class="string">&quot;x&quot;</span>,
                                         <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)
                                     ))),
                                     <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
@@ -407,10 +398,7 @@
                             })),
                         }),
                         <span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-                            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                                <span class="ident">Identifier::new</span>(<span class="string">&quot;y&quot;</span>),
-                                <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>)
-                            )),
+                            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;y&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>))),
                             <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(
                                 <span class="number">3.0</span>,
                                 <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)
@@ -435,7 +423,7 @@
                 <span class="ident">cond</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                     <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                         <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                            <span class="ident">Identifier::new</span>(<span class="string">&quot;x&quot;</span>),
+                            <span class="string">&quot;x&quot;</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)
                         ))),
                         <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],
@@ -487,7 +475,7 @@
                 <span class="ident">cond</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                     <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                         <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                            <span class="ident">Identifier::new</span>(<span class="string">&quot;x&quot;</span>),
+                            <span class="string">&quot;x&quot;</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)
                         ))),
                         <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[],

@@ -152,12 +152,6 @@
 <span id="152">152</span>
 <span id="153">153</span>
 <span id="154">154</span>
-<span id="155">155</span>
-<span id="156">156</span>
-<span id="157">157</span>
-<span id="158">158</span>
-<span id="159">159</span>
-<span id="160">160</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">super</span>::function</span>::{<span class="ident">parse_function</span>, <span class="ident">Function</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
@@ -227,7 +221,7 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Token</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
         <span class="ident">expression::Expression</span>,
-        <span class="ident">literals</span>::{<span class="ident">Literal</span>, <span class="ident">Identifier</span>},
+        <span class="ident">literals::Literal</span>,
         <span class="ident">statement::declaration::assignment::LAssignment</span>,
         <span class="ident">statement::declaration::function::Function</span>,
         <span class="ident">statement</span>::{<span class="ident">Block</span>, <span class="ident">ReturnStmt</span>, <span class="ident">Statement</span>},
@@ -249,15 +243,12 @@
             <span class="ident">Class</span> {
                 <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;Hello&quot;</span>),
                 <span class="ident">methods</span>: <span class="macro">vec!</span>[<span class="ident">Function</span> {
-                    <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier::new</span>(<span class="string">&quot;foo&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;foo&quot;</span>))),
+                    <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;foo&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;foo&quot;</span>))),
                     <span class="ident">parameters</span>: <span class="macro">vec!</span>[],
                     <span class="ident">statements</span>: <span class="ident">Block</span> {
                         <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>,
                         <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-                            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                                <span class="ident">Identifier::new</span>(<span class="string">&quot;some&quot;</span>),
-                                <span class="ident">Span::new</span>(<span class="string">&quot;some&quot;</span>)
-                            )),
+                            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;some&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;some&quot;</span>))),
                             <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(
                                 <span class="number">1.0</span>,
                                 <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)
@@ -278,10 +269,7 @@
             <span class="ident">Class</span> {
                 <span class="ident">name</span>: <span class="ident">String::from</span>(<span class="string">&quot;Hello&quot;</span>),
                 <span class="ident">methods</span>: <span class="macro">vec!</span>[<span class="ident">Function</span> {
-                    <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                        <span class="ident">Identifier::new</span>(<span class="string">&quot;method1&quot;</span>),
-                        <span class="ident">Span::new</span>(<span class="string">&quot;method1&quot;</span>)
-                    )),
+                    <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;method1&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;method1&quot;</span>))),
                     <span class="ident">parameters</span>: <span class="macro">vec!</span>[],
                     <span class="ident">statements</span>: <span class="ident">Block</span> {
                         <span class="ident">return_stmt</span>: <span class="prelude-val">Some</span>(<span class="ident">ReturnStmt</span> {

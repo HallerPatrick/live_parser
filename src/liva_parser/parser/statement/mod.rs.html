@@ -331,8 +331,6 @@
 <span id="331">331</span>
 <span id="332">332</span>
 <span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all statements</span>
 
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">declaration</span>;
@@ -379,14 +377,12 @@
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">IntoIterator</span> <span class="kw">for</span> <span class="ident">Block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Statement</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>;
     <span class="kw">type</span> <span class="ident">IntoIter</span> <span class="op">=</span> <span class="ident">std::vec::IntoIter</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>;
 
     <span class="kw">fn</span> <span class="ident">into_iter</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident"><span class="self">Self</span>::IntoIter</span> {
         <span class="self">self</span>.<span class="ident">statements</span>.<span class="ident">into_iter</span>()
     }
-
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
@@ -432,15 +428,15 @@
 <span class="doccomment">///         declaration::assignment::LAssignment</span>
 <span class="doccomment">///     },</span>
 <span class="doccomment">///     expression::Expression,</span>
-<span class="doccomment">///     literals::{Literal, Token, Identifier}</span>
-<span class="doccomment">/// }; </span>
+<span class="doccomment">///     literals::{Literal, Token}</span>
+<span class="doccomment">/// };</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// let input = Span::new(&quot;let x = 3&quot;);</span>
 <span class="doccomment">/// let (_, res) = parse_statement(input).unwrap();</span>
 <span class="doccomment">/// assert_eq!(</span>
 <span class="doccomment">///     res,</span>
 <span class="doccomment">///     Statement::LAssignment(LAssignment {</span>
-<span class="doccomment">///         variable: Literal::Variable(Token::new(Identifier { name: &quot;x&quot; }, Span::new(&quot;x&quot;))),</span>
+<span class="doccomment">///         variable: Literal::Variable(Token::new(&quot;x&quot;, Span::new(&quot;x&quot;))),</span>
 <span class="doccomment">///         expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new(&quot;3&quot;))))</span>
 <span class="doccomment">///     })</span>
 <span class="doccomment">/// );</span>
@@ -516,12 +512,12 @@
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::binary::BinaryOp</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::call::Call</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression::ExprOrVarname</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">Literal</span>, <span class="ident">Token</span>, <span class="ident">Identifier</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">Literal</span>, <span class="ident">Token</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::tokens::Operator</span>;
 
     <span class="kw">fn</span> <span class="ident">ass_x_eq_3</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Statement</span><span class="op">&lt;</span><span class="lifetime">&#39;static</span><span class="op">&gt;</span> {
         <span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>: <span class="string">&quot;x&quot;</span> }, <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
+            <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;x&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
             <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)))),
         })
     }
@@ -533,7 +529,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
             <span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
-                <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier</span> { <span class="ident">name</span>: <span class="string">&quot;x&quot;</span> }, <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
+                <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;x&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
                 <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3.0&quot;</span>))))
             })
         );
@@ -570,7 +566,7 @@
                 <span class="ident">values</span>: <span class="macro">vec!</span>[
                     <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                         <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                            <span class="ident">Identifier::new</span>(<span class="string">&quot;hello&quot;</span>),
+                            <span class="string">&quot;hello&quot;</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)
                         ))),
                         <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
@@ -591,21 +587,21 @@
                 <span class="ident">values</span>: <span class="macro">vec!</span>[
                     <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                         <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                            <span class="ident">Identifier::new</span>(<span class="string">&quot;hello&quot;</span>),
+                            <span class="string">&quot;hello&quot;</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)
                         ))),
                         <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
                     })),
                     <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                         <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                            <span class="ident">Identifier::new</span>(<span class="string">&quot;func&quot;</span>),
+                            <span class="string">&quot;func&quot;</span>,
                             <span class="ident">Span::new</span>(<span class="string">&quot;func&quot;</span>)
                         ))),
                         <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[<span class="ident">ExprSuffix::FuncCall</span>(<span class="ident">Call</span> {
                             <span class="ident">callee</span>: <span class="prelude-val">None</span>,
                             <span class="ident">args</span>: <span class="macro">vec!</span>[<span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                                 <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                                    <span class="ident">Identifier::new</span>(<span class="string">&quot;n&quot;</span>),
+                                    <span class="string">&quot;n&quot;</span>,
                                     <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)
                                 ))),
                                 <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
@@ -626,7 +622,7 @@
             <span class="ident">ReturnStmt</span> {
                 <span class="ident">values</span>: <span class="macro">vec!</span>[<span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                     <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                        <span class="ident">Identifier::new</span>(<span class="string">&quot;fib&quot;</span>),
+                        <span class="string">&quot;fib&quot;</span>,
                         <span class="ident">Span::new</span>(<span class="string">&quot;fib&quot;</span>)
                     ))),
                     <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[<span class="ident">ExprSuffix::FuncCall</span>(<span class="ident">Call</span> {
@@ -635,7 +631,7 @@
                             <span class="ident">op</span>: <span class="ident">Operator::Sub</span>,
                             <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
                                 <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(
-                                    <span class="ident">Identifier::new</span>(<span class="string">&quot;n&quot;</span>),
+                                    <span class="string">&quot;n&quot;</span>,
                                     <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)
                                 ))),
                                 <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
@@ -658,7 +654,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
             <span class="ident">Statement::Fun</span>(<span class="ident">Function</span> {
-                <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="ident">Identifier::new</span>(<span class="string">&quot;hello&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))),
+                <span class="ident">name</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))),
                 <span class="ident">parameters</span>: <span class="macro">vec!</span>[],
                 <span class="ident">statements</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[],
