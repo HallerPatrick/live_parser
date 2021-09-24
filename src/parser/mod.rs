@@ -1,7 +1,5 @@
 #![allow(dead_code)]
 
-use std::fs;
-
 mod comment;
 pub mod expression;
 pub mod literals;
@@ -9,8 +7,8 @@ pub mod statement;
 pub mod tokens;
 
 use nom::{
-    error::{context, VerboseError},
-    IResult
+    error::{VerboseError},
+    IResult,
 };
 
 use nom_locate::LocatedSpan;

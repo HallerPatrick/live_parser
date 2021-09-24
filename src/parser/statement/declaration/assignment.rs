@@ -88,7 +88,7 @@ mod tests {
 
     use crate::literals::Token;
     use crate::parser::expression::Expression;
-    use crate::parser::literals::{ Literal, Identifier };
+    use crate::parser::literals::Literal;
 
     #[test]
     fn test_assignment() {
@@ -97,7 +97,7 @@ mod tests {
         assert_eq!(
             res,
             LAssignment {
-                variable: Literal::Variable(Token::new(Identifier { name: "x" }, Span::new("x"))),
+                variable: Literal::Variable(Token::new("x", Span::new("x"))),
                 expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
             }
         );

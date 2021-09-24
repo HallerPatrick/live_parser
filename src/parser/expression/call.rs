@@ -52,8 +52,6 @@ pub(crate) fn parse_call(input: Span) -> Res<Call> {
 #[cfg(test)]
 mod tests {
 
-    use crate::parser::literals::Identifier;
-
     use super::*;
     use crate::literals::Token;
 
@@ -62,10 +60,7 @@ mod tests {
         let string = "call()";
         let (_, res) = parse_call(Span::new(string)).unwrap();
         let e_res = Call {
-            callee: Some(Literal::Variable(Token::new(
-                Identifier { name: "call" },
-                Span::new("call"),
-            ))),
+            callee: Some(Literal::Variable(Token::new("call", Span::new("call")))),
             args: vec![],
         };
         assert_eq!(res, e_res);

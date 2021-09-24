@@ -67,7 +67,7 @@ mod tests {
     use crate::literals::Token;
     use crate::parser::{
         expression::Expression,
-        literals::{Literal, Identifier},
+        literals::Literal,
         statement::declaration::assignment::LAssignment,
         statement::declaration::function::Function,
         statement::{Block, ReturnStmt, Statement},
@@ -89,15 +89,12 @@ mod tests {
             Class {
                 name: String::from("Hello"),
                 methods: vec![Function {
-                    name: Literal::Variable(Token::new(Identifier::new("foo"), Span::new("foo"))),
+                    name: Literal::Variable(Token::new("foo", Span::new("foo"))),
                     parameters: vec![],
                     statements: Block {
                         return_stmt: None,
                         statements: vec![Statement::LAssignment(LAssignment {
-                            variable: Literal::Variable(Token::new(
-                                Identifier::new("some"),
-                                Span::new("some")
-                            )),
+                            variable: Literal::Variable(Token::new("some", Span::new("some"))),
                             expression: Expression::Literal(Literal::Num(Token::new(
                                 1.0,
                                 Span::new("1")
@@ -118,10 +115,7 @@ mod tests {
             Class {
                 name: String::from("Hello"),
                 methods: vec![Function {
-                    name: Literal::Variable(Token::new(
-                        Identifier::new("method1"),
-                        Span::new("method1")
-                    )),
+                    name: Literal::Variable(Token::new("method1", Span::new("method1"))),
                     parameters: vec![],
                     statements: Block {
                         return_stmt: Some(ReturnStmt {
