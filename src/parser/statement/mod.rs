@@ -36,7 +36,6 @@ use declaration::{
     while_statement::parse_while,
 };
 
-// TODO: Impl iter over stmts?
 #[derive(Debug, PartialEq)]
 pub struct Block<'a> {
     pub statements: Vec<Statement<'a>>,
@@ -321,7 +320,7 @@ mod tests {
         assert_eq!(
             res,
             Statement::Fun(Function {
-                name: Literal::Variable(Token::new("hello", Span::new("hello"))),
+                name: "hello",
                 parameters: vec![],
                 statements: Block {
                     statements: vec![],

@@ -57,26 +57,8 @@ where
     }
 }
 
-// TODO: Change to identifier
-// Contains the name of a identifier, which has to start with letter, but can contain
-// numbers and underscores
-// #[derive(Debug, PartialEq, Clone)]
-// pub struct Identifier<'a> {
-//     pub name: &'a str,
-// }
-
-// impl<'a> ToString for Identifier<'a> {
-//     fn to_string(&self) -> String {
-//         String::from(self.name)
-//     }
-// }
-
-// impl<'a> Identifier<'a> {
-//     pub fn new(name: &'a str) -> Self {
-//         Identifier { name }
-//     }
-// }
-
+/// Contains the name of a identifier, which has to start with letter, but can contain
+/// numbers and underscores
 pub type Identifier<'a> = &'a str;
 
 pub(crate) fn parse_variable_raw(input: Span) -> Res<Span> {

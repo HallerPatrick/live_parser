@@ -15,7 +15,7 @@
 //! ```
 //!
 use crate::parser::{
-    literals::{parse_variable, sp},
+    literals::{parse_variable, parse_variable_raw, sp},
     statement::opt_line_ending,
     statement::parse_block,
     statement::Block,
@@ -33,11 +33,12 @@ use nom::{
 };
 
 // TODO: Impl to get return stmt
+// TODO: Function.name does not have to be a literal, but can be str
 /// Represents a function declaration.
 #[derive(Debug, PartialEq)]
 pub struct Function<'a> {
     /// Name of the function
-    pub name: Literal<'a>,
+    pub name: &'a str,
 
     /// Parameter list, of the function
     pub parameters: Vec<Literal<'a>>,
@@ -69,14 +70,15 @@ pub fn parse_function(input: Span) -> Res<Function> {
     })
 }
 
-fn parse_function_name(input: Span) -> Res<Literal> {
+fn parse_function_name(input: Span) -> Res<&str> {
     context(
         "FuncName",
         preceded(
             opt_line_ending,
-            preceded(sp, preceded(fun, preceded(sp, parse_variable))),
+            preceded(sp, preceded(fun, preceded(sp, parse_variable_raw))),
         ),
     )(input)
+    .map(|(next_input, res)| (next_input, *res.fragment()))
 }
 
 fn parse_function_arguments<'a>(input: Span<'a>) -> Res<Vec<Literal<'a>>> {
@@ -108,10 +110,7 @@ mod tests {
     fn test_parse_function_name() {
         let string = "fun hello ()";
         let (_, res) = parse_function_name(Span::new(string)).unwrap();
-        assert_eq!(
-            res,
-            Literal::Variable(Token::new("hello", Span::new("hello")))
-        );
+        assert_eq!(res, "hello");
     }
 
     #[test]
@@ -122,7 +121,7 @@ mod tests {
         assert_eq!(
             res,
             Function {
-                name: Literal::Variable(Token::new("hello", Span::new("hello"))),
+                name: "hello",
                 parameters: vec![
                     Literal::Variable(Token::new("x", Span::new("x"))),
                     Literal::Variable(Token::new("y", Span::new("y")))
@@ -148,7 +147,7 @@ mod tests {
         assert_eq!(
             res,
             Function {
-                name: Literal::Variable(Token::new("fib", Span::new("fib"))),
+                name: "fib",
                 parameters: vec![Literal::Variable(Token::new("n", Span::new("n")))],
                 statements: Block {
                     statements: vec![],
@@ -165,7 +164,7 @@ mod tests {
         assert_eq!(
             res,
             Function {
-                name: Literal::Variable(Token::new("fib", Span::new("fib"))),
+                name: "fib",
                 parameters: vec![Literal::Variable(Token::new("n", Span::new("n")))],
                 statements: Block {
                     statements: vec![],
@@ -189,7 +188,7 @@ mod tests {
         assert_eq!(
             res,
             Function {
-                name: Literal::Variable(Token::new("fib", Span::new("fib"))),
+                name: "fib",
                 parameters: vec![Literal::Variable(Token::new("n", Span::new("n")))],
                 statements: Block {
                     statements: vec![Statement::If(If {

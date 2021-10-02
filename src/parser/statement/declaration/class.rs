@@ -89,7 +89,7 @@ mod tests {
             Class {
                 name: String::from("Hello"),
                 methods: vec![Function {
-                    name: Literal::Variable(Token::new("foo", Span::new("foo"))),
+                    name: "foo",
                     parameters: vec![],
                     statements: Block {
                         return_stmt: None,
@@ -115,7 +115,7 @@ mod tests {
             Class {
                 name: String::from("Hello"),
                 methods: vec![Function {
-                    name: Literal::Variable(Token::new("method1", Span::new("method1"))),
+                    name: "method1",
                     parameters: vec![],
                     statements: Block {
                         return_stmt: Some(ReturnStmt {
