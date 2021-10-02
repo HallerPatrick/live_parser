@@ -322,7 +322,7 @@ mod tests {
             Statement::Fun(Function {
                 name: "hello",
                 parameters: vec![],
-                statements: Block {
+                block: Block {
                     statements: vec![],
                     return_stmt: None
                 }

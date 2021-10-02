@@ -15,7 +15,7 @@
 //! ```
 //!
 use crate::parser::{
-    literals::{parse_variable, parse_variable_raw, sp},
+    literals::{parse_variable, parse_variable_raw, sp, Identifier},
     statement::opt_line_ending,
     statement::parse_block,
     statement::Block,
@@ -38,7 +38,7 @@ use nom::{
 #[derive(Debug, PartialEq)]
 pub struct Function<'a> {
     /// Name of the function
-    pub name: &'a str,
+    pub name: Identifier<'a>,
 
     /// Parameter list, of the function
     pub parameters: Vec<Literal<'a>>,
@@ -46,7 +46,7 @@ pub struct Function<'a> {
     // TODO: Rename to block
     /// Block contains all statements which
     /// are executed, when the function is called
-    pub statements: Block<'a>,
+    pub block: Block<'a>,
 }
 
 /// Parses a function declaration.
@@ -64,7 +64,7 @@ pub fn parse_function(input: Span) -> Res<Function> {
             Function {
                 name: res.0,
                 parameters: res.1,
-                statements: res.2,
+                block: res.2,
             },
         )
     })
@@ -126,7 +126,7 @@ mod tests {
                     Literal::Variable(Token::new("x", Span::new("x"))),
                     Literal::Variable(Token::new("y", Span::new("y")))
                 ],
-                statements: Block {
+                block: Block {
                     statements: vec![Statement::LAssignment(LAssignment {
                         variable: Literal::Variable(Token::new("some", Span::new("some"))),
                         expression: Expression::Literal(Literal::Str(Token::new(
@@ -149,7 +149,7 @@ mod tests {
             Function {
                 name: "fib",
                 parameters: vec![Literal::Variable(Token::new("n", Span::new("n")))],
-                statements: Block {
+                block: Block {
                     statements: vec![],
                     return_stmt: None
                 }
@@ -166,7 +166,7 @@ mod tests {
             Function {
                 name: "fib",
                 parameters: vec![Literal::Variable(Token::new("n", Span::new("n")))],
-                statements: Block {
+                block: Block {
                     statements: vec![],
                     return_stmt: Some(ReturnStmt {
                         values: vec![Expression::Literal(Literal::Str(Token::new(
@@ -190,7 +190,7 @@ mod tests {
             Function {
                 name: "fib",
                 parameters: vec![Literal::Variable(Token::new("n", Span::new("n")))],
-                statements: Block {
+                block: Block {
                     statements: vec![Statement::If(If {
                         cond: Expression::BinaryOp(Box::new(BinaryOp {
                             left: Expression::PrefixExpr(Box::new(PrefixExpr {

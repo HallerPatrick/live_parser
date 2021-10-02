@@ -230,6 +230,8 @@ mod tests {
 
     #[test]
     fn test_token() {
+        // Just a test to see if tokens are compared based on their value and not meta data of the
+        // span
         let token1 = Token::new("hello", Span::new("Thisone"));
         let token2 = Token::new("hello", Span::new("other"));
         assert_eq!(token1, token2);

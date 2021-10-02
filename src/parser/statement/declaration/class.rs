@@ -91,7 +91,7 @@ mod tests {
                 methods: vec![Function {
                     name: "foo",
                     parameters: vec![],
-                    statements: Block {
+                    block: Block {
                         return_stmt: None,
                         statements: vec![Statement::LAssignment(LAssignment {
                             variable: Literal::Variable(Token::new("some", Span::new("some"))),
@@ -117,7 +117,7 @@ mod tests {
                 methods: vec![Function {
                     name: "method1",
                     parameters: vec![],
-                    statements: Block {
+                    block: Block {
                         return_stmt: Some(ReturnStmt {
                             values: vec![Expression::Literal(Literal::Str(Token::new(
                                 String::from("Hello World"),
