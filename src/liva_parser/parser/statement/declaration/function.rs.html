@@ -247,7 +247,7 @@
 <span class="doccomment">//! ```</span>
 <span class="doccomment">//!</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
-    <span class="ident">literals</span>::{<span class="ident">parse_variable</span>, <span class="ident">parse_variable_raw</span>, <span class="ident">sp</span>},
+    <span class="ident">literals</span>::{<span class="ident">parse_variable</span>, <span class="ident">parse_variable_raw</span>, <span class="ident">sp</span>, <span class="ident">Identifier</span>},
     <span class="ident">statement::opt_line_ending</span>,
     <span class="ident">statement::parse_block</span>,
     <span class="ident">statement::Block</span>,
@@ -270,7 +270,7 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Function</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// Name of the function</span>
-    <span class="kw">pub</span> <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">str</span>,
+    <span class="kw">pub</span> <span class="ident">name</span>: <span class="ident">Identifier</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// Parameter list, of the function</span>
     <span class="kw">pub</span> <span class="ident">parameters</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
@@ -278,7 +278,7 @@
     <span class="comment">// TODO: Rename to block</span>
     <span class="doccomment">/// Block contains all statements which</span>
     <span class="doccomment">/// are executed, when the function is called</span>
-    <span class="kw">pub</span> <span class="ident">statements</span>: <span class="ident">Block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">block</span>: <span class="ident">Block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Parses a function declaration.</span>
@@ -296,7 +296,7 @@
             <span class="ident">Function</span> {
                 <span class="ident">name</span>: <span class="ident">res</span>.<span class="number">0</span>,
                 <span class="ident">parameters</span>: <span class="ident">res</span>.<span class="number">1</span>,
-                <span class="ident">statements</span>: <span class="ident">res</span>.<span class="number">2</span>,
+                <span class="ident">block</span>: <span class="ident">res</span>.<span class="number">2</span>,
             },
         )
     })
@@ -358,7 +358,7 @@
                     <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;x&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>))),
                     <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;y&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>)))
                 ],
-                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                <span class="ident">block</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::LAssignment</span>(<span class="ident">LAssignment</span> {
                         <span class="ident">variable</span>: <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;some&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;some&quot;</span>))),
                         <span class="ident">expression</span>: <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(
@@ -381,7 +381,7 @@
             <span class="ident">Function</span> {
                 <span class="ident">name</span>: <span class="string">&quot;fib&quot;</span>,
                 <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;n&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)))],
-                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                <span class="ident">block</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[],
                     <span class="ident">return_stmt</span>: <span class="prelude-val">None</span>
                 }
@@ -398,7 +398,7 @@
             <span class="ident">Function</span> {
                 <span class="ident">name</span>: <span class="string">&quot;fib&quot;</span>,
                 <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;n&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)))],
-                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                <span class="ident">block</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[],
                     <span class="ident">return_stmt</span>: <span class="prelude-val">Some</span>(<span class="ident">ReturnStmt</span> {
                         <span class="ident">values</span>: <span class="macro">vec!</span>[<span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(
@@ -422,7 +422,7 @@
             <span class="ident">Function</span> {
                 <span class="ident">name</span>: <span class="string">&quot;fib&quot;</span>,
                 <span class="ident">parameters</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;n&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;n&quot;</span>)))],
-                <span class="ident">statements</span>: <span class="ident">Block</span> {
+                <span class="ident">block</span>: <span class="ident">Block</span> {
                     <span class="ident">statements</span>: <span class="macro">vec!</span>[<span class="ident">Statement::If</span>(<span class="ident">If</span> {
                         <span class="ident">cond</span>: <span class="ident">Expression::BinaryOp</span>(<span class="ident">Box::new</span>(<span class="ident">BinaryOp</span> {
                             <span class="ident">left</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {

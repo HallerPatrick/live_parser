@@ -21,27 +21,7 @@
 <span id="21">21</span>
 <span id="22">22</span>
 <span id="23">23</span>
-<span id="24">24</span>
-<span id="25">25</span>
-<span id="26">26</span>
-<span id="27">27</span>
-<span id="28">28</span>
-<span id="29">29</span>
-<span id="30">30</span>
-<span id="31">31</span>
-<span id="32">32</span>
-<span id="33">33</span>
-<span id="34">34</span>
-<span id="35">35</span>
-<span id="36">36</span>
-<span id="37">37</span>
-<span id="38">38</span>
-<span id="39">39</span>
-<span id="40">40</span>
-<span id="41">41</span>
 </pre><pre class="rust"><code><span class="attribute">#![<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-
-<span class="kw">use</span> <span class="ident">std::fs</span>;
 
 <span class="kw">mod</span> <span class="ident">comment</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">expression</span>;
@@ -60,26 +40,10 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">O</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">IResult</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>, <span class="ident">O</span>, <span class="ident">VerboseError</span><span class="op">&lt;</span><span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="doccomment">/// Entry point to the parser, which parse the liva language</span>
-<span class="comment">// pub fn parse_source(input: Span) -&gt; Block {</span>
-<span class="comment">//     let (_, root) = parse_block(input).unwrap();</span>
-<span class="comment">//     root</span>
-<span class="comment">// }</span>
-
-<span class="doccomment">/// Entry point to the parser, which parse the liva language</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_source</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Block</span> {
     <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">root</span>) <span class="op">=</span> <span class="ident">parse_block</span>(<span class="ident">input</span>).<span class="ident">unwrap</span>();
     <span class="ident">root</span>
 }
-
-<span class="comment">// fn read_source(filename: &amp;str) -&gt; Result&lt;&amp;Span, Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="comment">//     let f = filename.clone();</span>
-<span class="comment">//     let source: &amp;str = &amp;fs::read_to_string(f)?;</span>
-<span class="comment">//     Ok(&amp;Span::new(source))</span>
-<span class="comment">// }</span>
-
-<span class="comment">// pub fn parse_source_from_file(filename: &amp;str) -&gt; Result&lt;Block, Box&lt;dyn std::error::Error&gt;&gt; {</span>
-<span class="comment">//     Ok(parse_source(read_source(filename)))</span>
-<span class="comment">// }</span>
 </code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="liva_parser" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
     <script src="../../../main.js"></script><script src="../../../source-script.js"></script><script src="../../../source-files.js"></script>

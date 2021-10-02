@@ -418,6 +418,8 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all possible literals</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Span</span>;
@@ -650,6 +652,8 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_token</span>() {
+        <span class="comment">// Just a test to see if tokens are compared based on their value and not meta data of the</span>
+        <span class="comment">// span</span>
         <span class="kw">let</span> <span class="ident">token1</span> <span class="op">=</span> <span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;Thisone&quot;</span>));
         <span class="kw">let</span> <span class="ident">token2</span> <span class="op">=</span> <span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;other&quot;</span>));
         <span class="macro">assert_eq!</span>(<span class="ident">token1</span>, <span class="ident">token2</span>);
