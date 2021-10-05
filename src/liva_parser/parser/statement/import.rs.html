@@ -153,7 +153,7 @@
     <span class="ident">Res</span>, <span class="ident">Span</span>,
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Literal</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Variable</span>;
 <span class="kw">use</span> <span class="ident">nom</span>::{
     <span class="ident">combinator::opt</span>,
     <span class="ident">error::context</span>,
@@ -162,7 +162,7 @@
 };
 
 <span class="doccomment">/// The import struct represents one import statement</span>
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>)]</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">PartialEq</span>, <span class="ident">Debug</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Import</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="doccomment">/// If a module is a third-party module, therefore not</span>
     <span class="doccomment">/// in the local project or part of the standard lib</span>
@@ -171,11 +171,11 @@
 
     <span class="doccomment">/// The path defines where to look for the import.</span>
     <span class="doccomment">/// A path is represented as a list of Identifier names</span>
-    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">path</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// For convenience can a import be aliased, which</span>
     <span class="doccomment">/// represented the imported module</span>
-    <span class="kw">pub</span> <span class="ident">alias</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">alias</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="doccomment">/// Parses the input inot a Import struct</span>
@@ -221,7 +221,7 @@
             <span class="ident">res</span>,
             <span class="ident">Import</span> {
                 <span class="ident">external</span>: <span class="bool-val">false</span>,
-                <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)))],
+                <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))],
                 <span class="ident">alias</span>: <span class="prelude-val">None</span>
             }
         )
@@ -237,10 +237,10 @@
             <span class="ident">Import</span> {
                 <span class="ident">external</span>: <span class="bool-val">false</span>,
                 <span class="ident">path</span>: <span class="macro">vec!</span>[
-                    <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))),
-                    <span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;world&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;world&quot;</span>)))
+                    <span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)),
+                    <span class="ident">Token::new</span>(<span class="string">&quot;world&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;world&quot;</span>))
                 ],
-                <span class="ident">alias</span>: <span class="prelude-val">Some</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;tuna&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;tuna&quot;</span>))))
+                <span class="ident">alias</span>: <span class="prelude-val">Some</span>(<span class="ident">Token::new</span>(<span class="string">&quot;tuna&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;tuna&quot;</span>)))
             }
         )
     }
@@ -254,7 +254,7 @@
             <span class="ident">res</span>,
             <span class="ident">Import</span> {
                 <span class="ident">external</span>: <span class="bool-val">true</span>,
-                <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)))],
+                <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))],
                 <span class="ident">alias</span>: <span class="prelude-val">None</span>
             }
         )
@@ -268,8 +268,8 @@
             <span class="ident">res</span>,
             <span class="ident">Import</span> {
                 <span class="ident">external</span>: <span class="bool-val">false</span>,
-                <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)))],
-                <span class="ident">alias</span>: <span class="prelude-val">Some</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;h&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;h&quot;</span>))))
+                <span class="ident">path</span>: <span class="macro">vec!</span>[<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))],
+                <span class="ident">alias</span>: <span class="prelude-val">Some</span>(<span class="ident">Token::new</span>(<span class="string">&quot;h&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;h&quot;</span>)))
             }
         )
     }

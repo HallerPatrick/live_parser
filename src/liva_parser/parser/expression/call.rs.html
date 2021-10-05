@@ -66,7 +66,11 @@
 <span id="66">66</span>
 <span id="67">67</span>
 <span id="68">68</span>
-</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">nom</span>::{
+<span id="69">69</span>
+<span id="70">70</span>
+</pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::expression::parse_variable</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Variable</span>;
+<span class="kw">use</span> <span class="ident">nom</span>::{
     <span class="ident">combinator::opt</span>,
     <span class="ident">error::context</span>,
     <span class="ident">multi::separated_list0</span>,
@@ -83,7 +87,7 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Call</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="kw">pub</span> <span class="ident">callee</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">callee</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">args</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
@@ -98,7 +102,7 @@
     <span class="ident">context</span>(
         <span class="string">&quot;Call&quot;</span>,
         <span class="ident">tuple</span>((
-            <span class="ident">opt</span>(<span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">parse_literal</span>)),
+            <span class="ident">opt</span>(<span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">parse_variable</span>)),
             <span class="ident">delimited</span>(
                 <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">left_paren</span>),
                 <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">args</span>),
@@ -128,7 +132,7 @@
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;call()&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_call</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">e_res</span> <span class="op">=</span> <span class="ident">Call</span> {
-            <span class="ident">callee</span>: <span class="prelude-val">Some</span>(<span class="ident">Literal::Variable</span>(<span class="ident">Token::new</span>(<span class="string">&quot;call&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;call&quot;</span>)))),
+            <span class="ident">callee</span>: <span class="prelude-val">Some</span>(<span class="ident">Token::new</span>(<span class="string">&quot;call&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;call&quot;</span>))),
             <span class="ident">args</span>: <span class="macro">vec!</span>[],
         };
         <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">e_res</span>);
