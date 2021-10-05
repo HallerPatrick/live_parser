@@ -20,7 +20,7 @@ use nom::{
     IResult,
 };
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Copy)]
 pub struct Token<'a, T> {
     pub value: T,
     pub pos: Span<'a>,
@@ -32,6 +32,8 @@ impl<'a, T> Token<'a, T> {
     }
 }
 
+pub type Variable<'a> = Token<'a, Identifier<'a>>;
+
 // Collection of all possible literals
 #[derive(Clone, Debug, PartialEq)]
 pub enum Literal<'a> {
@@ -41,7 +43,7 @@ pub enum Literal<'a> {
     Num(Token<'a, f64>),
     Array(Vec<Literal<'a>>),
     Map(HashMap<String, Literal<'a>>),
-    Variable(Token<'a, Identifier<'a>>),
+    // Variable(Token<'a, Identifier<'a>>),
 }
 
 impl<'a, T> PartialEq for Token<'a, T>
@@ -82,11 +84,11 @@ pub(crate) fn parse_variable_raw(input: Span) -> Res<Span> {
     res
 }
 
-pub(crate) fn parse_variable(input: Span) -> Res<Literal> {
+pub(crate) fn parse_variable(input: Span) -> Res<Variable> {
     parse_variable_raw(input).map(|(next_input, res)| {
         (
             next_input,
-            Literal::Variable(Token::new(*res.fragment(), res)),
+            Token::new(*res.fragment(), res),
         )
     })
 }
@@ -217,7 +219,6 @@ pub(crate) fn parse_literal<'a>(input: Span<'a>) -> Res<Literal<'a>> {
                 parse_str,
                 parse_array,
                 parse_map,
-                parse_variable,
             )),
         ),
     )(input)
@@ -281,6 +282,14 @@ mod tests {
 
         let string = "True";
         let (_, res) = parse_boolean(Span::new(string)).unwrap();
+        assert_eq!(res, Literal::Boolean(Token::new(true, Span::new("True"))));
+
+        let string = "False";
+        let (_, res) = parse_literal(Span::new(string)).unwrap();
+        assert_eq!(res, Literal::Boolean(Token::new(false, Span::new("False"))));
+
+        let string = "True";
+        let (_, res) = parse_literal(Span::new(string)).unwrap();
         assert_eq!(res, Literal::Boolean(Token::new(true, Span::new("True"))));
     }
 
@@ -396,7 +405,7 @@ mod tests {
         let (_, res) = parse_variable(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Variable(Token::new("hello123", Span::new("hello123")))
+            Token::new("hello123", Span::new("hello123"))
         );
     }
 
@@ -406,7 +415,7 @@ mod tests {
         let (_, res) = parse_variable(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Variable(Token::new("Hello123", Span::new("Hello123")))
+            Token::new("Hello123", Span::new("Hello123"))
         );
     }
 
@@ -416,7 +425,7 @@ mod tests {
         let (_, res) = parse_variable(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Variable(Token::new("hello", Span::new("hello")))
+            Token::new("hello", Span::new("hello"))
         );
     }
 }

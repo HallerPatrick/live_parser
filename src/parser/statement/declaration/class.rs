@@ -14,7 +14,7 @@ use nom::{
     sequence::{preceded, terminated, tuple},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Class<'a> {
     pub name: String,
     pub methods: Vec<Function<'a>>,
@@ -94,7 +94,7 @@ mod tests {
                     block: Block {
                         return_stmt: None,
                         statements: vec![Statement::LAssignment(LAssignment {
-                            variable: Literal::Variable(Token::new("some", Span::new("some"))),
+                            variable: Token::new("some", Span::new("some")),
                             expression: Expression::Literal(Literal::Num(Token::new(
                                 1.0,
                                 Span::new("1")

@@ -15,7 +15,7 @@ use crate::parser::{
     Res, Span,
 };
 
-use crate::literals::Literal;
+use crate::literals::Variable;
 use nom::{
     combinator::opt,
     error::context,
@@ -24,7 +24,7 @@ use nom::{
 };
 
 /// The import struct represents one import statement
-#[derive(PartialEq, Debug)]
+#[derive(PartialEq, Debug, Clone)]
 pub struct Import<'a> {
     /// If a module is a third-party module, therefore not
     /// in the local project or part of the standard lib
@@ -33,11 +33,11 @@ pub struct Import<'a> {
 
     /// The path defines where to look for the import.
     /// A path is represented as a list of Identifier names
-    pub path: Vec<Literal<'a>>,
+    pub path: Vec<Variable<'a>>,
 
     /// For convenience can a import be aliased, which
     /// represented the imported module
-    pub alias: Option<Literal<'a>>,
+    pub alias: Option<Variable<'a>>,
 }
 
 /// Parses the input inot a Import struct
@@ -83,7 +83,7 @@ mod tests {
             res,
             Import {
                 external: false,
-                path: vec![Literal::Variable(Token::new("hello", Span::new("hello")))],
+                path: vec![Token::new("hello", Span::new("hello"))],
                 alias: None
             }
         )
@@ -99,10 +99,10 @@ mod tests {
             Import {
                 external: false,
                 path: vec![
-                    Literal::Variable(Token::new("hello", Span::new("hello"))),
-                    Literal::Variable(Token::new("world", Span::new("world")))
+                    Token::new("hello", Span::new("hello")),
+                    Token::new("world", Span::new("world"))
                 ],
-                alias: Some(Literal::Variable(Token::new("tuna", Span::new("tuna"))))
+                alias: Some(Token::new("tuna", Span::new("tuna")))
             }
         )
     }
@@ -116,7 +116,7 @@ mod tests {
             res,
             Import {
                 external: true,
-                path: vec![Literal::Variable(Token::new("hello", Span::new("hello")))],
+                path: vec![Token::new("hello", Span::new("hello"))],
                 alias: None
             }
         )
@@ -130,8 +130,8 @@ mod tests {
             res,
             Import {
                 external: false,
-                path: vec![Literal::Variable(Token::new("hello", Span::new("hello")))],
-                alias: Some(Literal::Variable(Token::new("h", Span::new("h"))))
+                path: vec![Token::new("hello", Span::new("hello"))],
+                alias: Some(Token::new("h", Span::new("h")))
             }
         )
     }

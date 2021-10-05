@@ -23,7 +23,7 @@ use nom::{
 };
 
 /// Struct to represent a If-Block
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct If<'a> {
     /// Expression which will be evaluated. If it yields
     /// a truthy value, the If code block with be executed
@@ -96,10 +96,10 @@ mod tests {
             res,
             Expression::BinaryOp(Box::new(BinaryOp {
                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                    prefix: ExprOrVarname::Varname(Token::new(
                         "x",
                         Span::new("x")
-                    ))),
+                    )),
                     suffix_chain: vec![],
                 })),
                 op: Operator::Lt,
@@ -118,10 +118,10 @@ mod tests {
             If {
                 cond: Expression::BinaryOp(Box::new(BinaryOp {
                     left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                        prefix: ExprOrVarname::Varname(Token::new(
                             "x",
                             Span::new("x")
-                        ))),
+                        )),
                         suffix_chain: vec![],
                     })),
                     op: Operator::Lt,
@@ -130,13 +130,13 @@ mod tests {
                 stmts: Block {
                     statements: vec![
                         Statement::LAssignment(LAssignment {
-                            variable: Literal::Variable(Token::new("z", Span::new("z"))),
+                            variable: Token::new("z", Span::new("z")),
                             expression: Expression::BinaryOp(Box::new(BinaryOp {
                                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                                    prefix: ExprOrVarname::Varname(Token::new(
                                         "x",
                                         Span::new("x")
-                                    ))),
+                                    )),
                                     suffix_chain: vec![],
                                 })),
                                 op: Operator::Add,
@@ -147,7 +147,7 @@ mod tests {
                             })),
                         }),
                         Statement::LAssignment(LAssignment {
-                            variable: Literal::Variable(Token::new("y", Span::new("y"))),
+                            variable: Token::new("y", Span::new("y")),
                             expression: Expression::Literal(Literal::Num(Token::new(
                                 3.0,
                                 Span::new("3")
@@ -171,10 +171,10 @@ mod tests {
             If {
                 cond: Expression::BinaryOp(Box::new(BinaryOp {
                     left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                        prefix: ExprOrVarname::Varname(Token::new(
                             "x",
                             Span::new("x")
-                        ))),
+                        )),
                         suffix_chain: vec![],
                     })),
                     op: Operator::Lt,
@@ -223,10 +223,10 @@ mod tests {
             If {
                 cond: Expression::BinaryOp(Box::new(BinaryOp {
                     left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                        prefix: ExprOrVarname::Varname(Token::new(
                             "x",
                             Span::new("x")
-                        ))),
+                        )),
                         suffix_chain: vec![],
                     })),
                     op: Operator::Lt,

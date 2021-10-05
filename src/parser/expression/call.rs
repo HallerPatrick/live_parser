@@ -1,3 +1,5 @@
+use crate::expression::parse_variable;
+use crate::literals::Variable;
 use nom::{
     combinator::opt,
     error::context,
@@ -15,7 +17,7 @@ use crate::parser::{
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Call<'a> {
-    pub callee: Option<Literal<'a>>,
+    pub callee: Option<Variable<'a>>,
     pub args: Vec<Expression<'a>>,
 }
 
@@ -30,7 +32,7 @@ pub(crate) fn parse_call(input: Span) -> Res<Call> {
     context(
         "Call",
         tuple((
-            opt(preceded(sp, parse_literal)),
+            opt(preceded(sp, parse_variable)),
             delimited(
                 preceded(sp, left_paren),
                 preceded(sp, args),
@@ -60,7 +62,7 @@ mod tests {
         let string = "call()";
         let (_, res) = parse_call(Span::new(string)).unwrap();
         let e_res = Call {
-            callee: Some(Literal::Variable(Token::new("call", Span::new("call")))),
+            callee: Some(Token::new("call", Span::new("call"))),
             args: vec![],
         };
         assert_eq!(res, e_res);

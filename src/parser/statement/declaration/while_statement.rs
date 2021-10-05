@@ -12,7 +12,7 @@ use nom::{
     sequence::{delimited, preceded, terminated, tuple},
 };
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct While<'a> {
     cond: Expression<'a>,
     block: Block<'a>,
@@ -64,10 +64,10 @@ mod tests {
             Expression::BinaryOp(Box::new(BinaryOp {
                 op: Operator::Lt,
                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                    prefix: ExprOrVarname::Varname(Token::new(
                         "x",
                         Span::new("x")
-                    ))),
+                    )),
                     suffix_chain: vec![],
                 })),
                 right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
@@ -86,10 +86,10 @@ mod tests {
                 cond: Expression::BinaryOp(Box::new(BinaryOp {
                     op: Operator::Lt,
                     left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                        prefix: ExprOrVarname::Varname(Token::new(
                             "x",
                             Span::new("x")
-                        ))),
+                        )),
                         suffix_chain: vec![],
                     })),
                     right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
@@ -97,13 +97,13 @@ mod tests {
                 block: Block {
                     statements: vec![
                         Statement::LAssignment(LAssignment {
-                            variable: Literal::Variable(Token::new("z", Span::new("z"))),
+                            variable: Token::new("z", Span::new("z")),
                             expression: Expression::BinaryOp(Box::new(BinaryOp {
                                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                    prefix: ExprOrVarname::Varname(Literal::Variable(Token::new(
+                                    prefix: ExprOrVarname::Varname(Token::new(
                                         "x",
                                         Span::new("x")
-                                    ))),
+                                    )),
                                     suffix_chain: vec![]
                                 })),
                                 op: Operator::Add,
@@ -114,7 +114,7 @@ mod tests {
                             }))
                         }),
                         Statement::LAssignment(LAssignment {
-                            variable: Literal::Variable(Token::new("y", Span::new("y"))),
+                            variable: Token::new("y", Span::new("y")),
                             expression: Expression::Literal(Literal::Num(Token::new(
                                 3.0,
                                 Span::new("3")

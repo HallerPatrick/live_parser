@@ -1,7 +1,7 @@
 use crate::parser::expression::{parse_expression, prefixexpr, Expression, PrefixExpr};
 use crate::parser::tokens::llet;
 use crate::parser::{
-    literals::{parse_variable, sp},
+    literals::{parse_variable, sp, Variable},
     Res, Span,
 };
 
@@ -14,7 +14,7 @@ use nom::{
 
 /// A assignment is a statement, while a re-assignemnt is an epression
 /// so we only parse a statement here, therefore is the let mandatory
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Assignment<'a> {
     pub variable: PrefixExpr<'a>,
     pub expression: Expression<'a>,
@@ -22,9 +22,9 @@ pub struct Assignment<'a> {
 
 /// A assignment is a statement, while a re-assignemnt is an epression
 /// so we only parse a statement here, therefore is the let mandatory
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct LAssignment<'a> {
-    pub variable: Literal<'a>,
+    pub variable: Variable<'a>,
     pub expression: Expression<'a>,
 }
 
@@ -97,7 +97,7 @@ mod tests {
         assert_eq!(
             res,
             LAssignment {
-                variable: Literal::Variable(Token::new("x", Span::new("x"))),
+                variable: Token::new("x", Span::new("x")),
                 expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
             }
         );
