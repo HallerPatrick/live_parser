@@ -29,7 +29,7 @@ pub use parser::statement::parse_statement;
 /// Prints the AST of the parsed liva source code
 pub fn print_ast(filename: &str) -> Result<(), Box<dyn Error>> {
     let source: String = fs::read_to_string(filename)?;
-    println!("{:?}", parse_source(Span::new(source.as_str())));
+    println!("{:#?}", parse_source(Span::new(source.as_str())));
     Ok(())
 }
 

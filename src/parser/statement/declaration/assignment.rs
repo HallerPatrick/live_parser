@@ -12,8 +12,6 @@ use nom::{
     sequence::{preceded, separated_pair},
 };
 
-/// A assignment is a statement, while a re-assignemnt is an epression
-/// so we only parse a statement here, therefore is the let mandatory
 #[derive(Debug, PartialEq, Clone)]
 pub struct Assignment<'a> {
     pub variable: PrefixExpr<'a>,

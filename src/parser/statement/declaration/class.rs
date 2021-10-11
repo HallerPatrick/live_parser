@@ -145,10 +145,10 @@ mod tests {
         )
     }
 
-    #[test]
-    fn test_class_1() {
-        let string = "class Person\r\n\r\n    fun init(self, height, weight)\r\n       self.height = height\r\n       self.weight = weight \r\n    end\r\n\r\n    fun get_bmi(self)\r\n       let w_res = self.height * self.height\r\n       return self.weight / w_res\r\n    end\r\nend\r\n\r\n";
-        let (_, _) = parse_class(Span::new(string)).unwrap();
-        // println!("{:?}", res);
-    }
+    // #[test]
+    // fn test_class_1() {
+    //     let string = "class Person\r\n\r\n    fun init(self, height, weight)\r\n       self.height = height\r\n       self.weight = weight \r\n    end\r\n\r\n    fun get_bmi(self)\r\n       let w_res = self.height * self.height\r\n       return self.weight / w_res\r\n    end\r\nend\r\n\r\n";
+    //     let (_, _) = parse_class(Span::new(string)).unwrap();
+    //     // println!("{:?}", res);
+    // }
 }

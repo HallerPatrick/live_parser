@@ -121,7 +121,7 @@ pub fn parse_statement(input: Span) -> Res<Statement> {
                 map(parse_function, Statement::Fun),
                 map(parse_class, Statement::Class),
                 map(parse_import, Statement::Import),
-                // map(parse_function_call, Statement::FuncCall),
+                map(parse_function_call, Statement::FuncCall),
             )),
         ),
     )(input)
@@ -231,10 +231,7 @@ mod tests {
             ReturnStmt {
                 values: vec![
                     Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Token::new(
-                            "hello",
-                            Span::new("hello")
-                        )),
+                        prefix: ExprOrVarname::Varname(Token::new("hello", Span::new("hello"))),
                         suffix_chain: vec![]
                     })),
                     Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
@@ -252,23 +249,15 @@ mod tests {
             ReturnStmt {
                 values: vec![
                     Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Token::new( "hello",
-                            Span::new("hello")
-                        )),
+                        prefix: ExprOrVarname::Varname(Token::new("hello", Span::new("hello"))),
                         suffix_chain: vec![]
                     })),
                     Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Token::new(
-                            "func",
-                            Span::new("func")
-                        )),
+                        prefix: ExprOrVarname::Varname(Token::new("func", Span::new("func"))),
                         suffix_chain: vec![ExprSuffix::FuncCall(Call {
                             callee: None,
                             args: vec![Expression::PrefixExpr(Box::new(PrefixExpr {
-                                prefix: ExprOrVarname::Varname(Token::new(
-                                    "n",
-                                    Span::new("n")
-                                )),
+                                prefix: ExprOrVarname::Varname(Token::new("n", Span::new("n"))),
                                 suffix_chain: vec![]
                             }))]
                         })]
@@ -286,19 +275,13 @@ mod tests {
             res,
             ReturnStmt {
                 values: vec![Expression::PrefixExpr(Box::new(PrefixExpr {
-                    prefix: ExprOrVarname::Varname(Token::new(
-                        "fib",
-                        Span::new("fib")
-                    )),
+                    prefix: ExprOrVarname::Varname(Token::new("fib", Span::new("fib"))),
                     suffix_chain: vec![ExprSuffix::FuncCall(Call {
                         callee: None,
                         args: vec![Expression::BinaryOp(Box::new(BinaryOp {
                             op: Operator::Sub,
                             left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                prefix: ExprOrVarname::Varname(Token::new(
-                                    "n",
-                                    Span::new("n")
-                                )),
+                                prefix: ExprOrVarname::Varname(Token::new("n", Span::new("n"))),
                                 suffix_chain: vec![]
                             })),
                             right: Expression::Literal(Literal::Num(Token::new(
@@ -323,6 +306,74 @@ mod tests {
                 parameters: vec![],
                 block: Block {
                     statements: vec![],
+                    return_stmt: None
+                }
+            })
+        )
+    }
+
+    #[test]
+    fn empty_block() {
+        let string = "";
+        let (_, res) = parse_block(Span::new(string)).unwrap();
+        assert_eq!(
+            res,
+            Block {
+                statements: vec![],
+                return_stmt: None
+            }
+        )
+    }
+
+    #[test]
+    fn test_while_stmt() {
+        let string = "while x < 3 do\n\nend";
+        let (_, res) = parse_statement(Span::new(string)).unwrap();
+        assert_eq!(
+            res,
+            Statement::While(While {
+                cond: Expression::BinaryOp(Box::new(BinaryOp {
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
+                        suffix_chain: vec![]
+                    })),
+                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    op: Operator::Lt
+                })),
+                block: Block {
+                    statements: vec![],
+                    return_stmt: None
+                }
+            })
+        )
+    }
+
+    #[test]
+    fn test_while_stmt2() {
+        let string = "while x < 3 do\nprint(\"Hello\")\nend";
+        let (_, res) = parse_statement(Span::new(string)).unwrap();
+        assert_eq!(
+            res,
+            Statement::While(While {
+                cond: Expression::BinaryOp(Box::new(BinaryOp {
+                    left: Expression::PrefixExpr(Box::new(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
+                        suffix_chain: vec![]
+                    })),
+                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    op: Operator::Lt
+                })),
+                block: Block {
+                    statements: vec![Statement::FuncCall(PrefixExpr {
+                        prefix: ExprOrVarname::Varname(Token::new("print", Span::new("print"))),
+                        suffix_chain: vec![ExprSuffix::FuncCall(Call {
+                            callee: None,
+                            args: vec![Expression::Literal(Literal::Str(Token::new(
+                                String::from("Hello"),
+                                Span::new("Hello")
+                            )))]
+                        })]
+                    })],
                     return_stmt: None
                 }
             })

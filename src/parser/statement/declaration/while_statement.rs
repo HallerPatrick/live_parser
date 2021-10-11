@@ -14,20 +14,22 @@ use nom::{
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct While<'a> {
-    cond: Expression<'a>,
-    block: Block<'a>,
+    pub cond: Expression<'a>,
+    pub block: Block<'a>,
 }
 
 pub fn parse_while(input: Span) -> Res<While> {
-    tuple((while_condition, terminated(parse_block, end)))(input).map(|(next_input, res)| {
-        (
-            next_input,
-            While {
-                cond: res.0,
-                block: res.1,
-            },
-        )
-    })
+    tuple((while_condition, terminated(parse_block, preceded(sp, end))))(input).map(
+        |(next_input, res)| {
+            (
+                next_input,
+                While {
+                    cond: res.0,
+                    block: res.1,
+                },
+            )
+        },
+    )
 }
 
 fn while_condition(input: Span) -> Res<Expression> {
@@ -56,7 +58,7 @@ mod tests {
 
     #[test]
     fn parse_while_condition() {
-        let string = "while x < 3 do";
+        let string = " while x < 3 do";
         let (_, res) = while_condition(Span::new(string)).unwrap();
 
         assert_eq!(
@@ -64,10 +66,7 @@ mod tests {
             Expression::BinaryOp(Box::new(BinaryOp {
                 op: Operator::Lt,
                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                    prefix: ExprOrVarname::Varname(Token::new(
-                        "x",
-                        Span::new("x")
-                    )),
+                    prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                     suffix_chain: vec![],
                 })),
                 right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
@@ -77,7 +76,7 @@ mod tests {
 
     #[test]
     fn parse_while_statement() {
-        let string = "while x < 3 do let z = x + 3\n let y = 3 \nend";
+        let string = "while x < 3 do \nlet z = x + 3\n let y = 3 \nend";
         let (_, res) = parse_while(Span::new(string)).unwrap();
 
         assert_eq!(
@@ -86,10 +85,7 @@ mod tests {
                 cond: Expression::BinaryOp(Box::new(BinaryOp {
                     op: Operator::Lt,
                     left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                        prefix: ExprOrVarname::Varname(Token::new(
-                            "x",
-                            Span::new("x")
-                        )),
+                        prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                         suffix_chain: vec![],
                     })),
                     right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
@@ -100,10 +96,7 @@ mod tests {
                             variable: Token::new("z", Span::new("z")),
                             expression: Expression::BinaryOp(Box::new(BinaryOp {
                                 left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                    prefix: ExprOrVarname::Varname(Token::new(
-                                        "x",
-                                        Span::new("x")
-                                    )),
+                                    prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                                     suffix_chain: vec![]
                                 })),
                                 op: Operator::Add,
