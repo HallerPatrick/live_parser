@@ -60,7 +60,7 @@
     <span class="kw">pub</span> <span class="ident">op</span>: <span class="ident">Operator</span>,
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_binary</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">BinaryOp</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_binary</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">BinaryOp</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Binary&quot;</span>,
         <span class="ident">tuple</span>((

@@ -179,7 +179,7 @@
 }
 
 <span class="doccomment">/// Parses the input inot a Import struct</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_import</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Import</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_import</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Import</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Import&quot;</span>,
         <span class="ident">preceded</span>(

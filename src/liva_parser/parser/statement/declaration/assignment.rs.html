@@ -101,8 +101,6 @@
 <span id="101">101</span>
 <span id="102">102</span>
 <span id="103">103</span>
-<span id="104">104</span>
-<span id="105">105</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">prefixexpr</span>, <span class="ident">Expression</span>, <span class="ident">PrefixExpr</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::tokens::llet</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
@@ -117,8 +115,6 @@
     <span class="ident">sequence</span>::{<span class="ident">preceded</span>, <span class="ident">separated_pair</span>},
 };
 
-<span class="doccomment">/// A assignment is a statement, while a re-assignemnt is an epression</span>
-<span class="doccomment">/// so we only parse a statement here, therefore is the let mandatory</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Assignment</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">variable</span>: <span class="ident">PrefixExpr</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
@@ -135,7 +131,7 @@
 
 <span class="doccomment">/// Assignment having following schema</span>
 <span class="doccomment">/// &lt;let-keyword&gt; &lt;variable&gt; = &lt;expression&gt;</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_assignment</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Assignment</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_assignment</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Assignment</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Assignment&quot;</span>,
         <span class="ident">preceded</span>(
@@ -160,7 +156,7 @@
 
 <span class="doccomment">/// Assignment having following schema</span>
 <span class="doccomment">/// &lt;let-keyword&gt; &lt;variable&gt; = &lt;expression&gt;</span>
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_lassignment</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">LAssignment</span><span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_lassignment</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">LAssignment</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;LAssignment&quot;</span>,
         <span class="ident">preceded</span>(

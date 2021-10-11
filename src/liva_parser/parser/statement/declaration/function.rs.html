@@ -284,7 +284,7 @@
 }
 
 <span class="doccomment">/// Parses a function declaration.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_function</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Function</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_function</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Function</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Func&quot;</span>,
         <span class="ident">terminated</span>(
@@ -304,7 +304,7 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">parse_function_name</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_function_name</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;FuncName&quot;</span>,
         <span class="ident">preceded</span>(
@@ -315,7 +315,7 @@
     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">fragment</span>()))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_function_arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_function_arguments</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;ParameterList&quot;</span>,
         <span class="ident">preceded</span>(

@@ -289,7 +289,7 @@
 }
 
 <span class="doccomment">/// Parses the input into a If struct</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_if</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">If</span><span class="op">&gt;</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_if</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">If</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;If&quot;</span>,
         <span class="ident">tuple</span>((
@@ -310,11 +310,11 @@
     })
 }
 
-<span class="kw">fn</span> <span class="ident">else_statements</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">else_statements</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Block</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(<span class="string">&quot;ElseStmt&quot;</span>, <span class="ident">preceded</span>(<span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">lelse</span>), <span class="ident">parse_block</span>))(<span class="ident">input</span>)
 }
 
-<span class="kw">fn</span> <span class="ident">if_condition</span>(<span class="ident">input</span>: <span class="ident">Span</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">if_condition</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;IfCond&quot;</span>,
         <span class="ident">delimited</span>(
