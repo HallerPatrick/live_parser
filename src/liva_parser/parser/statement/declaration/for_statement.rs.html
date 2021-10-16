@@ -134,9 +134,9 @@
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>, <span class="ident">PartialEq</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">For</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-    <span class="ident">iter_item</span>: <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">iterator</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
-    <span class="ident">block</span>: <span class="ident">Block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">iter_item</span>: <span class="ident">Variable</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">iterator</span>: <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">block</span>: <span class="ident">Block</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">parse_for</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">For</span><span class="op">&gt;</span> {
