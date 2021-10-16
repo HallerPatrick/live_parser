@@ -17,7 +17,6 @@ pub type Span<'a> = LocatedSpan<&'a str>;
 pub type Res<'a, O> = IResult<Span<'a>, O, VerboseError<Span<'a>>>;
 
 /// Entry point to the parser, which parse the liva language
-pub fn parse_source(input: Span) -> Block {
-    let (_, root) = parse_block(input).unwrap();
-    root
+pub fn parse_source(input: Span) -> Res<Block> {
+    parse_block(input)
 }

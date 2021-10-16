@@ -37,4 +37,11 @@ decoupling of the parser from the VM. When perfomance become critical/present, t
 * [ ] Annonymus functios?
 
 
+## Crashing snippets
 
+* TODO: Create automated running of the parser for a folder full of source files, they should all running        and return a valid and complete liva ast
+
+```Lua
+print(":")
+pritn("!")
+```
