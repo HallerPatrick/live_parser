@@ -85,12 +85,8 @@ pub(crate) fn parse_variable_raw(input: Span) -> Res<Span> {
 }
 
 pub(crate) fn parse_variable(input: Span) -> Res<Variable> {
-    parse_variable_raw(input).map(|(next_input, res)| {
-        (
-            next_input,
-            Token::new(*res.fragment(), res),
-        )
-    })
+    parse_variable_raw(input)
+        .map(|(next_input, res)| (next_input, Token::new(*res.fragment(), res)))
 }
 
 pub(crate) fn sp(input: Span) -> Res<&str> {
@@ -370,6 +366,20 @@ mod tests {
     }
 
     #[test]
+    fn parse_array_test1_rest() {
+        let string = "[1, \"String\", 1]\nprint(x)";
+        let (_, res) = parse_array(Span::new(string)).unwrap();
+        assert_eq!(
+            res,
+            Literal::Array(vec![
+                Literal::Num(Token::new(1.0, Span::new("1"))),
+                Literal::Str(Token::new(String::from("String"), Span::new("String"))),
+                Literal::Num(Token::new(1.0, Span::new("1"))),
+            ])
+        )
+    }
+
+    #[test]
     fn parse_array_map() {
         let string = "{}";
         let (_, res) = parse_map(Span::new(string)).unwrap();
@@ -403,29 +413,20 @@ mod tests {
     fn test_parse_variable() {
         let string = "hello123";
         let (_, res) = parse_variable(Span::new(string)).unwrap();
-        assert_eq!(
-            res,
-            Token::new("hello123", Span::new("hello123"))
-        );
+        assert_eq!(res, Token::new("hello123", Span::new("hello123")));
     }
 
     #[test]
     fn test_parse_variable_cap() {
         let string = "Hello123";
         let (_, res) = parse_variable(Span::new(string)).unwrap();
-        assert_eq!(
-            res,
-            Token::new("Hello123", Span::new("Hello123"))
-        );
+        assert_eq!(res, Token::new("Hello123", Span::new("Hello123")));
     }
 
     #[test]
     fn test_parse_variable_func() {
         let string = "hello()";
         let (_, res) = parse_variable(Span::new(string)).unwrap();
-        assert_eq!(
-            res,
-            Token::new("hello", Span::new("hello"))
-        );
+        assert_eq!(res, Token::new("hello", Span::new("hello")));
     }
 }

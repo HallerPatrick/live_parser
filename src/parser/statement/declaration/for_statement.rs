@@ -3,7 +3,6 @@ use nom::{
     sequence::{delimited, preceded, terminated, tuple},
 };
 
-use crate::literals::Literal;
 use crate::parser::expression::{parse_expression, Expression};
 use crate::parser::literals::sp;
 use crate::parser::literals::{parse_variable, Variable};
@@ -13,16 +12,16 @@ use crate::parser::{Res, Span};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct For<'a> {
-    iter_item: Variable<'a>,
-    iterator: Expression<'a>,
-    block: Block<'a>,
+    pub iter_item: Variable<'a>,
+    pub iterator: Expression<'a>,
+    pub block: Block<'a>,
 }
 
 pub fn parse_for(input: Span) -> Res<For> {
     tuple((
         parse_iter_item,
         parse_iterator,
-        terminated(parse_block, end),
+        terminated(parse_block, preceded(sp, end)),
     ))(input)
     .map(|(next_input, res)| {
         (
@@ -67,10 +66,7 @@ mod tests {
     fn test_parse_iter_item() {
         let string = "for item in iterator do";
         let (_, res) = parse_iter_item(Span::new(string)).unwrap();
-        assert_eq!(
-            res,
-            Token::new("item", Span::new("item"))
-        );
+        assert_eq!(res, Token::new("item", Span::new("item")));
     }
 
     #[test]
@@ -80,10 +76,7 @@ mod tests {
         assert_eq!(
             res,
             Expression::PrefixExpr(Box::new(PrefixExpr {
-                prefix: ExprOrVarname::Varname(Token::new(
-                    "iterator",
-                    Span::new("iterator")
-                )),
+                prefix: ExprOrVarname::Varname(Token::new("iterator", Span::new("iterator"))),
                 suffix_chain: vec![]
             }))
         );
@@ -91,7 +84,7 @@ mod tests {
 
     #[test]
     fn test_parse_for_loop() {
-        let string = "for x in y do \n let y = 3 \nend";
+        let string = "\nfor x in y do \n let y = 3 \nend";
         let (_, res) = parse_for(Span::new(string)).unwrap();
 
         assert_eq!(
@@ -99,10 +92,7 @@ mod tests {
             For {
                 iter_item: Token::new("x", Span::new("x")),
                 iterator: Expression::PrefixExpr(Box::new(PrefixExpr {
-                    prefix: ExprOrVarname::Varname(Token::new(
-                        "y",
-                        Span::new("y")
-                    )),
+                    prefix: ExprOrVarname::Varname(Token::new("y", Span::new("y"))),
                     suffix_chain: vec![]
                 })),
                 block: Block {
