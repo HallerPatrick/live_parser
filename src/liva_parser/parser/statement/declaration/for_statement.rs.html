@@ -109,22 +109,11 @@
 <span id="109">109</span>
 <span id="110">110</span>
 <span id="111">111</span>
-<span id="112">112</span>
-<span id="113">113</span>
-<span id="114">114</span>
-<span id="115">115</span>
-<span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident">nom</span>::{
     <span class="ident">error::context</span>,
     <span class="ident">sequence</span>::{<span class="ident">delimited</span>, <span class="ident">preceded</span>, <span class="ident">terminated</span>, <span class="ident">tuple</span>},
 };
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::literals::Literal</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">Expression</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals::sp</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser::literals</span>::{<span class="ident">parse_variable</span>, <span class="ident">Variable</span>};
@@ -143,7 +132,7 @@
     <span class="ident">tuple</span>((
         <span class="ident">parse_iter_item</span>,
         <span class="ident">parse_iterator</span>,
-        <span class="ident">terminated</span>(<span class="ident">parse_block</span>, <span class="ident">end</span>),
+        <span class="ident">terminated</span>(<span class="ident">parse_block</span>, <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">end</span>)),
     ))(<span class="ident">input</span>)
     .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> {
         (
@@ -188,10 +177,7 @@
     <span class="kw">fn</span> <span class="ident">test_parse_iter_item</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;for item in iterator do&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_iter_item</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>,
-            <span class="ident">Token::new</span>(<span class="string">&quot;item&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;item&quot;</span>))
-        );
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Token::new</span>(<span class="string">&quot;item&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;item&quot;</span>)));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -201,10 +187,7 @@
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
             <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Token::new</span>(
-                    <span class="string">&quot;iterator&quot;</span>,
-                    <span class="ident">Span::new</span>(<span class="string">&quot;iterator&quot;</span>)
-                )),
+                <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Token::new</span>(<span class="string">&quot;iterator&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;iterator&quot;</span>))),
                 <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
             }))
         );
@@ -212,7 +195,7 @@
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_for_loop</span>() {
-        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;for x in y do \n let y = 3 \nend&quot;</span>;
+        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;\nfor x in y do \n let y = 3 \nend&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_for</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
 
         <span class="macro">assert_eq!</span>(
@@ -220,10 +203,7 @@
             <span class="ident">For</span> {
                 <span class="ident">iter_item</span>: <span class="ident">Token::new</span>(<span class="string">&quot;x&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;x&quot;</span>)),
                 <span class="ident">iterator</span>: <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
-                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Token::new</span>(
-                        <span class="string">&quot;y&quot;</span>,
-                        <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>)
-                    )),
+                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Token::new</span>(<span class="string">&quot;y&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;y&quot;</span>))),
                     <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
                 })),
                 <span class="ident">block</span>: <span class="ident">Block</span> {

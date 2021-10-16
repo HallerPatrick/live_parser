@@ -429,6 +429,7 @@
 <span id="429">429</span>
 <span id="430">430</span>
 <span id="431">431</span>
+<span id="432">432</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all possible literals</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Span</span>;
@@ -516,12 +517,8 @@
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_variable</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Variable</span><span class="op">&gt;</span> {
-    <span class="ident">parse_variable_raw</span>(<span class="ident">input</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> {
-        (
-            <span class="ident">next_input</span>,
-            <span class="ident">Token::new</span>(<span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">fragment</span>(), <span class="ident">res</span>),
-        )
-    })
+    <span class="ident">parse_variable_raw</span>(<span class="ident">input</span>)
+        .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">Token::new</span>(<span class="kw-2">*</span><span class="ident">res</span>.<span class="ident">fragment</span>(), <span class="ident">res</span>)))
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">sp</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> {
@@ -801,6 +798,20 @@
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">parse_array_test1_rest</span>() {
+        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;[1, \&quot;String\&quot;, 1]\nprint(x)&quot;</span>;
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_array</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">res</span>,
+            <span class="ident">Literal::Array</span>(<span class="macro">vec!</span>[
+                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
+                <span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;String&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;String&quot;</span>))),
+                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
+            ])
+        )
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">parse_array_map</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_map</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
@@ -834,30 +845,21 @@
     <span class="kw">fn</span> <span class="ident">test_parse_variable</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello123&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_variable</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>,
-            <span class="ident">Token::new</span>(<span class="string">&quot;hello123&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello123&quot;</span>))
-        );
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Token::new</span>(<span class="string">&quot;hello123&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello123&quot;</span>)));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_variable_cap</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;Hello123&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_variable</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>,
-            <span class="ident">Token::new</span>(<span class="string">&quot;Hello123&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;Hello123&quot;</span>))
-        );
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Token::new</span>(<span class="string">&quot;Hello123&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;Hello123&quot;</span>)));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_parse_variable_func</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello()&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_variable</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(
-            <span class="ident">res</span>,
-            <span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))
-        );
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)));
     }
 }
 </code></pre></div>
