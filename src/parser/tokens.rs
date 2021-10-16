@@ -178,8 +178,8 @@ pub(crate) fn parse_binary_operator(input: Span) -> Res<Operator> {
         match *res.fragment() {
             "+" => (next_input, Operator::Add),
             "-" => (next_input, Operator::Sub),
-            "*" => (next_input, Operator::Div),
-            "/" => (next_input, Operator::Mul),
+            "*" => (next_input, Operator::Mul),
+            "/" => (next_input, Operator::Div),
             "==" => (next_input, Operator::EQ),
             "<" => (next_input, Operator::Lt),
             ">" => (next_input, Operator::Gt),

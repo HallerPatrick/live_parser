@@ -13,9 +13,9 @@ use crate::parser::{Res, Span};
 
 #[derive(Debug, PartialEq, Clone)]
 pub struct For<'a> {
-    iter_item: Variable<'a>,
-    iterator: Expression<'a>,
-    block: Block<'a>,
+    pub iter_item: Variable<'a>,
+    pub iterator: Expression<'a>,
+    pub block: Block<'a>,
 }
 
 pub fn parse_for(input: Span) -> Res<For> {
