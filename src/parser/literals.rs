@@ -1,17 +1,23 @@
 //! Collection of all possible literals
 
+use nom::sequence::delimited;
 use crate::Span;
 use std::borrow::Borrow;
 use std::collections::HashMap;
 
-use crate::parser::{comment::parse_comment, tokens::KEYWORDS, Res};
+use crate::parser::{
+    comment::parse_comment,
+    expression::{parse_expression, Expression},
+    tokens::KEYWORDS,
+    Res,
+};
 use nom::number::complete::recognize_float;
 use nom::{
     self,
     branch::alt,
     bytes::complete::{escaped, tag, tag_no_case, take_while},
     character::complete::char,
-    character::complete::{alpha1, alphanumeric1 as alphanumeric, one_of, space1},
+    character::complete::{alpha1, alphanumeric1 as alphanumeric, digit1, one_of, space1},
     combinator::{cut, map, opt, recognize},
     error::context,
     error_position,
@@ -40,10 +46,18 @@ pub enum Literal<'a> {
     Str(Token<'a, String>),
     Boolean(Token<'a, bool>),
     Nil(Span<'a>),
-    Num(Token<'a, f64>),
-    Array(Vec<Literal<'a>>),
-    Map(HashMap<String, Literal<'a>>),
-    // Variable(Token<'a, Identifier<'a>>),
+    Float(Token<'a, f64>),
+    Int(Token<'a, i32>), // Array(Vec<Literal<'a>>),
+                         // Map(HashMap<String, Literal<'a>>),
+                         // Variable(Token<'a, Identifier<'a>>)
+}
+
+/// Collections are seperated from literals, as they allow
+/// for expressions
+#[derive(Clone, Debug, PartialEq)]
+pub enum Collection<'a> {
+    Array(Vec<Expression<'a>>),
+    Map(HashMap<String, Expression<'a>>),
 }
 
 impl<'a, T> PartialEq for Token<'a, T>
@@ -129,11 +143,41 @@ fn parse_str(input: Span) -> Res<Literal> {
     })
 }
 
+fn parse_float(input: Span) -> Res<Literal> {
+    context(
+        "Float",
+        recognize(delimited(digit1, char('.'), digit1))
+    )(input).map(|(next_input, res)| {
+        (
+            next_input,
+            Literal::Float(Token::new(
+                res.parse::<f64>().expect("Could not parse float"),
+                res,
+            )),
+        )
+    })
+}
+
+fn parse_int(input: Span) -> Res<Literal> {
+    context(
+        "Int",
+        recognize(digit1)
+    )(input).map(|(next_input, res)| {
+        (
+            next_input,
+            Literal::Int(Token::new(
+                res.parse::<i32>().expect("Could not parse int"),
+                res,
+            )),
+        )
+    })
+}
+
 fn parse_num(input: Span) -> Res<Literal> {
     context("Num", recognize_float)(input).map(|(next_input, res)| {
         (
             next_input,
-            Literal::Num(Token::new(res.fragment().parse::<f64>().unwrap(), res)),
+            Literal::Float(Token::new(res.fragment().parse::<f64>().unwrap(), res)),
         )
     })
 }
@@ -157,31 +201,34 @@ fn parse_nil(input: Span) -> Res<Literal> {
         .map(|(next_input, res)| (next_input, Literal::Nil(res)))
 }
 
-// TODO: Not only literals, but also expressions are allowed in list
-fn parse_array(input: Span) -> Res<Literal> {
+fn parse_array(input: Span) -> Res<Collection> {
     context(
         "Array",
         preceded(
             char('['),
             cut(terminated(
-                separated_list0(preceded(sp, char(',')), parse_literal),
+                separated_list0(preceded(sp, char(',')), parse_expression),
                 preceded(sp, char(']')),
             )),
         ),
     )(input)
-    .map(|(next_input, res)| (next_input, Literal::Array(res)))
+    .map(|(next_input, res)| (next_input, Collection::Array(res)))
 }
 
-fn parse_key_value(input: Span) -> Res<(Span, Literal)> {
+pub(crate) fn parse_collection<'a>(input: Span<'a>) -> Res<Collection<'a>> {
+    context("Collection", preceded(sp, alt((parse_array, parse_map))))(input)
+}
+
+fn parse_key_value(input: Span) -> Res<(Span, Expression)> {
     separated_pair(
         preceded(sp, parse_str_raw),
         cut(preceded(sp, char(':'))),
-        parse_literal,
+        parse_expression,
     )(input)
 }
 
 // TODO: Not only literals, but also expressions are allowed in maps
-fn parse_map(input: Span) -> Res<Literal> {
+fn parse_map(input: Span) -> Res<Collection> {
     context(
         "Map",
         preceded(
@@ -200,7 +247,7 @@ fn parse_map(input: Span) -> Res<Literal> {
             )),
         ),
     )(input)
-    .map(|(next_input, res)| (next_input, Literal::Map(res)))
+    .map(|(next_input, res)| (next_input, Collection::Map(res)))
 }
 
 pub(crate) fn parse_literal<'a>(input: Span<'a>) -> Res<Literal<'a>> {
@@ -211,10 +258,11 @@ pub(crate) fn parse_literal<'a>(input: Span<'a>) -> Res<Literal<'a>> {
             alt((
                 parse_nil,
                 parse_boolean,
-                parse_num,
+                parse_float,
+                parse_int,
                 parse_str,
-                parse_array,
-                parse_map,
+                // parse_array,
+                // parse_map,
             )),
         ),
     )(input)
@@ -224,6 +272,8 @@ pub(crate) fn parse_literal<'a>(input: Span<'a>) -> Res<Literal<'a>> {
 mod tests {
 
     use super::*;
+    use crate::expression::ExprOrVarname;
+    use crate::expression::PrefixExpr;
 
     #[test]
     fn test_token() {
@@ -325,16 +375,16 @@ mod tests {
     #[test]
     fn parse_num_test() {
         let string = "1.1";
-        let (_, res) = parse_num(Span::new(string)).unwrap();
-        assert_eq!(res, Literal::Num(Token::new(1.1, Span::new("1.1"))));
+        let (_, res) = parse_literal(Span::new(string)).unwrap();
+        assert_eq!(res, Literal::Float(Token::new(1.1, Span::new("1.1"))));
 
         let string = "123.0";
-        let (_, res) = parse_num(Span::new(string)).unwrap();
-        assert_eq!(res, Literal::Num(Token::new(123.0, Span::new("123.0"))));
+        let (_, res) = parse_literal(Span::new(string)).unwrap();
+        assert_eq!(res, Literal::Float(Token::new(123.0, Span::new("123.0"))));
 
         let string = "1";
-        let (_, res) = parse_num(Span::new(string)).unwrap();
-        assert_eq!(res, Literal::Num(Token::new(1.0, Span::new("1"))));
+        let (_, res) = parse_literal(Span::new(string)).unwrap();
+        assert_eq!(res, Literal::Int(Token::new(1, Span::new("1"))));
     }
 
     #[test]
@@ -343,10 +393,10 @@ mod tests {
         let (_, res) = parse_array(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Array(vec![
-                Literal::Num(Token::new(1.0, Span::new("1"))),
-                Literal::Num(Token::new(1.0, Span::new("1"))),
-                Literal::Num(Token::new(1.0, Span::new("1")))
+            Collection::Array(vec![
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1"))))
             ])
         )
     }
@@ -357,10 +407,13 @@ mod tests {
         let (_, res) = parse_array(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Array(vec![
-                Literal::Num(Token::new(1.0, Span::new("1"))),
-                Literal::Str(Token::new(String::from("String"), Span::new("String"))),
-                Literal::Num(Token::new(1.0, Span::new("1"))),
+            Collection::Array(vec![
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
+                Expression::Literal(Literal::Str(Token::new(
+                    String::from("String"),
+                    Span::new("String")
+                ))),
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
             ])
         )
     }
@@ -371,10 +424,13 @@ mod tests {
         let (_, res) = parse_array(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Literal::Array(vec![
-                Literal::Num(Token::new(1.0, Span::new("1"))),
-                Literal::Str(Token::new(String::from("String"), Span::new("String"))),
-                Literal::Num(Token::new(1.0, Span::new("1"))),
+            Collection::Array(vec![
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
+                Expression::Literal(Literal::Str(Token::new(
+                    String::from("String"),
+                    Span::new("String")
+                ))),
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
             ])
         )
     }
@@ -383,7 +439,7 @@ mod tests {
     fn parse_array_map() {
         let string = "{}";
         let (_, res) = parse_map(Span::new(string)).unwrap();
-        assert_eq!(res, Literal::Map(HashMap::new()));
+        assert_eq!(res, Collection::Map(HashMap::new()));
     }
 
     #[test]
@@ -393,13 +449,13 @@ mod tests {
         let mut hm = HashMap::new();
         hm.insert(
             String::from("Helllo"),
-            Literal::Num(Token::new(2.0, Span::new("2"))),
+            Expression::Literal(Literal::Int(Token::new(2, Span::new("2")))),
         );
         hm.insert(
             String::from("World"),
-            Literal::Num(Token::new(3.0, Span::new("3"))),
+            Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
         );
-        assert_eq!(res, Literal::Map(hm));
+        assert_eq!(res, Collection::Map(hm));
     }
 
     #[test]
@@ -428,5 +484,23 @@ mod tests {
         let string = "hello()";
         let (_, res) = parse_variable(Span::new(string)).unwrap();
         assert_eq!(res, Token::new("hello", Span::new("hello")));
+    }
+
+    #[test]
+    fn test_parse_array_expr() {
+        let string = "[1, 2, hello]";
+        let (_, res) = parse_array(Span::new(string)).unwrap();
+
+        assert_eq!(
+            res,
+            Collection::Array(vec![
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("1"))),),
+                Expression::Literal(Literal::Int(Token::new(2, Span::new("2"))),),
+                Expression::PrefixExpr(Box::new(PrefixExpr {
+                    prefix: ExprOrVarname::Varname(Token::new("hello", Span::new("hello"))),
+                    suffix_chain: vec![]
+                }))
+            ])
+        )
     }
 }

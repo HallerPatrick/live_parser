@@ -95,8 +95,8 @@ mod tests {
                         return_stmt: None,
                         statements: vec![Statement::LAssignment(LAssignment {
                             variable: Token::new("some", Span::new("some")),
-                            expression: Expression::Literal(Literal::Num(Token::new(
-                                1.0,
+                            expression: Expression::Literal(Literal::Int(Token::new(
+                                1,
                                 Span::new("1")
                             )))
                         })]

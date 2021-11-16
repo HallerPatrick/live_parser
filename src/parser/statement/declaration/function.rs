@@ -24,7 +24,6 @@ use crate::parser::{
     Res, Span,
 };
 
-use crate::literals::Literal;
 use nom::{
     character::complete::char,
     error::context,
@@ -195,23 +194,20 @@ mod tests {
                     statements: vec![Statement::If(If {
                         cond: Expression::BinaryOp(Box::new(BinaryOp {
                             left: Expression::PrefixExpr(Box::new(PrefixExpr {
-                                prefix: ExprOrVarname::Varname(Token::new(
-                                    "n",
-                                    Span::new("n")
-                                )),
+                                prefix: ExprOrVarname::Varname(Token::new("n", Span::new("n"))),
                                 suffix_chain: vec![]
                             })),
                             op: Operator::EQ,
-                            right: Expression::Literal(Literal::Num(Token::new(
-                                0.0,
+                            right: Expression::Literal(Literal::Int(Token::new(
+                                0,
                                 Span::new("0")
                             )))
                         })),
                         stmts: Block {
                             statements: vec![],
                             return_stmt: Some(ReturnStmt {
-                                values: vec![Expression::Literal(Literal::Num(Token::new(
-                                    0.0,
+                                values: vec![Expression::Literal(Literal::Int(Token::new(
+                                    0,
                                     Span::new("0")
                                 )))]
                             })

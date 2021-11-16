@@ -3,9 +3,9 @@
 pub mod binary;
 pub mod call;
 
-use crate::literals::Variable;
+use crate::literals::{Collection, Variable};
 use crate::parser::{
-    literals::{parse_literal, parse_variable, sp, Literal},
+    literals::{parse_collection, parse_literal, parse_variable, sp, Literal},
     tokens::{
         dot, left_bracket, left_paren, parse_binary_operator, parse_unary_operator, right_bracket,
         right_paren, Operator, UnOperator, BINOP_PRECEDENCE, UNOPS,
@@ -32,11 +32,13 @@ pub enum Expression<'a> {
     BinaryOp(Box<BinaryOp<'a>>),
     UnaryOp(Box<UnaryOp<'a>>),
     PrefixExpr(Box<PrefixExpr<'a>>),
+    Collection(Collection<'a>),
 }
 
 #[derive(Clone, PartialEq, Debug)]
 pub(crate) enum Expression2<'a> {
     Literal(Literal<'a>),
+    Collection(Collection<'a>),
     PrefixExpr(PrefixExpr<'a>),
 }
 
@@ -58,6 +60,7 @@ pub(crate) fn parse_expression2(input: Span) -> Res<Expression2> {
                 // The order is important
                 // TODO: Figure out if we need to parse literals, this is done by prefixexpr
                 map(parse_literal, Expression2::Literal),
+                map(parse_collection, Expression2::Collection),
                 map(prefixexpr, Expression2::PrefixExpr),
             )),
         ),
@@ -129,6 +132,7 @@ pub enum ExprOrVarname<'a> {
     Varname(Variable<'a>),
 }
 
+#[derive(Clone, Debug, PartialEq)]
 struct FlatExpr<'a>(Vec<OpOrExp2<'a>>);
 
 #[derive(Clone, Debug, PartialEq)]
@@ -159,6 +163,7 @@ impl<'a> OpOrExp<'a> {
 
 impl<'a> From<FlatExpr<'a>> for Expression<'a> {
     fn from(fe: FlatExpr<'a>) -> Expression<'a> {
+        // println!("{:#?}", fe);
         // Helper function. Expects a,b to be Exps and o to be a BinOp
         fn merge_nodes_binop<'a>(a: OpOrExp<'a>, o: OpOrExp<'a>, b: OpOrExp<'a>) -> OpOrExp<'a> {
             match (a, o, b) {
@@ -377,6 +382,7 @@ impl<'a> From<Expression2<'a>> for Expression<'a> {
     fn from(e: Expression2<'a>) -> Expression<'a> {
         match e {
             Expression2::Literal(l) => Expression::Literal(l),
+            Expression2::Collection(l) => Expression::Collection(l),
             Expression2::PrefixExpr(p) => Expression::PrefixExpr(Box::new(p)),
         }
     }
@@ -387,7 +393,7 @@ mod tests {
 
     use super::*;
 
-    use crate::parser::literals::Token;
+    use crate::parser::literals::{Collection, Token};
 
     #[test]
     fn test_parse_head() {
@@ -451,7 +457,7 @@ mod tests {
         let (_, res) = parse_expression(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
+            Expression::Literal(Literal::Int(Token::new(3, Span::new("3"))))
         )
     }
 
@@ -463,7 +469,7 @@ mod tests {
             res,
             Expression::BinaryOp(Box::new(BinaryOp {
                 op: Operator::Lt,
-                left: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                left: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                 right: Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                     suffix_chain: vec![]
@@ -483,7 +489,7 @@ mod tests {
         let left = Expression::PrefixExpr(Box::new(PrefixExpr {
             prefix: ExprOrVarname::Exp(Expression::BinaryOp(Box::new(BinaryOp {
                 op: Operator::Lt,
-                left: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                left: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                 right: Expression::PrefixExpr(Box::new(PrefixExpr {
                     prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                     suffix_chain: vec![],
@@ -532,8 +538,8 @@ mod tests {
             Expression::PrefixExpr(Box::new(PrefixExpr {
                 prefix: ExprOrVarname::Exp(Expression::BinaryOp(Box::new(BinaryOp {
                     op: Operator::Add,
-                    left: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
-                    right: Expression::Literal(Literal::Num(Token::new(4.0, Span::new("4")))),
+                    left: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
+                    right: Expression::Literal(Literal::Int(Token::new(4, Span::new("4")))),
                 }))),
                 suffix_chain: vec![]
             }))
@@ -552,7 +558,7 @@ mod tests {
                     prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                     suffix_chain: vec![]
                 })),
-                right: Expression::Literal(Literal::Num(Token::new(4.0, Span::new("4")))),
+                right: Expression::Literal(Literal::Int(Token::new(4, Span::new("4")))),
             }))
         )
     }
@@ -563,11 +569,11 @@ mod tests {
         let (_, res) = parse_expression(Span::new(string)).unwrap();
         assert_eq!(
             res,
-            Expression::Literal(Literal::Array(vec![
-                Literal::Num(Token::new(1.0, Span::new("3"))),
-                Literal::Num(Token::new(2.0, Span::new("3"))),
-                Literal::Num(Token::new(3.0, Span::new("3"))),
-                Literal::Num(Token::new(4.0, Span::new("3")))
+            Expression::Collection(Collection::Array(vec![
+                Expression::Literal(Literal::Int(Token::new(1, Span::new("3")))),
+                Expression::Literal(Literal::Int(Token::new(2, Span::new("3")))),
+                Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
+                Expression::Literal(Literal::Int(Token::new(4, Span::new("3"))))
             ]))
         )
     }

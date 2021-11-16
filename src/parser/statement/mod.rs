@@ -103,7 +103,7 @@ pub fn parse_block(input: Span) -> Res<Block> {
 ///     res,
 ///     Statement::LAssignment(LAssignment {
 ///         variable: Token::new("x", Span::new("x")),
-///         expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
+///         expression: Expression::Literal(Literal::Int(Token::new(3, Span::new("3"))))
 ///     })
 /// );
 /// ```
@@ -184,7 +184,7 @@ mod tests {
     fn ass_x_eq_3() -> Statement<'static> {
         Statement::LAssignment(LAssignment {
             variable: Token::new("x", Span::new("x")),
-            expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+            expression: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
         })
     }
 
@@ -196,7 +196,7 @@ mod tests {
             res,
             Statement::LAssignment(LAssignment {
                 variable: Token::new("x", Span::new("x")),
-                expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3.0"))))
+                expression: Expression::Literal(Literal::Int(Token::new(3, Span::new("3.0"))))
             })
         );
     }
@@ -234,7 +234,7 @@ mod tests {
                         prefix: ExprOrVarname::Varname(Token::new("hello", Span::new("hello"))),
                         suffix_chain: vec![]
                     })),
-                    Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
+                    Expression::Literal(Literal::Int(Token::new(3, Span::new("3"))))
                 ]
             }
         )
@@ -284,8 +284,8 @@ mod tests {
                                 prefix: ExprOrVarname::Varname(Token::new("n", Span::new("n"))),
                                 suffix_chain: vec![]
                             })),
-                            right: Expression::Literal(Literal::Num(Token::new(
-                                1.0,
+                            right: Expression::Literal(Literal::Int(Token::new(
+                                1,
                                 Span::new("1")
                             )))
                         }))]
@@ -337,7 +337,7 @@ mod tests {
                         prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                         suffix_chain: vec![]
                     })),
-                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    right: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                     op: Operator::Lt
                 })),
                 block: Block {
@@ -360,7 +360,7 @@ mod tests {
                         prefix: ExprOrVarname::Varname(Token::new("x", Span::new("x"))),
                         suffix_chain: vec![]
                     })),
-                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    right: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                     op: Operator::Lt
                 })),
                 block: Block {

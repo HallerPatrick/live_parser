@@ -103,7 +103,7 @@ mod tests {
                     suffix_chain: vec![],
                 })),
                 op: Operator::Lt,
-                right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                right: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
             }))
         )
     }
@@ -125,7 +125,7 @@ mod tests {
                         suffix_chain: vec![],
                     })),
                     op: Operator::Lt,
-                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    right: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                 })),
                 stmts: Block {
                     statements: vec![
@@ -140,16 +140,16 @@ mod tests {
                                     suffix_chain: vec![],
                                 })),
                                 op: Operator::Add,
-                                right: Expression::Literal(Literal::Num(Token::new(
-                                    3.0,
+                                right: Expression::Literal(Literal::Int(Token::new(
+                                    3,
                                     Span::new("3")
                                 ))),
                             })),
                         }),
                         Statement::LAssignment(LAssignment {
                             variable: Token::new("y", Span::new("y")),
-                            expression: Expression::Literal(Literal::Num(Token::new(
-                                3.0,
+                            expression: Expression::Literal(Literal::Int(Token::new(
+                                3,
                                 Span::new("3")
                             ))),
                         }),
@@ -178,13 +178,13 @@ mod tests {
                         suffix_chain: vec![],
                     })),
                     op: Operator::Lt,
-                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    right: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                 })),
                 stmts: Block {
                     statements: vec![],
                     return_stmt: Some(ReturnStmt {
-                        values: vec![Expression::Literal(Literal::Num(Token::new(
-                            0.0,
+                        values: vec![Expression::Literal(Literal::Int(Token::new(
+                            0,
                             Span::new("0")
                         )))],
                     }),
@@ -204,8 +204,8 @@ mod tests {
             Block {
                 statements: vec![],
                 return_stmt: Some(ReturnStmt {
-                    values: vec![Expression::Literal(Literal::Num(Token::new(
-                        0.0,
+                    values: vec![Expression::Literal(Literal::Int(Token::new(
+                        0,
                         Span::new("0")
                     )))],
                 }),
@@ -230,7 +230,7 @@ mod tests {
                         suffix_chain: vec![],
                     })),
                     op: Operator::Lt,
-                    right: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3")))),
+                    right: Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
                 })),
                 stmts: Block {
                     statements: vec![],
@@ -239,8 +239,8 @@ mod tests {
                 else_statements: Some(Block {
                     statements: vec![],
                     return_stmt: Some(ReturnStmt {
-                        values: vec![Expression::Literal(Literal::Num(Token::new(
-                            0.0,
+                        values: vec![Expression::Literal(Literal::Int(Token::new(
+                            0,
                             Span::new("0")
                         )))],
                     }),

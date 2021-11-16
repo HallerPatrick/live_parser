@@ -1,9 +1,8 @@
-/// Run all liva source code examples from the examples directory.
-
-use std::fs;
-use std::path::PathBuf;
 use liva_parser::parse_source;
 use liva_parser::Span;
+/// Run all liva source code examples from the examples directory.
+use std::fs;
+use std::path::PathBuf;
 
 /// This test only checks if the parser does not crash
 /// Not if the ast is correct
@@ -17,10 +16,10 @@ fn run_all_examples() {
             examples.push(path);
         }
     }
-    let mut examples: Vec<&PathBuf> = examples.iter().filter(|path| {
-        path.extension().is_some() && path.extension().unwrap() == "lv"
-    }
-    ).collect();
+    let mut examples: Vec<&PathBuf> = examples
+        .iter()
+        .filter(|path| path.extension().is_some() && path.extension().unwrap() == "lv")
+        .collect();
     examples.sort();
 
     println!("Running {} examples", examples.len());
@@ -28,6 +27,11 @@ fn run_all_examples() {
         let source: String = fs::read_to_string(example.clone()).unwrap();
         println!("Testing example file: {}", example.display());
         let ast = parse_source(Span::new(source.as_str()));
+
+        if !ast.is_ok() {
+            println!("{:?}", ast);
+        }
+
         assert_eq!(ast.is_ok(), true);
     }
 }

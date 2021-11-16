@@ -76,6 +76,7 @@ define_token! {
     {sub, "Sub", "-"},
     {mul, "Mul", "*"},
     {div, "Div", "/"},
+    {modulo, "Modulu", "%"},
     {equal, "Equal", "=="},
     {unequal, "Unequal", "!="},
     {dot, "Dot", "."},
@@ -171,6 +172,7 @@ pub(crate) fn parse_binary_operator(input: Span) -> Res<Operator> {
                 greater_eq_than,
                 less_eq_than,
                 land,
+                modulo,
             )),
         ),
     )(input)
@@ -180,6 +182,7 @@ pub(crate) fn parse_binary_operator(input: Span) -> Res<Operator> {
             "-" => (next_input, Operator::Sub),
             "*" => (next_input, Operator::Mul),
             "/" => (next_input, Operator::Div),
+            "%" => (next_input, Operator::Mod),
             "==" => (next_input, Operator::EQ),
             "<" => (next_input, Operator::Lt),
             ">" => (next_input, Operator::Gt),
@@ -207,5 +210,6 @@ pub(crate) fn parse_tokens(input: Span) -> Res<Span> {
         greater_than,
         less_eq_than,
         greater_eq_than,
+        modulo,
     ))(input)
 }

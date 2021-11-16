@@ -5,7 +5,6 @@ use crate::parser::{
     Res, Span,
 };
 
-use crate::literals::Literal;
 use nom::{
     character::complete::char,
     error::context,
@@ -86,7 +85,7 @@ mod tests {
 
     use crate::literals::Token;
     use crate::parser::expression::Expression;
-    use crate::parser::literals::Literal;
+    use crate::parser::literals::{Collection, Literal};
 
     #[test]
     fn test_assignment() {
@@ -96,7 +95,25 @@ mod tests {
             res,
             LAssignment {
                 variable: Token::new("x", Span::new("x")),
-                expression: Expression::Literal(Literal::Num(Token::new(3.0, Span::new("3"))))
+                expression: Expression::Literal(Literal::Int(Token::new(3, Span::new("3"))))
+            }
+        );
+    }
+
+    #[test]
+    fn test_assignment_list() {
+        let string = "let x = [1, 2, 3]\nlet x = 1";
+        let (rest, res) = parse_lassignment(Span::new(string)).unwrap();
+        println!("{}", rest);
+        assert_eq!(
+            res,
+            LAssignment {
+                variable: Token::new("x", Span::new("x")),
+                expression: Expression::Collection(Collection::Array(vec![
+                    Expression::Literal(Literal::Int(Token::new(1, Span::new("1")))),
+                    Expression::Literal(Literal::Int(Token::new(2, Span::new("2")))),
+                    Expression::Literal(Literal::Int(Token::new(3, Span::new("3")))),
+                ]))
             }
         );
     }

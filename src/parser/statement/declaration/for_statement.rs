@@ -98,8 +98,8 @@ mod tests {
                 block: Block {
                     statements: vec![Statement::LAssignment(LAssignment {
                         variable: Token::new("y", Span::new("y")),
-                        expression: Expression::Literal(Literal::Num(Token::new(
-                            3.0,
+                        expression: Expression::Literal(Literal::Int(Token::new(
+                            3,
                             Span::new("3")
                         )))
                     })],

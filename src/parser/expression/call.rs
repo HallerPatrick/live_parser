@@ -10,7 +10,7 @@ use nom::{
 use super::{parse_expression, Expression};
 
 use crate::parser::{
-    literals::{parse_literal, sp, Literal},
+    literals::sp,
     tokens::{comma, left_paren, right_paren},
     Res, Span,
 };
