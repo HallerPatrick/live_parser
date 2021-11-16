@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;parser&#x2F;literals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>literals.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../liva_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;parser&#x2F;literals.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>literals.rs - source</title><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><style type="text/css">#crate-search{background-image:url("../../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../../liva_parser/index.html'><div class='logo-container rust-logo'><img src='../../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -430,20 +430,100 @@
 <span id="430">430</span>
 <span id="431">431</span>
 <span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Collection of all possible literals</span>
 
+<span class="kw">use</span> <span class="ident">nom::sequence::delimited</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Span</span>;
 <span class="kw">use</span> <span class="ident">std::borrow::Borrow</span>;
 <span class="kw">use</span> <span class="ident">std::collections::HashMap</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{<span class="ident">comment::parse_comment</span>, <span class="ident">tokens::KEYWORDS</span>, <span class="ident">Res</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::parser</span>::{
+    <span class="ident">comment::parse_comment</span>,
+    <span class="ident">expression</span>::{<span class="ident">parse_expression</span>, <span class="ident">Expression</span>},
+    <span class="ident">tokens::KEYWORDS</span>,
+    <span class="ident">Res</span>,
+};
 <span class="kw">use</span> <span class="ident">nom::number::complete::recognize_float</span>;
 <span class="kw">use</span> <span class="ident">nom</span>::{
     <span class="self">self</span>,
     <span class="ident">branch::alt</span>,
     <span class="ident">bytes::complete</span>::{<span class="ident">escaped</span>, <span class="ident">tag</span>, <span class="ident">tag_no_case</span>, <span class="ident">take_while</span>},
     <span class="ident">character::complete::char</span>,
-    <span class="ident">character::complete</span>::{<span class="ident">alpha1</span>, <span class="ident">alphanumeric1</span> <span class="kw">as</span> <span class="ident">alphanumeric</span>, <span class="ident">one_of</span>, <span class="ident">space1</span>},
+    <span class="ident">character::complete</span>::{<span class="ident">alpha1</span>, <span class="ident">alphanumeric1</span> <span class="kw">as</span> <span class="ident">alphanumeric</span>, <span class="ident">digit1</span>, <span class="ident">one_of</span>, <span class="ident">space1</span>},
     <span class="ident">combinator</span>::{<span class="ident">cut</span>, <span class="ident">map</span>, <span class="ident">opt</span>, <span class="ident">recognize</span>},
     <span class="ident">error::context</span>,
     <span class="ident">error_position</span>,
@@ -472,10 +552,18 @@
     <span class="ident">Str</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">String</span><span class="op">&gt;</span>),
     <span class="ident">Boolean</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">bool</span><span class="op">&gt;</span>),
     <span class="ident">Nil</span>(<span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>),
-    <span class="ident">Num</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">f64</span><span class="op">&gt;</span>),
-    <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="ident">Map</span>(<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
-    <span class="comment">// Variable(Token&lt;&#39;a, Identifier&lt;&#39;a&gt;&gt;),</span>
+    <span class="ident">Float</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">f64</span><span class="op">&gt;</span>),
+    <span class="ident">Int</span>(<span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">i32</span><span class="op">&gt;</span>), <span class="comment">// Array(Vec&lt;Literal&lt;&#39;a&gt;&gt;),</span>
+                         <span class="comment">// Map(HashMap&lt;String, Literal&lt;&#39;a&gt;&gt;),</span>
+                         <span class="comment">// Variable(Token&lt;&#39;a, Identifier&lt;&#39;a&gt;&gt;)</span>
+}
+
+<span class="doccomment">/// Collections are seperated from literals, as they allow</span>
+<span class="doccomment">/// for expressions</span>
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Collection</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="ident">Array</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
+    <span class="ident">Map</span>(<span class="ident">HashMap</span><span class="op">&lt;</span><span class="ident">String</span>, <span class="ident">Expression</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span> <span class="ident">PartialEq</span> <span class="kw">for</span> <span class="ident">Token</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span>, <span class="ident">T</span><span class="op">&gt;</span>
@@ -561,11 +649,41 @@
     })
 }
 
+<span class="kw">fn</span> <span class="ident">parse_float</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&gt;</span> {
+    <span class="ident">context</span>(
+        <span class="string">&quot;Float&quot;</span>,
+        <span class="ident">recognize</span>(<span class="ident">delimited</span>(<span class="ident">digit1</span>, <span class="ident">char</span>(<span class="string">&#39;.&#39;</span>), <span class="ident">digit1</span>))
+    )(<span class="ident">input</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> {
+        (
+            <span class="ident">next_input</span>,
+            <span class="ident">Literal::Float</span>(<span class="ident">Token::new</span>(
+                <span class="ident">res</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;Could not parse float&quot;</span>),
+                <span class="ident">res</span>,
+            )),
+        )
+    })
+}
+
+<span class="kw">fn</span> <span class="ident">parse_int</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&gt;</span> {
+    <span class="ident">context</span>(
+        <span class="string">&quot;Int&quot;</span>,
+        <span class="ident">recognize</span>(<span class="ident">digit1</span>)
+    )(<span class="ident">input</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> {
+        (
+            <span class="ident">next_input</span>,
+            <span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(
+                <span class="ident">res</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span>().<span class="ident">expect</span>(<span class="string">&quot;Could not parse int&quot;</span>),
+                <span class="ident">res</span>,
+            )),
+        )
+    })
+}
+
 <span class="kw">fn</span> <span class="ident">parse_num</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(<span class="string">&quot;Num&quot;</span>, <span class="ident">recognize_float</span>)(<span class="ident">input</span>).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> {
         (
             <span class="ident">next_input</span>,
-            <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="ident">res</span>.<span class="ident">fragment</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="ident">res</span>)),
+            <span class="ident">Literal::Float</span>(<span class="ident">Token::new</span>(<span class="ident">res</span>.<span class="ident">fragment</span>().<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>(), <span class="ident">res</span>)),
         )
     })
 }
@@ -589,31 +707,34 @@
         .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">Literal::Nil</span>(<span class="ident">res</span>)))
 }
 
-<span class="comment">// TODO: Not only literals, but also expressions are allowed in list</span>
-<span class="kw">fn</span> <span class="ident">parse_array</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_array</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Collection</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Array&quot;</span>,
         <span class="ident">preceded</span>(
             <span class="ident">char</span>(<span class="string">&#39;[&#39;</span>),
             <span class="ident">cut</span>(<span class="ident">terminated</span>(
-                <span class="ident">separated_list0</span>(<span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">char</span>(<span class="string">&#39;,&#39;</span>)), <span class="ident">parse_literal</span>),
+                <span class="ident">separated_list0</span>(<span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">char</span>(<span class="string">&#39;,&#39;</span>)), <span class="ident">parse_expression</span>),
                 <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">char</span>(<span class="string">&#39;]&#39;</span>)),
             )),
         ),
     )(<span class="ident">input</span>)
-    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">Literal::Array</span>(<span class="ident">res</span>)))
+    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">Collection::Array</span>(<span class="ident">res</span>)))
 }
 
-<span class="kw">fn</span> <span class="ident">parse_key_value</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span>(<span class="ident">Span</span>, <span class="ident">Literal</span>)<span class="op">&gt;</span> {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_collection</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Collection</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="ident">context</span>(<span class="string">&quot;Collection&quot;</span>, <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">alt</span>((<span class="ident">parse_array</span>, <span class="ident">parse_map</span>))))(<span class="ident">input</span>)
+}
+
+<span class="kw">fn</span> <span class="ident">parse_key_value</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span>(<span class="ident">Span</span>, <span class="ident">Expression</span>)<span class="op">&gt;</span> {
     <span class="ident">separated_pair</span>(
         <span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">parse_str_raw</span>),
         <span class="ident">cut</span>(<span class="ident">preceded</span>(<span class="ident">sp</span>, <span class="ident">char</span>(<span class="string">&#39;:&#39;</span>))),
-        <span class="ident">parse_literal</span>,
+        <span class="ident">parse_expression</span>,
     )(<span class="ident">input</span>)
 }
 
 <span class="comment">// TODO: Not only literals, but also expressions are allowed in maps</span>
-<span class="kw">fn</span> <span class="ident">parse_map</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&gt;</span> {
+<span class="kw">fn</span> <span class="ident">parse_map</span>(<span class="ident">input</span>: <span class="ident">Span</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Collection</span><span class="op">&gt;</span> {
     <span class="ident">context</span>(
         <span class="string">&quot;Map&quot;</span>,
         <span class="ident">preceded</span>(
@@ -632,7 +753,7 @@
             )),
         ),
     )(<span class="ident">input</span>)
-    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">Literal::Map</span>(<span class="ident">res</span>)))
+    .<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">next_input</span>, <span class="ident">res</span>)<span class="op">|</span> (<span class="ident">next_input</span>, <span class="ident">Collection::Map</span>(<span class="ident">res</span>)))
 }
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">fn</span> <span class="ident">parse_literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>(<span class="ident">input</span>: <span class="ident">Span</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) -&gt; <span class="ident">Res</span><span class="op">&lt;</span><span class="ident">Literal</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span> {
@@ -643,10 +764,11 @@
             <span class="ident">alt</span>((
                 <span class="ident">parse_nil</span>,
                 <span class="ident">parse_boolean</span>,
-                <span class="ident">parse_num</span>,
+                <span class="ident">parse_float</span>,
+                <span class="ident">parse_int</span>,
                 <span class="ident">parse_str</span>,
-                <span class="ident">parse_array</span>,
-                <span class="ident">parse_map</span>,
+                <span class="comment">// parse_array,</span>
+                <span class="comment">// parse_map,</span>
             )),
         ),
     )(<span class="ident">input</span>)
@@ -656,6 +778,8 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::expression::ExprOrVarname</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::expression::PrefixExpr</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_token</span>() {
@@ -757,16 +881,16 @@
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">parse_num_test</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;1.1&quot;</span>;
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_num</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1.1&quot;</span>))));
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_literal</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Float</span>(<span class="ident">Token::new</span>(<span class="number">1.1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1.1&quot;</span>))));
 
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;123.0&quot;</span>;
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_num</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">123.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;123.0&quot;</span>))));
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_literal</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Float</span>(<span class="ident">Token::new</span>(<span class="number">123.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;123.0&quot;</span>))));
 
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;1&quot;</span>;
-        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_num</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))));
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_literal</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -775,10 +899,10 @@
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_array</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="ident">Literal::Array</span>(<span class="macro">vec!</span>[
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))
+            <span class="ident">Collection::Array</span>(<span class="macro">vec!</span>[
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))))
             ])
         )
     }
@@ -789,10 +913,13 @@
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_array</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="ident">Literal::Array</span>(<span class="macro">vec!</span>[
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
-                <span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;String&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;String&quot;</span>))),
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
+            <span class="ident">Collection::Array</span>(<span class="macro">vec!</span>[
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">String::from</span>(<span class="string">&quot;String&quot;</span>),
+                    <span class="ident">Span::new</span>(<span class="string">&quot;String&quot;</span>)
+                ))),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))),
             ])
         )
     }
@@ -803,10 +930,13 @@
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_array</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(
             <span class="ident">res</span>,
-            <span class="ident">Literal::Array</span>(<span class="macro">vec!</span>[
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
-                <span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(<span class="ident">String::from</span>(<span class="string">&quot;String&quot;</span>), <span class="ident">Span::new</span>(<span class="string">&quot;String&quot;</span>))),
-                <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">1.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),
+            <span class="ident">Collection::Array</span>(<span class="macro">vec!</span>[
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Str</span>(<span class="ident">Token::new</span>(
+                    <span class="ident">String::from</span>(<span class="string">&quot;String&quot;</span>),
+                    <span class="ident">Span::new</span>(<span class="string">&quot;String&quot;</span>)
+                ))),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>)))),
             ])
         )
     }
@@ -815,7 +945,7 @@
     <span class="kw">fn</span> <span class="ident">parse_array_map</span>() {
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;{}&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_map</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Map</span>(<span class="ident">HashMap::new</span>()));
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Collection::Map</span>(<span class="ident">HashMap::new</span>()));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -825,13 +955,13 @@
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">hm</span> <span class="op">=</span> <span class="ident">HashMap::new</span>();
         <span class="ident">hm</span>.<span class="ident">insert</span>(
             <span class="ident">String::from</span>(<span class="string">&quot;Helllo&quot;</span>),
-            <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">2.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;2&quot;</span>))),
+            <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">2</span>, <span class="ident">Span::new</span>(<span class="string">&quot;2&quot;</span>)))),
         );
         <span class="ident">hm</span>.<span class="ident">insert</span>(
             <span class="ident">String::from</span>(<span class="string">&quot;World&quot;</span>),
-            <span class="ident">Literal::Num</span>(<span class="ident">Token::new</span>(<span class="number">3.0</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>))),
+            <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">3</span>, <span class="ident">Span::new</span>(<span class="string">&quot;3&quot;</span>)))),
         );
-        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Literal::Map</span>(<span class="ident">hm</span>));
+        <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Collection::Map</span>(<span class="ident">hm</span>));
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -860,6 +990,24 @@
         <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;hello()&quot;</span>;
         <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_variable</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">res</span>, <span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>)));
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_parse_array_expr</span>() {
+        <span class="kw">let</span> <span class="ident">string</span> <span class="op">=</span> <span class="string">&quot;[1, 2, hello]&quot;</span>;
+        <span class="kw">let</span> (<span class="kw">_</span>, <span class="ident">res</span>) <span class="op">=</span> <span class="ident">parse_array</span>(<span class="ident">Span::new</span>(<span class="ident">string</span>)).<span class="ident">unwrap</span>();
+
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">res</span>,
+            <span class="ident">Collection::Array</span>(<span class="macro">vec!</span>[
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">1</span>, <span class="ident">Span::new</span>(<span class="string">&quot;1&quot;</span>))),),
+                <span class="ident">Expression::Literal</span>(<span class="ident">Literal::Int</span>(<span class="ident">Token::new</span>(<span class="number">2</span>, <span class="ident">Span::new</span>(<span class="string">&quot;2&quot;</span>))),),
+                <span class="ident">Expression::PrefixExpr</span>(<span class="ident">Box::new</span>(<span class="ident">PrefixExpr</span> {
+                    <span class="ident">prefix</span>: <span class="ident">ExprOrVarname::Varname</span>(<span class="ident">Token::new</span>(<span class="string">&quot;hello&quot;</span>, <span class="ident">Span::new</span>(<span class="string">&quot;hello&quot;</span>))),
+                    <span class="ident">suffix_chain</span>: <span class="macro">vec!</span>[]
+                }))
+            ])
+        )
     }
 }
 </code></pre></div>

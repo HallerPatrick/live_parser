@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Literal",""]],"struct":[["Token",""]],"type":[["Identifier","Contains the name of a identifier, which has to start with letter, but can contain numbers and underscores"],["Variable",""]]});
+initSidebarItems({"enum":[["Collection","Collections are seperated from literals, as they allow for expressions"],["Literal",""]],"struct":[["Token",""]],"type":[["Identifier","Contains the name of a identifier, which has to start with letter, but can contain numbers and underscores"],["Variable",""]]});
