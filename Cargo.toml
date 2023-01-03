@@ -10,7 +10,7 @@ path = "src/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nom = "7.0.0"
+nom = "7.1.2"
 nom_locate = "4.0.0"
 lazy_static = "1.4.0"
 pretty-trait = "^0.1.2"
